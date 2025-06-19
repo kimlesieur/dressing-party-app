@@ -1,20 +1,26 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ScrollView, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Camera, Image as ImageIcon, X, Check } from 'lucide-react-native';
+import { useAuth } from '@/hooks/useAuth';
+import { ClothingService } from '@/services/clothing';
+import { ClothingItem } from '@/types/firebase';
 import * as ImagePicker from 'expo-image-picker';
+import { router } from 'expo-router';
+import { Camera, Check, Image as ImageIcon, X } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AddClothingScreen() {
+  const { user } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [clothingData, setClothingData] = useState({
+  const [clothingData, setClothingData] = useState<Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'>>({
     name: '',
     type: '',
     subCategory: '',
-    seasons: [] as string[],
-    colors: [] as string[],
+    seasons: [],
+    colors: [],
     brand: '',
     notes: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const clothingTypes = [
     { id: 'tops', name: 'Hauts', subCategories: ['T-shirt', 'Chemise', 'Pull', 'Débardeur', 'Sweat'] },
@@ -95,28 +101,58 @@ export default function AddClothingScreen() {
     }));
   };
 
-  const handleSave = () => {
+  const convertImageToBlob = async (uri: string): Promise<Blob> => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    return blob;
+  };
+
+  const handleSave = async () => {
     if (!selectedImage || !clothingData.name || !clothingData.type) {
       Alert.alert('Informations manquantes', 'Veuillez ajouter au minimum une photo, un nom et un type de vêtement.');
       return;
     }
 
-    // Ici on sauvegarderait les données
-    Alert.alert('Succès', 'Votre vêtement a été ajouté à votre dressing !', [
-      { text: 'OK', onPress: () => {
-        // Reset form
-        setSelectedImage(null);
-        setClothingData({
-          name: '',
-          type: '',
-          subCategory: '',
-          seasons: [],
-          colors: [],
-          brand: '',
-          notes: '',
-        });
-      }}
-    ]);
+    if (!user) {
+      Alert.alert('Erreur', 'Vous devez être connecté pour ajouter un vêtement.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      // Convert image to blob
+      const imageBlob = await convertImageToBlob(selectedImage);
+
+      // Add clothing item - we pass clothingData directly as it already has the correct structure
+      await ClothingService.addClothingItem(user.uid, clothingData, imageBlob);
+
+      Alert.alert('Succès', 'Votre vêtement a été ajouté à votre dressing !', [
+        { 
+          text: 'OK', 
+          onPress: () => {
+            // Reset form
+            setSelectedImage(null);
+            setClothingData({
+              name: '',
+              type: '',
+              subCategory: '',
+              seasons: [],
+              colors: [],
+              brand: '',
+              notes: '',
+            });
+            // Navigate back to dressing
+            router.push('/(tabs)/dressing');
+          }
+        }
+      ]);
+    } catch (error) {
+      console.error('Error adding clothing item:', error);
+      Alert.alert('Erreur', 'Une erreur est survenue lors de l\'ajout du vêtement. Veuillez réessayer.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const selectedType = clothingTypes.find(t => t.id === clothingData.type);
@@ -283,9 +319,19 @@ export default function AddClothingScreen() {
 
         {/* Save Button */}
         <View style={styles.saveContainer}>
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Check size={24} color="#FFFFFF" />
-            <Text style={styles.saveButtonText}>Ajouter à mon dressing</Text>
+          <TouchableOpacity 
+            style={[styles.saveButton, isLoading && styles.disabledButton]} 
+            onPress={handleSave}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <>
+                <Check size={24} color="#FFFFFF" />
+                <Text style={styles.saveButtonText}>Ajouter à mon dressing</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -474,5 +520,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
     marginLeft: 8,
+  },
+  disabledButton: {
+    backgroundColor: '#E5E7EB',
   },
 });
