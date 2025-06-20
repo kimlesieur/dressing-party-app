@@ -5,10 +5,11 @@ import { Grid2x2 as Grid, List, Search } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, {
+  Extrapolate,
+  interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -20,34 +21,25 @@ export default function DressingScreen() {
   
   const { data: clothes = [], isLoading, isError, error } = useGetUserClothing(user?.uid || '');
 
-  const lastContentOffset = useSharedValue(0);
-  const isScrollingDown = useSharedValue(false);
+  const scrollY = useSharedValue(0);
   const headerHeight = useSharedValue(0);
   const insets = useSafeAreaInsets();
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
-      if (event.contentOffset.y > lastContentOffset.value && event.contentOffset.y > headerHeight.value) {
-        isScrollingDown.value = true;
-      } else {
-        isScrollingDown.value = false;
-      }
-      lastContentOffset.value = event.contentOffset.y;
-    },
-    onBeginDrag: (e) => {
-      lastContentOffset.value = e.contentOffset.y;
+      scrollY.value = event.contentOffset.y;
     },
   });
 
   const animatedHeaderStyle = useAnimatedStyle(() => {
+    const translateY = interpolate(
+      scrollY.value,
+      [0, headerHeight.value],
+      [0, -headerHeight.value],
+      Extrapolate.CLAMP
+    );
     return {
-      transform: [
-        {
-          translateY: withTiming(isScrollingDown.value ? -headerHeight.value : 0, {
-            duration: 300,
-          }),
-        },
-      ],
+      transform: [{ translateY }],
       position: 'absolute',
       top: 0,
       left: 0,
@@ -59,9 +51,9 @@ export default function DressingScreen() {
     };
   });
 
-  const animatedContentContainerStyle = useAnimatedStyle(() => {
+  const spacerStyle = useAnimatedStyle(() => {
     return {
-      paddingTop: headerHeight.value
+      height: headerHeight.value,
     };
   });
 
@@ -81,19 +73,56 @@ export default function DressingScreen() {
 
   return (
     <View style={styles.container}>
+      <Animated.ScrollView
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+      >
+        <Animated.View style={spacerStyle} />
+        {isLoading ? (
+          <View style={styles.centered}>
+            <ActivityIndicator size="large" color="#8B5CF6" />
+          </View>
+        ) : isError ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateTitle}>Erreur</Text>
+            <Text style={styles.emptyStateText}>{error?.message || 'Erreur lors du chargement des vêtements.'}</Text>
+          </View>
+        ) : (
+          <>
+            {filteredClothes.length > 0 ? (
+              viewMode === 'grid' ? (
+                <View style={styles.grid}>
+                  {filteredClothes.map(item => <ClothingCard item={item} viewMode="grid" key={item.id} />)}
+                </View>
+              ) : (
+                <View style={styles.list}>
+                  {filteredClothes.map(item => <ClothingCard item={item} viewMode="list" key={item.id} />)}
+                </View>
+              )
+            ) : (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateTitle}>Aucun vêtement trouvé</Text>
+                <Text style={styles.emptyStateText}>
+                  Essayez de modifier vos filtres ou ajoutez de nouveaux vêtements à votre dressing.
+                </Text>
+              </View>
+            )}
+          </>
+        )}
+      </Animated.ScrollView>
+
       <Animated.View 
-        style={animatedHeaderStyle}
+        style={animatedHeaderStyle} 
         onLayout={(event) => {
           headerHeight.value = event.nativeEvent.layout.height;
         }}
       >
-        {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Mon Dressing</Text>
           <Text style={styles.subtitle}>{filteredClothes.length} vêtements</Text>
         </View>
 
-        {/* Search Bar and View Toggle */}
         <View style={styles.searchContainer}>
           <View style={styles.searchBar}>
             <Search size={20} color="#9CA3AF" />
@@ -110,7 +139,6 @@ export default function DressingScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Filters */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersContainer} contentContainerStyle={{ alignItems: 'center' }}>
           {filters.map((filter) => (
             <TouchableOpacity
@@ -125,45 +153,6 @@ export default function DressingScreen() {
           ))}
         </ScrollView>
       </Animated.View>
-
-      {/* Content */}
-      {isLoading ? (
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#8B5CF6" />
-        </View>
-      ) : isError ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyStateTitle}>Erreur</Text>
-          <Text style={styles.emptyStateText}>{error?.message || 'Erreur lors du chargement des vêtements.'}</Text>
-        </View>
-      ) : (
-        <Animated.ScrollView 
-          style={styles.content} 
-          showsVerticalScrollIndicator={false}
-          onScroll={scrollHandler}
-          scrollEventThrottle={16}
-          contentContainerStyle={animatedContentContainerStyle}
-        >
-          {filteredClothes.length > 0 ? (
-            viewMode === 'grid' ? (
-              <View style={styles.grid}>
-                {filteredClothes.map(item => <ClothingCard item={item} viewMode="grid" key={item.id} />)}
-              </View>
-            ) : (
-              <View style={styles.list}>
-                {filteredClothes.map(item => <ClothingCard item={item} viewMode="list" key={item.id} />)}
-              </View>
-            )
-          ) : (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateTitle}>Aucun vêtement trouvé</Text>
-              <Text style={styles.emptyStateText}>
-                Essayez de modifier vos filtres ou ajoutez de nouveaux vêtements à votre dressing.
-              </Text>
-            </View>
-          )}
-        </Animated.ScrollView>
-      )}
     </View>
   );
 }
@@ -255,18 +244,16 @@ const styles = StyleSheet.create({
   activeFilterText: {
     color: '#FFFFFF',
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20, // Added here
-  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     paddingBottom: 20,
+    paddingHorizontal: 20,
   },
   list: {
     paddingBottom: 20,
+    paddingHorizontal: 20,
   },
   emptyState: {
     alignItems: 'center',

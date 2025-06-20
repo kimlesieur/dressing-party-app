@@ -14,12 +14,12 @@ const clothingKeys = {
 export function useGetUserClothing(userId: string) {
   return useQuery({
     queryKey: clothingKeys.list(userId),
-    // queryFn: () => ClothingService.getUserClothing(userId),
-    queryFn: async () => {
-      console.log('Using mock clothing data');
-      await new Promise(resolve => setTimeout(resolve, 500));
-      return MOCK_CLOTHES;
-    },
+    queryFn: () => ClothingService.getUserClothing(userId),
+    // queryFn: async () => {
+    //   console.log('Using mock clothing data');
+    //   await new Promise(resolve => setTimeout(resolve, 500));
+    //   return MOCK_CLOTHES;
+    // },
     enabled: !!userId,
   });
 }
