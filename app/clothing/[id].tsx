@@ -1,8 +1,9 @@
+import { OptimizedImage } from '@/components/OptimizedImage';
 import { useGetClothingItem } from '@/hooks/useClothing';
 import { Feather } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ClothingDetailScreen() {
@@ -42,7 +43,7 @@ export default function ClothingDetailScreen() {
         }}
       />
       <ScrollView>
-        <Image source={{ uri: clothingItem.imageUrl }} style={styles.image} />
+        <OptimizedImage uri={clothingItem.imageUrl} style={styles.image} />
         <View style={styles.detailsContainer}>
           <Text style={styles.name}>{clothingItem.name}</Text>
           <Text style={styles.brand}>{clothingItem.brand}</Text>

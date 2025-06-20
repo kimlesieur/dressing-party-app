@@ -1,7 +1,8 @@
+import { OptimizedImage } from '@/components/OptimizedImage';
+import { Bookmark, Heart, MessageCircle, Share, TrendingUp, Users } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, RefreshControl } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Heart, MessageCircle, Share, Bookmark, TrendingUp, Users } from 'lucide-react-native';
 
 export default function InspirationsScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -126,7 +127,7 @@ export default function InspirationsScreen() {
             {/* User Header */}
             <View style={styles.postHeader}>
               <View style={styles.userInfo}>
-                <Image source={{ uri: post.user.avatar }} style={styles.userAvatar} />
+                <OptimizedImage uri={post.user.avatar} style={styles.userAvatar} />
                 <View style={styles.userDetails}>
                   <Text style={styles.userName}>{post.user.name}</Text>
                   <Text style={styles.userStats}>
@@ -140,7 +141,7 @@ export default function InspirationsScreen() {
             </View>
 
             {/* Outfit Image */}
-            <Image source={{ uri: post.image }} style={styles.postImage} />
+            <OptimizedImage uri={post.image} style={styles.postImage} />
 
             {/* Post Actions */}
             <View style={styles.postActions}>

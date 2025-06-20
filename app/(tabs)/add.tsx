@@ -5,8 +5,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { Camera, Check, Image as ImageIcon, X } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { OptimizedImage } from '@/components/OptimizedImage';
 
 export default function AddClothingScreen() {
   const { user } = useAuth();
@@ -171,7 +173,7 @@ export default function AddClothingScreen() {
           <Text style={styles.sectionTitle}>Photo du vêtement *</Text>
           {selectedImage ? (
             <View style={styles.imageContainer}>
-              <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
+              <OptimizedImage uri={selectedImage} style={styles.selectedImage} />
               <TouchableOpacity 
                 style={styles.removeImageButton}
                 onPress={() => setSelectedImage(null)}

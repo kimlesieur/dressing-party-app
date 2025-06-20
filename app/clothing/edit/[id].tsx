@@ -1,3 +1,4 @@
+import { OptimizedImage } from '@/components/OptimizedImage';
 import { useAuth } from '@/hooks/useAuth';
 import { useGetClothingItem, useUpdateClothingItem } from '@/hooks/useClothing';
 import { ClothingItem } from '@/types/firebase';
@@ -5,7 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Camera, Image as ImageIcon, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type ClothingFormData = Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'>;
@@ -142,7 +143,7 @@ export default function EditClothingScreen() {
           <Text style={styles.sectionTitle}>Photo *</Text>
           {selectedImage && (
             <View style={styles.imageContainer}>
-              <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
+              <OptimizedImage uri={selectedImage} style={styles.selectedImage} />
               <TouchableOpacity style={styles.removeImageButton} onPress={() => setSelectedImage(null)}>
                 <X size={20} color="#FFFFFF" />
               </TouchableOpacity>

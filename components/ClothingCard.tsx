@@ -2,7 +2,8 @@ import { ClothingItem } from '@/types/firebase';
 import { useRouter } from 'expo-router';
 import { Heart } from 'lucide-react-native';
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { OptimizedImage } from './OptimizedImage';
 
 interface ClothingCardProps {
   item: ClothingItem;
@@ -37,7 +38,7 @@ export function ClothingCard({ item, viewMode }: ClothingCardProps) {
     return (
       <TouchableOpacity onPress={onPress} style={styles.gridItem}>
         <View style={styles.imageContainer}>
-          <Image source={{ uri: item.imageUrl }} style={styles.gridItemImage} />
+          <OptimizedImage uri={item.imageUrl} style={styles.gridItemImage} />
           <TouchableOpacity style={styles.favoriteButton}>
             <Heart size={16} color={'#9CA3AF'} fill={'transparent'} />
           </TouchableOpacity>
@@ -60,7 +61,7 @@ export function ClothingCard({ item, viewMode }: ClothingCardProps) {
 
   return (
     <TouchableOpacity onPress={onPress} style={styles.listItem}>
-      <Image source={{ uri: item.imageUrl }} style={styles.listItemImage} />
+      <OptimizedImage uri={item.imageUrl} style={styles.listItemImage} />
       <View style={styles.listItemInfo}>
         <Text style={styles.listItemName}>{item.name}</Text>
         <Text style={styles.listItemDetails}>{item.brand} • {item.type}</Text>

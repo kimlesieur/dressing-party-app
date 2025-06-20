@@ -1,8 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { OptimizedImage } from '@/components/OptimizedImage';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as LucideIcons from 'lucide-react-native';
+import React from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const todayWeather = {
@@ -66,7 +67,7 @@ export default function HomeScreen() {
             <Text style={styles.sectionTitle}>Tenue suggérée</Text>
           </View>
           <TouchableOpacity style={styles.outfitCard}>
-            <Image source={{ uri: suggestedOutfit.image }} style={styles.outfitImage} />
+            <OptimizedImage uri={suggestedOutfit.image} style={styles.outfitImage} />
             <View style={styles.outfitInfo}>
               <Text style={styles.outfitName}>{suggestedOutfit.name}</Text>
               <Text style={styles.outfitItems}>
@@ -112,7 +113,7 @@ export default function HomeScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recentItems}>
             {recentItems.map((item) => (
               <TouchableOpacity key={item.id} style={styles.recentItem}>
-                <Image source={{ uri: item.image }} style={styles.recentItemImage} />
+                <OptimizedImage uri={item.image} style={styles.recentItemImage} />
                 <Text style={styles.recentItemName}>{item.name}</Text>
               </TouchableOpacity>
             ))}
