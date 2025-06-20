@@ -175,7 +175,7 @@ export default function InspirationsScreen() {
             {/* Post Info */}
             <View style={styles.postInfo}>
               <Text style={styles.likesCount}>
-                {post.likes + (likedPosts.includes(post.id) ? 1 : 0)} j'aime
+                {post.likes + (likedPosts.includes(post.id) ? 1 : 0)} j&apos;aime
               </Text>
               <View style={styles.postContent}>
                 <Text style={styles.outfitName}>{post.outfitName}</Text>
@@ -201,7 +201,7 @@ export default function InspirationsScreen() {
 
         {/* Load More */}
         <TouchableOpacity style={styles.loadMoreButton}>
-          <Text style={styles.loadMoreText}>Voir plus d'inspirations</Text>
+          <Text style={styles.loadMoreText}>Voir plus d&apos;inspirations</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
