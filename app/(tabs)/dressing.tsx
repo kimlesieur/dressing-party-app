@@ -4,6 +4,12 @@ import { useGetUserClothing } from '@/hooks/useClothing';
 import { Grid2x2 as Grid, List, Search } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import Animated, {
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DressingScreen() {
@@ -13,6 +19,49 @@ export default function DressingScreen() {
   const [activeFilter, setActiveFilter] = useState('Tous');
   
   const { data: clothes = [], isLoading, isError, error } = useGetUserClothing(user?.uid || '');
+
+  const lastContentOffset = useSharedValue(0);
+  const isScrollingDown = useSharedValue(false);
+  const headerHeight = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      if (event.contentOffset.y > lastContentOffset.value && event.contentOffset.y > headerHeight.value) {
+        isScrollingDown.value = true;
+      } else {
+        isScrollingDown.value = false;
+      }
+      lastContentOffset.value = event.contentOffset.y;
+    },
+    onBeginDrag: (e) => {
+      lastContentOffset.value = e.contentOffset.y;
+    },
+  });
+
+  const animatedHeaderStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: withTiming(isScrollingDown.value ? -headerHeight.value : 0, {
+            duration: 300,
+          }),
+        },
+      ],
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 10,
+      backgroundColor: '#F8FAFC',
+      paddingHorizontal: 20,
+    };
+  });
+
+  const animatedContentContainerStyle = useAnimatedStyle(() => {
+    return {
+      paddingTop: headerHeight.value
+    };
+  });
 
   const filters = ['Tous', 'Hauts', 'Bas', 'Robes', 'Chaussures', 'Accessoires'];
 
@@ -30,43 +79,50 @@ export default function DressingScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Mon Dressing</Text>
-        <Text style={styles.subtitle}>{filteredClothes.length} vêtements</Text>
-      </View>
-
-      {/* Search Bar and View Toggle */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
-          <Search size={20} color="#9CA3AF" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Rechercher dans ma garde-robe..."
-            value={searchText}
-            onChangeText={setSearchText}
-            placeholderTextColor="#9CA3AF"
-          />
+      <Animated.View 
+        style={animatedHeaderStyle}
+        onLayout={(event) => {
+          headerHeight.value = event.nativeEvent.layout.height;
+        }}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Mon Dressing</Text>
+          <Text style={styles.subtitle}>{filteredClothes.length} vêtements</Text>
         </View>
-        <TouchableOpacity style={styles.viewToggle} onPress={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}>
-          {viewMode === 'grid' ? <List size={24} color="#8B5CF6" /> : <Grid size={24} color="#8B5CF6" />}
-        </TouchableOpacity>
-      </View>
 
-      {/* Filters */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersContainer} contentContainerStyle={{ alignItems: 'center' }}>
-        {filters.map((filter) => (
-          <TouchableOpacity
-            key={filter}
-            style={[styles.filterChip, activeFilter === filter && styles.activeFilterChip]}
-            onPress={() => setActiveFilter(filter)}
-          >
-            <Text style={[styles.filterText, activeFilter === filter && styles.activeFilterText]}>
-              {filter}
-            </Text>
+        {/* Search Bar and View Toggle */}
+        <View style={styles.searchContainer}>
+          <View style={styles.searchBar}>
+            <Search size={20} color="#9CA3AF" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Rechercher dans ma garde-robe..."
+              value={searchText}
+              onChangeText={setSearchText}
+              placeholderTextColor="#9CA3AF"
+            />
+          </View>
+          <TouchableOpacity style={styles.viewToggle} onPress={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}>
+            {viewMode === 'grid' ? <List size={24} color="#8B5CF6" /> : <Grid size={24} color="#8B5CF6" />}
           </TouchableOpacity>
-        ))}
-      </ScrollView>
+        </View>
+
+        {/* Filters */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersContainer} contentContainerStyle={{ alignItems: 'center' }}>
+          {filters.map((filter) => (
+            <TouchableOpacity
+              key={filter}
+              style={[styles.filterChip, activeFilter === filter && styles.activeFilterChip]}
+              onPress={() => setActiveFilter(filter)}
+            >
+              <Text style={[styles.filterText, activeFilter === filter && styles.activeFilterText]}>
+                {filter}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </Animated.View>
 
       {/* Content */}
       {isLoading ? (
@@ -79,7 +135,13 @@ export default function DressingScreen() {
           <Text style={styles.emptyStateText}>{error?.message || 'Erreur lors du chargement des vêtements.'}</Text>
         </View>
       ) : (
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <Animated.ScrollView 
+          style={styles.content} 
+          showsVerticalScrollIndicator={false}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          contentContainerStyle={animatedContentContainerStyle}
+        >
           {filteredClothes.length > 0 ? (
             viewMode === 'grid' ? (
               <View style={styles.grid}>
@@ -98,7 +160,7 @@ export default function DressingScreen() {
               </Text>
             </View>
           )}
-        </ScrollView>
+        </Animated.ScrollView>
       )}
     </SafeAreaView>
   );
@@ -108,10 +170,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20, // Removed to be handled by animated header
   },
   header: {
     paddingBottom: 20,
+    paddingTop: 10, // Added padding top for better spacing
   },
   title: {
     fontSize: 28,
@@ -169,13 +232,13 @@ const styles = StyleSheet.create({
   },
   filtersContainer: {
     marginBottom: 10,
-    maxHeight: 35,
+    maxHeight: 40, // increased height
   },
   filterChip: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 5,
+    paddingVertical: 8, // increased padding
     marginRight: 12,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -194,6 +257,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    paddingHorizontal: 20, // Added here
   },
   grid: {
     flexDirection: 'row',

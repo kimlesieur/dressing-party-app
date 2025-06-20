@@ -1,3 +1,4 @@
+import { MOCK_CLOTHES } from '@/config/mock';
 import { ClothingService } from '@/services/clothing';
 import { ClothingItem } from '@/types/firebase';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -13,7 +14,12 @@ const clothingKeys = {
 export function useGetUserClothing(userId: string) {
   return useQuery({
     queryKey: clothingKeys.list(userId),
-    queryFn: () => ClothingService.getUserClothing(userId),
+    // queryFn: () => ClothingService.getUserClothing(userId),
+    queryFn: async () => {
+      console.log('Using mock clothing data');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return MOCK_CLOTHES;
+    },
     enabled: !!userId,
   });
 }
