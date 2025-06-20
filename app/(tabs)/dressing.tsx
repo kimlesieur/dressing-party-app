@@ -1,93 +1,56 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput } from 'react-native';
+import { useAuth } from '@/hooks/useAuth';
+import { ClothingService } from '@/services/clothing';
+import { ClothingItem } from '@/types/firebase';
+import { CreditCard as Edit, Grid2x2 as Grid, Heart, List, Search } from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Search, Filter, Grid2x2 as Grid, List, Heart, CreditCard as Edit } from 'lucide-react-native';
 
 export default function DressingScreen() {
+  const { user } = useAuth();
   const [searchText, setSearchText] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [activeFilter, setActiveFilter] = useState('Tous');
+  const [clothes, setClothes] = useState<ClothingItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const filters = ['Tous', 'Hauts', 'Bas', 'Robes', 'Chaussures', 'Accessoires'];
-  
-  const clothes = [
-    {
-      id: 1,
-      name: 'Robe d\'été fleurie',
-      category: 'Robes',
-      season: ['Printemps', 'Été'],
-      colors: ['Rose', 'Blanc'],
-      brand: 'Zara',
-      image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=400',
-      favorite: true,
-    },
-    {
-      id: 2,
-      name: 'Blazer noir classique',
-      category: 'Hauts',
-      season: ['Automne', 'Hiver'],
-      colors: ['Noir'],
-      brand: 'Mango',
-      image: 'https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=400',
-      favorite: false,
-    },
-    {
-      id: 3,
-      name: 'Jean slim délavé',
-      category: 'Bas',
-      season: ['Toutes'],
-      colors: ['Bleu'],
-      brand: 'Levi\'s',
-      image: 'https://images.pexels.com/photos/1598507/pexels-photo-1598507.jpeg?auto=compress&cs=tinysrgb&w=400',
-      favorite: true,
-    },
-    {
-      id: 4,
-      name: 'Chemise blanche',
-      category: 'Hauts',
-      season: ['Toutes'],
-      colors: ['Blanc'],
-      brand: 'Uniqlo',
-      image: 'https://images.pexels.com/photos/1852382/pexels-photo-1852382.jpeg?auto=compress&cs=tinysrgb&w=400',
-      favorite: false,
-    },
-    {
-      id: 5,
-      name: 'Escarpins nude',
-      category: 'Chaussures',
-      season: ['Printemps', 'Été'],
-      colors: ['Beige'],
-      brand: 'Zara',
-      image: 'https://images.pexels.com/photos/336372/pexels-photo-336372.jpeg?auto=compress&cs=tinysrgb&w=400',
-      favorite: true,
-    },
-    {
-      id: 6,
-      name: 'Pull en laine gris',
-      category: 'Hauts',
-      season: ['Automne', 'Hiver'],
-      colors: ['Gris'],
-      brand: 'H&M',
-      image: 'https://images.pexels.com/photos/7679720/pexels-photo-7679720.jpeg?auto=compress&cs=tinysrgb&w=400',
-      favorite: false,
-    },
-  ];
+
+  useEffect(() => {
+    if (!user) return;
+    setLoading(true);
+    setError(null);
+    ClothingService.getUserClothing(user.uid)
+      .then(setClothes)
+      .catch((err) => {
+        setError('Erreur lors du chargement des vêtements.');
+        console.error(err);
+      })
+      .finally(() => setLoading(false));
+  }, [user]);
 
   const filteredClothes = clothes.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchText.toLowerCase());
-    const matchesFilter = activeFilter === 'Tous' || item.category === activeFilter;
+    const matchesFilter =
+      activeFilter === 'Tous' ||
+      (activeFilter === 'Hauts' && item.type === 'tops') ||
+      (activeFilter === 'Bas' && item.type === 'bottoms') ||
+      (activeFilter === 'Robes' && item.type === 'dresses') ||
+      (activeFilter === 'Chaussures' && item.type === 'shoes') ||
+      (activeFilter === 'Accessoires' && item.type === 'accessories');
     return matchesSearch && matchesFilter;
   });
 
-  const renderGridItem = (item: typeof clothes[0]) => (
+  const renderGridItem = (item: ClothingItem) => (
     <TouchableOpacity key={item.id} style={styles.gridItem}>
       <View style={styles.imageContainer}>
-        <Image source={{ uri: item.image }} style={styles.gridItemImage} />
+        <Image source={{ uri: item.imageUrl }} style={styles.gridItemImage} />
         <TouchableOpacity style={styles.favoriteButton}>
           <Heart 
             size={16} 
-            color={item.favorite ? '#EC4899' : '#9CA3AF'} 
-            fill={item.favorite ? '#EC4899' : 'transparent'} 
+            color={'#9CA3AF'} 
+            fill={'transparent'} 
           />
         </TouchableOpacity>
       </View>
@@ -106,20 +69,20 @@ export default function DressingScreen() {
     </TouchableOpacity>
   );
 
-  const renderListItem = (item: typeof clothes[0]) => (
+  const renderListItem = (item: ClothingItem) => (
     <TouchableOpacity key={item.id} style={styles.listItem}>
-      <Image source={{ uri: item.image }} style={styles.listItemImage} />
+      <Image source={{ uri: item.imageUrl }} style={styles.listItemImage} />
       <View style={styles.listItemInfo}>
         <Text style={styles.listItemName}>{item.name}</Text>
-        <Text style={styles.listItemDetails}>{item.brand} • {item.category}</Text>
-        <Text style={styles.listItemSeasons}>{item.season.join(', ')}</Text>
+        <Text style={styles.listItemDetails}>{item.brand} • {item.type}</Text>
+        <Text style={styles.listItemSeasons}>{item.seasons?.join(', ')}</Text>
       </View>
       <View style={styles.listItemActions}>
         <TouchableOpacity style={styles.actionButton}>
           <Heart 
             size={20} 
-            color={item.favorite ? '#EC4899' : '#9CA3AF'} 
-            fill={item.favorite ? '#EC4899' : 'transparent'} 
+            color={'#9CA3AF'} 
+            fill={'transparent'} 
           />
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
@@ -140,6 +103,8 @@ export default function DressingScreen() {
       'Rose': '#EC4899',
       'Beige': '#D97706',
       'Marron': '#92400E',
+      'Jaune': '#F59E0B',
+      'Multicolore': '#8B5CF6',
     };
     return colors[colorName] || '#9CA3AF';
   };
@@ -189,26 +154,36 @@ export default function DressingScreen() {
       </ScrollView>
 
       {/* Content */}
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {viewMode === 'grid' ? (
-          <View style={styles.grid}>
-            {filteredClothes.map(renderGridItem)}
-          </View>
-        ) : (
-          <View style={styles.list}>
-            {filteredClothes.map(renderListItem)}
-          </View>
-        )}
-        
-        {filteredClothes.length === 0 && (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateTitle}>Aucun vêtement trouvé</Text>
-            <Text style={styles.emptyStateText}>
-              Essayez de modifier vos filtres ou ajoutez de nouveaux vêtements à votre dressing.
-            </Text>
-          </View>
-        )}
-      </ScrollView>
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#8B5CF6" />
+        </View>
+      ) : error ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyStateTitle}>Erreur</Text>
+          <Text style={styles.emptyStateText}>{error}</Text>
+        </View>
+      ) : (
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          {viewMode === 'grid' ? (
+            <View style={styles.grid}>
+              {filteredClothes.map(renderGridItem)}
+            </View>
+          ) : (
+            <View style={styles.list}>
+              {filteredClothes.map(renderListItem)}
+            </View>
+          )}
+          {filteredClothes.length === 0 && (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateTitle}>Aucun vêtement trouvé</Text>
+              <Text style={styles.emptyStateText}>
+                Essayez de modifier vos filtres ou ajoutez de nouveaux vêtements à votre dressing.
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }

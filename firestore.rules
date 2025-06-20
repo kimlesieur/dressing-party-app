@@ -1,0 +1,155 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions for better readability and reusability
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isValidUser() {
+      return isAuthenticated() && 
+             request.auth.uid != null && 
+             request.auth.uid.size() > 0;
+    }
+    
+    function getUserProfile(userId) {
+      return get(/databases/$(database)/documents/users/$(userId));
+    }
+    
+    function isPublicProfile(userId) {
+      return getUserProfile(userId).data.isPublic == true;
+    }
+
+    // Users collection - User profiles and account information
+    match /users/{userId} {
+      // Users can read their own profile
+      // Users can read public profiles of others
+      allow read: if isOwner(userId) || 
+                     (isAuthenticated() && isPublicProfile(userId));
+      
+      // Users can only create and update their own profile
+      allow create: if isValidUser() && 
+                       request.auth.uid == userId &&
+                       request.resource.data.uid == userId &&
+                       request.resource.data.email == request.auth.token.email;
+      
+      allow update: if isOwner(userId) &&
+                       request.resource.data.uid == userId &&
+                       request.resource.data.email == resource.data.email; // Email cannot be changed
+      
+      // Users cannot delete their profile (optional - remove if you want to allow deletion)
+      allow delete: if false;
+    }
+
+    // Clothing collection - Individual clothing items
+    match /clothing/{clothingId} {
+      // Users can read their own clothing items
+      // Users can read clothing items from public profiles
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid ||
+                      isPublicProfile(resource.data.userId));
+      
+      // Users can only create clothing items for themselves
+      allow create: if isValidUser() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       // Validate required fields
+                       request.resource.data.keys().hasAll(['name', 'type', 'seasons', 'colors', 'imageUrl']) &&
+                       request.resource.data.name is string &&
+                       request.resource.data.name.size() > 0 &&
+                       request.resource.data.type is string &&
+                       request.resource.data.seasons is list &&
+                       request.resource.data.colors is list &&
+                       request.resource.data.imageUrl is string;
+      
+      // Users can only update their own clothing items
+      allow update: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid &&
+                       request.resource.data.userId == request.auth.uid &&
+                       // Ensure userId cannot be changed
+                       request.resource.data.userId == resource.data.userId;
+      
+      // Users can only delete their own clothing items
+      allow delete: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid;
+    }
+
+    // Outfits collection - User-created outfit combinations
+    match /outfits/{outfitId} {
+      // Users can read their own outfits
+      // Users can read public outfits from any user (for inspiration feed)
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid ||
+                      resource.data.isPublic == true);
+      
+      // Users can only create outfits for themselves
+      allow create: if isValidUser() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       // Validate required fields
+                       request.resource.data.keys().hasAll(['name', 'clothingItems', 'isPublic']) &&
+                       request.resource.data.name is string &&
+                       request.resource.data.name.size() > 0 &&
+                       request.resource.data.clothingItems is list &&
+                       request.resource.data.isPublic is bool &&
+                       // Ensure likes starts at 0
+                       request.resource.data.likes == 0;
+      
+      // Users can update their own outfits
+      // Special case: any authenticated user can increment likes on public outfits
+      allow update: if isAuthenticated() && (
+                       // Owner can update all fields except likes
+                       (resource.data.userId == request.auth.uid &&
+                        request.resource.data.userId == request.auth.uid &&
+                        request.resource.data.likes == resource.data.likes) ||
+                       // Any user can like/unlike public outfits
+                       (resource.data.isPublic == true &&
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']) &&
+                        request.resource.data.likes >= 0)
+                     );
+      
+      // Users can only delete their own outfits
+      allow delete: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid;
+    }
+
+    // Optional: User interactions collection (likes, follows, etc.)
+    match /user_interactions/{interactionId} {
+      // Users can read their own interactions
+      allow read: if isAuthenticated() &&
+                     resource.data.userId == request.auth.uid;
+      
+      // Users can create interactions for themselves
+      allow create: if isValidUser() &&
+                       request.resource.data.userId == request.auth.uid;
+      
+      // Users can update/delete their own interactions
+      allow update, delete: if isAuthenticated() &&
+                               resource.data.userId == request.auth.uid;
+    }
+
+    // Optional: Comments collection (if you plan to add comments)
+    match /comments/{commentId} {
+      // Anyone can read comments on public content
+      allow read: if isAuthenticated();
+      
+      // Users can create comments for themselves
+      allow create: if isValidUser() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.content is string &&
+                       request.resource.data.content.size() > 0;
+      
+      // Users can update/delete their own comments
+      allow update, delete: if isAuthenticated() &&
+                               resource.data.userId == request.auth.uid;
+    }
+
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

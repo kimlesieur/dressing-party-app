@@ -1,24 +1,23 @@
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy,
-  Timestamp 
-} from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '@/config/firebase';
 import { ClothingItem } from '@/types/firebase';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  updateDoc,
+  where
+} from 'firebase/firestore';
+import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 export class ClothingService {
   // Add a new clothing item
   static async addClothingItem(
     userId: string, 
-    clothingData: Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt'>,
+    clothingData: Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'>,
     imageFile: Blob
   ): Promise<ClothingItem> {
     try {
