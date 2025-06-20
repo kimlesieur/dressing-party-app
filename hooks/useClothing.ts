@@ -1,7 +1,7 @@
-import { MOCK_CLOTHES } from '@/config/mock';
 import { ClothingService } from '@/services/clothing';
 import { ClothingItem } from '@/types/firebase';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 const clothingKeys = {
   all: ['clothing'] as const,
@@ -12,15 +12,29 @@ const clothingKeys = {
 };
 
 export function useGetUserClothing(userId: string) {
+  const queryClient = useQueryClient();
+  const queryKey = clothingKeys.list(userId);
+
+  useEffect(() => {
+    if (!userId) {
+      return;
+    }
+
+    const unsubscribe = ClothingService.subscribeToUserClothing(
+      userId,
+      (clothing) => {
+        queryClient.setQueryData(queryKey, clothing);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [userId, queryClient, queryKey]);
+
   return useQuery({
-    queryKey: clothingKeys.list(userId),
+    queryKey: queryKey,
     queryFn: () => ClothingService.getUserClothing(userId),
-    // queryFn: async () => {
-    //   console.log('Using mock clothing data');
-    //   await new Promise(resolve => setTimeout(resolve, 500));
-    //   return MOCK_CLOTHES;
-    // },
     enabled: !!userId,
+    staleTime: Infinity,
   });
 }
 
@@ -37,9 +51,20 @@ export function useAddClothingItem() {
   return useMutation({
     mutationFn: ({ userId, clothingData, imageFile }: { userId: string; clothingData: Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'>; imageFile: Blob }) => 
       ClothingService.addClothingItem(userId, clothingData, imageFile),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: clothingKeys.lists() });
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: clothingKeys.list(variables.userId) });
     },
+    //? To invalidate cache
+    onMutate: async ({ userId }) => {
+      await queryClient.cancelQueries({ queryKey: clothingKeys.list(userId) });
+      const previousClothes = queryClient.getQueryData(clothingKeys.list(userId));
+      return { previousClothes };
+    },
+    onError: (err, { userId }, context) => {
+      if (context?.previousClothes) {
+        queryClient.setQueryData(clothingKeys.list(userId), context.previousClothes);
+      }
+    }
   });
 }
 

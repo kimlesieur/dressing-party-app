@@ -7,6 +7,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   orderBy,
   query,
   updateDoc,
@@ -88,6 +89,36 @@ export class ClothingService {
       return clothingItems;
     } catch (error) {
       console.error('Error getting user clothing:', error);
+      throw error;
+    }
+  }
+
+  // Get all clothing items for a user with real-time updates
+  static subscribeToUserClothing(userId: string, onUpdate: (items: ClothingItem[]) => void): () => void {
+    try {
+      const q = query(
+        collection(db, 'clothing'),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc')
+      );
+
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const clothingItems: ClothingItem[] = [];
+        querySnapshot.forEach((doc) => {
+          clothingItems.push({
+            id: doc.id,
+            ...doc.data(),
+          } as ClothingItem);
+        });
+        onUpdate(clothingItems);
+      }, (error) => {
+        console.error('Error in clothing subscription:', error);
+        // Maybe call onUpdate with an empty array or an error state
+      });
+
+      return unsubscribe;
+    } catch (error) {
+      console.error('Error setting up user clothing subscription:', error);
       throw error;
     }
   }
