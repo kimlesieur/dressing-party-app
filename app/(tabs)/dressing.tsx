@@ -108,9 +108,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
+    paddingHorizontal: 20,
   },
   header: {
-    paddingHorizontal: 20,
     paddingBottom: 20,
   },
   title: {
@@ -126,7 +126,6 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
     marginBottom: 16,
     gap: 12,
   },
@@ -169,7 +168,6 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   filtersContainer: {
-    paddingHorizontal: 20,
     marginBottom: 20,
   },
   filterChip: {
@@ -195,7 +193,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
   },
   grid: {
     flexDirection: 'row',
