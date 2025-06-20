@@ -4,7 +4,6 @@ import { Feather } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ClothingDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -25,7 +24,7 @@ export default function ClothingDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Stack.Screen
         options={{
           headerShown: true,
@@ -42,7 +41,7 @@ export default function ClothingDetailScreen() {
           ),
         }}
       />
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <OptimizedImage uri={clothingItem.imageUrl} style={styles.image} />
         <View style={styles.detailsContainer}>
           <Text style={styles.name}>{clothingItem.name}</Text>
@@ -71,7 +70,7 @@ export default function ClothingDetailScreen() {
           )}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
