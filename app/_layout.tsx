@@ -1,16 +1,14 @@
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import QueryClientProvider from "@/config/query/QueryClientProvider";
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-
-const queryClient = new QueryClient();
 
 function RootLayout() {
   useFrameworkReady();
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
