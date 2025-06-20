@@ -10,7 +10,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function DressingScreen() {
   const { user } = useAuth();
@@ -23,6 +23,7 @@ export default function DressingScreen() {
   const lastContentOffset = useSharedValue(0);
   const isScrollingDown = useSharedValue(false);
   const headerHeight = useSharedValue(0);
+  const insets = useSafeAreaInsets();
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -54,6 +55,7 @@ export default function DressingScreen() {
       zIndex: 10,
       backgroundColor: '#F8FAFC',
       paddingHorizontal: 20,
+      paddingTop: insets.top,
     };
   });
 
@@ -78,7 +80,7 @@ export default function DressingScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Animated.View 
         style={animatedHeaderStyle}
         onLayout={(event) => {
@@ -162,7 +164,7 @@ export default function DressingScreen() {
           )}
         </Animated.ScrollView>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -170,11 +172,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
-    // paddingHorizontal: 20, // Removed to be handled by animated header
   },
   header: {
     paddingBottom: 20,
-    paddingTop: 10, // Added padding top for better spacing
   },
   title: {
     fontSize: 28,
