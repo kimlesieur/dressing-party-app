@@ -1,5 +1,5 @@
 import { useAuth } from '@/hooks/useAuth';
-import { ClothingService } from '@/services/clothing';
+import { useGetClothingItem, useUpdateClothingItem } from '@/hooks/useClothing';
 import { ClothingItem } from '@/types/firebase';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -15,32 +15,37 @@ export default function EditClothingScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
 
+  const { data: initialClothingItem, isLoading: isFetching, isError, error } = useGetClothingItem(id ?? '');
+  const updateClothingMutation = useUpdateClothingItem();
+
   const [clothingData, setClothingData] = useState<ClothingFormData | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
-    setIsFetching(true);
-    ClothingService.getClothingItem(id)
-      .then(item => {
-        if (item) {
-          const { id: itemId, userId, createdAt, updatedAt, imageUrl, ...data } = item;
-          setClothingData(data);
-          setSelectedImage(imageUrl);
-        } else {
-          Alert.alert('Erreur', 'Vêtement non trouvé.');
-          router.back();
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        Alert.alert('Erreur', 'Impossible de charger les informations du vêtement.');
-        router.back();
-      })
-      .finally(() => setIsFetching(false));
-  }, [id]);
+    if (initialClothingItem) {
+      const { id: itemId, userId, createdAt, updatedAt, imageUrl, ...data } = initialClothingItem;
+      setClothingData(data);
+      setSelectedImage(imageUrl);
+    }
+  }, [initialClothingItem]);
+  
+  if (!id) {
+    return <View style={styles.centered}><Text>ID du vêtement manquant.</Text></View>;
+  }
+  
+  if (isFetching) {
+    return <View style={styles.centered}><ActivityIndicator size="large" /></View>;
+  }
+
+  if (isError) {
+    return <View style={styles.centered}><Text>{error?.message || 'Erreur lors du chargement'}</Text></View>;
+  }
+
+  if (!clothingData) {
+    // This can happen briefly before the effect sets the state
+    return <View style={styles.centered}><ActivityIndicator size="large" /></View>;
+  }
+
 
   const clothingTypes = [
     { id: 'tops', name: 'Hauts', subCategories: ['T-shirt', 'Chemise', 'Pull', 'Débardeur', 'Sweat'] },
@@ -96,7 +101,7 @@ export default function EditClothingScreen() {
   };
 
   const handleSave = async () => {
-    if (!id || !clothingData || !selectedImage || !clothingData.name || !clothingData.type) {
+    if (!clothingData || !selectedImage || !clothingData.name || !clothingData.type) {
       Alert.alert('Informations manquantes', 'Veuillez remplir tous les champs obligatoires.');
       return;
     }
@@ -105,29 +110,23 @@ export default function EditClothingScreen() {
         return;
     }
 
-    setIsLoading(true);
-    try {
-      let imageBlob: Blob | undefined = undefined;
-      if (selectedImage && !selectedImage.startsWith('http')) {
-        imageBlob = await convertImageToBlob(selectedImage);
-      }
-      
-      await ClothingService.updateClothingItem(id, user.uid, clothingData, imageBlob);
-
-      Alert.alert('Succès', 'Votre vêtement a été mis à jour !', [
-        { text: 'OK', onPress: () => router.push('/(tabs)/dressing') }
-      ]);
-    } catch (error) {
-      console.error('Error updating clothing item:', error);
-      Alert.alert('Erreur', 'Une erreur est survenue lors de la mise à jour.');
-    } finally {
-      setIsLoading(false);
+    let imageBlob: Blob | undefined = undefined;
+    if (selectedImage && !selectedImage.startsWith('http')) {
+      imageBlob = await convertImageToBlob(selectedImage);
     }
+    
+    updateClothingMutation.mutate({ itemId: id, userId: user.uid, updates: clothingData, newImageFile: imageBlob }, {
+      onSuccess: () => {
+        Alert.alert('Succès', 'Votre vêtement a été mis à jour !', [
+          { text: 'OK', onPress: () => router.push('/(tabs)/dressing') }
+        ]);
+      },
+      onError: (err) => {
+        console.error('Error updating clothing item:', err);
+        Alert.alert('Erreur', 'Une erreur est survenue lors de la mise à jour.');
+      }
+    });
   };
-
-  if (isFetching || !clothingData) {
-    return <View style={styles.centered}><ActivityIndicator size="large" /></View>;
-  }
 
   const selectedType = clothingTypes.find(t => t.id === clothingData.type);
 
@@ -223,8 +222,8 @@ export default function EditClothingScreen() {
         </View>
 
         {/* Save Button */}
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={isLoading}>
-          {isLoading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.saveButtonText}>Enregistrer</Text>}
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={updateClothingMutation.isPending}>
+          {updateClothingMutation.isPending ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.saveButtonText}>Enregistrer</Text>}
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

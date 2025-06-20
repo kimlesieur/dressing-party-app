@@ -1,57 +1,45 @@
-import { ClothingService } from '@/services/clothing';
-import { ClothingItem } from '@/types/firebase';
+import { useGetClothingItem } from '@/hooks/useClothing';
 import { Feather } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ClothingDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const [clothingItem, setClothingItem] = useState<ClothingItem | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: clothingItem, isLoading, isError, error } = useGetClothingItem(id ?? '');
 
-  useEffect(() => {
-    if (!id) return;
+  if (!id) {
+    // This should ideally not happen if navigation is set up correctly
+    return <View style={styles.center}><Text>ID du vêtement manquant.</Text></View>;
+  }
 
-    setLoading(true);
-    ClothingService.getClothingItem(id)
-      .then(item => {
-        if (item) {
-          setClothingItem(item);
-        } else {
-          setError('Vêtement non trouvé.');
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        setError('Erreur lors de la récupération du vêtement.');
-      })
-      .finally(() => setLoading(false));
-  }, [id]);
-
-  if (loading) {
+  if (isLoading) {
     return <View style={styles.center}><ActivityIndicator /></View>;
   }
 
-  if (error || !clothingItem) {
-    return <View style={styles.center}><Text>{error || 'Vêtement non trouvé'}</Text></View>;
+  if (isError || !clothingItem) {
+    return <View style={styles.center}><Text>{error?.message || 'Vêtement non trouvé'}</Text></View>;
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           headerShown: true,
           title: clothingItem.name,
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 15 }}>
+              <Feather name="chevron-left" size={24} color="black" />
+            </TouchableOpacity>
+          ),
           headerRight: () => (
             <TouchableOpacity onPress={() => router.push(`/clothing/edit/${id}`)} style={{ marginRight: 15 }}>
               <Feather name="edit" size={24} color="black" />
             </TouchableOpacity>
           ),
-        }} 
+        }}
       />
       <ScrollView>
         <Image source={{ uri: clothingItem.imageUrl }} style={styles.image} />
@@ -67,7 +55,7 @@ export default function ClothingDetailScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Saisons</Text>
             <View style={styles.pillsContainer}>
-                {clothingItem.seasons.map(season => <Text key={season} style={styles.pill}>{season}</Text>)}
+              {clothingItem.seasons.map(season => <Text key={season} style={styles.pill}>{season}</Text>)}
             </View>
           </View>
           <View style={styles.section}>

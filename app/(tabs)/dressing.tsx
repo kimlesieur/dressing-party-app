@@ -1,9 +1,8 @@
 import { ClothingCard } from '@/components/ClothingCard';
 import { useAuth } from '@/hooks/useAuth';
-import { ClothingService } from '@/services/clothing';
-import { ClothingItem } from '@/types/firebase';
+import { useGetUserClothing } from '@/hooks/useClothing';
 import { Grid2x2 as Grid, List, Search } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -12,24 +11,10 @@ export default function DressingScreen() {
   const [searchText, setSearchText] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [activeFilter, setActiveFilter] = useState('Tous');
-  const [clothes, setClothes] = useState<ClothingItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  
+  const { data: clothes = [], isLoading, isError, error } = useGetUserClothing(user?.uid || '');
 
   const filters = ['Tous', 'Hauts', 'Bas', 'Robes', 'Chaussures', 'Accessoires'];
-
-  useEffect(() => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    ClothingService.getUserClothing(user.uid)
-      .then(setClothes)
-      .catch((err) => {
-        setError('Erreur lors du chargement des vêtements.');
-        console.error(err);
-      })
-      .finally(() => setLoading(false));
-  }, [user]);
 
   const filteredClothes = clothes.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchText.toLowerCase());
@@ -51,7 +36,7 @@ export default function DressingScreen() {
         <Text style={styles.subtitle}>{filteredClothes.length} vêtements</Text>
       </View>
 
-      {/* Search Bar */}
+      {/* Search Bar and View Toggle */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
           <Search size={20} color="#9CA3AF" />
@@ -63,12 +48,8 @@ export default function DressingScreen() {
             placeholderTextColor="#9CA3AF"
           />
         </View>
-        <TouchableOpacity style={styles.viewToggle}>
-          {viewMode === 'grid' ? (
-            <List size={24} color="#8B5CF6" onPress={() => setViewMode('list')} />
-          ) : (
-            <Grid size={24} color="#8B5CF6" onPress={() => setViewMode('grid')} />
-          )}
+        <TouchableOpacity style={styles.viewToggle} onPress={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}>
+          {viewMode === 'grid' ? <List size={24} color="#8B5CF6" /> : <Grid size={24} color="#8B5CF6" />}
         </TouchableOpacity>
       </View>
 
@@ -88,27 +69,28 @@ export default function DressingScreen() {
       </ScrollView>
 
       {/* Content */}
-      {loading ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      {isLoading ? (
+        <View style={styles.centered}>
           <ActivityIndicator size="large" color="#8B5CF6" />
         </View>
-      ) : error ? (
+      ) : isError ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateTitle}>Erreur</Text>
-          <Text style={styles.emptyStateText}>{error}</Text>
+          <Text style={styles.emptyStateText}>{error?.message || 'Erreur lors du chargement des vêtements.'}</Text>
         </View>
       ) : (
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {viewMode === 'grid' ? (
-            <View style={styles.grid}>
-              {filteredClothes.map(item => <ClothingCard item={item} viewMode="grid" key={item.id} />)}
-            </View>
+          {filteredClothes.length > 0 ? (
+            viewMode === 'grid' ? (
+              <View style={styles.grid}>
+                {filteredClothes.map(item => <ClothingCard item={item} viewMode="grid" key={item.id} />)}
+              </View>
+            ) : (
+              <View style={styles.list}>
+                {filteredClothes.map(item => <ClothingCard item={item} viewMode="list" key={item.id} />)}
+              </View>
+            )
           ) : (
-            <View style={styles.list}>
-              {filteredClothes.map(item => <ClothingCard item={item} viewMode="list" key={item.id} />)}
-            </View>
-          )}
-          {filteredClothes.length === 0 && (
             <View style={styles.emptyState}>
               <Text style={styles.emptyStateTitle}>Aucun vêtement trouvé</Text>
               <Text style={styles.emptyStateText}>
@@ -241,5 +223,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
     maxWidth: 250,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
