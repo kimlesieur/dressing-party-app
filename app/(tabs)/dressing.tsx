@@ -54,7 +54,7 @@ export default function DressingScreen() {
       </View>
 
       {/* Filters */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersContainer}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersContainer} contentContainerStyle={{ alignItems: 'center' }}>
         {filters.map((filter) => (
           <TouchableOpacity
             key={filter}
@@ -168,13 +168,14 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   filtersContainer: {
-    marginBottom: 20,
+    marginBottom: 10,
+    maxHeight: 35,
   },
   filterChip: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 5,
     marginRight: 12,
     borderWidth: 1,
     borderColor: '#E5E7EB',
