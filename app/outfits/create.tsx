@@ -1,4 +1,5 @@
 import { OutfitEditor } from '@/components/OutfitEditor';
+import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { router } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
 import {
@@ -8,11 +9,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CreateOutfitScreen() {
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -27,7 +27,7 @@ export default function CreateOutfitScreen() {
       <ScrollView>
         <OutfitEditor />
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 

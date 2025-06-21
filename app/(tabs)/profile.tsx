@@ -1,4 +1,5 @@
 import { OptimizedImage } from '@/components/OptimizedImage';
+import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useAuth } from '@/hooks/useAuth';
 import { router } from 'expo-router';
 import {
@@ -25,7 +26,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
   const { userProfile, loading, signOut, isAuthenticated } = useAuth();
@@ -37,18 +37,18 @@ export default function ProfileScreen() {
   // Show loading state
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <ScreenWrapper style={styles.container}>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Loading...</Text>
         </View>
-      </SafeAreaView>
+      </ScreenWrapper>
     );
   }
 
   // Show login screen if not authenticated
   if (!isAuthenticated || !userProfile) {
     return (
-      <SafeAreaView style={styles.container}>
+      <ScreenWrapper style={styles.container}>
         <View style={styles.authContainer}>
           <View style={styles.authContent}>
             <Text style={styles.authTitle}>Welcome to Dressing Party</Text>
@@ -66,7 +66,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           </View>
         </View>
-      </SafeAreaView>
+      </ScreenWrapper>
     );
   }
 
@@ -158,7 +158,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -290,7 +290,7 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 

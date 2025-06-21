@@ -1,3 +1,4 @@
+import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useAuth } from '@/hooks/useAuth';
 import { ClothingService } from '@/services/clothing';
 import { ClothingItem } from '@/types/firebase';
@@ -15,7 +16,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { OptimizedImage } from '@/components/OptimizedImage';
 
@@ -219,7 +219,7 @@ export default function AddClothingScreen() {
   const selectedType = clothingTypes.find((t) => t.id === clothingData.type);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -463,7 +463,7 @@ export default function AddClothingScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 

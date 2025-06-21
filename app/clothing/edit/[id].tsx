@@ -1,4 +1,5 @@
 import { OptimizedImage } from '@/components/OptimizedImage';
+import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useAuth } from '@/hooks/useAuth';
 import { useGetClothingItem, useUpdateClothingItem } from '@/hooks/useClothing';
 import { ClothingItem } from '@/types/firebase';
@@ -16,7 +17,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 type ClothingFormData = Omit<
   ClothingItem,
@@ -224,7 +224,7 @@ export default function EditClothingScreen() {
   const selectedType = clothingTypes.find((t) => t.id === clothingData.type);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.title}>Modifier le vêtement</Text>
@@ -432,7 +432,7 @@ export default function EditClothingScreen() {
           )}
         </TouchableOpacity>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 

@@ -1,4 +1,5 @@
 import { OptimizedImage } from '@/components/OptimizedImage';
+import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useGetUserOutfits } from '@/hooks/useOutfits';
 import { Outfit } from '@/types/firebase';
 import { Link } from 'expo-router';
@@ -12,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function InspirationsScreen() {
   const { data: outfits, isLoading, refetch } = useGetUserOutfits();
@@ -39,7 +39,7 @@ export default function InspirationsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Mes Tenues</Text>
         <Text style={styles.subtitle}>Retrouvez toutes vos créations</Text>
@@ -70,7 +70,7 @@ export default function InspirationsScreen() {
           </Link>
         </View>
       )}
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
