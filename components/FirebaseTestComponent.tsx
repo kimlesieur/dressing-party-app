@@ -1,6 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
-import { CircleCheck as CheckCircle, Circle as XCircle, TestTube, Trash2, RefreshCw, TriangleAlert as AlertTriangle, Info } from 'lucide-react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import {
+  CircleCheck as CheckCircle,
+  Circle as XCircle,
+  TestTube,
+  Trash2,
+  RefreshCw,
+  TriangleAlert as AlertTriangle,
+  Info,
+} from 'lucide-react-native';
 import { FirebaseTestService, TestResult } from '@/utils/firebaseTest';
 
 export default function FirebaseTestComponent() {
@@ -11,17 +27,19 @@ export default function FirebaseTestComponent() {
   const runTests = async () => {
     setIsRunning(true);
     setTestResults([]);
-    
+
     try {
       const results = await FirebaseTestService.runAllTests();
       setTestResults(results);
     } catch (error) {
       console.error('Error running tests:', error);
-      setTestResults([{
-        name: 'Test Suite',
-        success: false,
-        error: 'Failed to run test suite'
-      }]);
+      setTestResults([
+        {
+          name: 'Test Suite',
+          success: false,
+          error: 'Failed to run test suite',
+        },
+      ]);
     } finally {
       setIsRunning(false);
     }
@@ -42,79 +60,90 @@ export default function FirebaseTestComponent() {
 
   const showDeploymentInstructions = () => {
     const instructions = FirebaseTestService.getDeploymentInstructions();
-    Alert.alert(
-      'Firestore Rules Deployment',
-      instructions,
-      [{ text: 'OK' }],
-      { cancelable: true }
-    );
+    Alert.alert('Firestore Rules Deployment', instructions, [{ text: 'OK' }], {
+      cancelable: true,
+    });
   };
 
   const getOverallStatus = () => {
     if (testResults.length === 0) return null;
-    
+
     // Count successful tests, but treat permission denied as success for Firestore
-    const successfulTests = testResults.filter(result => {
-      if (result.name === 'Firestore Connection' && result.error?.includes('permission-denied')) {
+    const successfulTests = testResults.filter((result) => {
+      if (
+        result.name === 'Firestore Connection' &&
+        result.error?.includes('permission-denied')
+      ) {
         return true; // Permission denied is expected with proper security rules
       }
       return result.success;
     });
-    
+
     const allPassed = successfulTests.length === testResults.length;
     return allPassed ? 'success' : 'failure';
   };
 
   const hasPermissionIssues = () => {
-    return testResults.some(result => 
-      result.error?.includes('permission-denied') || result.warning?.includes('Permission denied')
+    return testResults.some(
+      (result) =>
+        result.error?.includes('permission-denied') ||
+        result.warning?.includes('Permission denied'),
     );
   };
 
   const renderTestResult = (result: TestResult, index: number) => {
     // Special handling for permission denied errors (they're actually good!)
     const isPermissionDenied = result.error?.includes('permission-denied');
-    const displayAsSuccess = isPermissionDenied && result.name === 'Firestore Connection';
-    
+    const displayAsSuccess =
+      isPermissionDenied && result.name === 'Firestore Connection';
+
     return (
-      <View key={index} style={[
-        styles.testResult, 
-        (result.success || displayAsSuccess) ? styles.success : styles.failure
-      ]}>
+      <View
+        key={index}
+        style={[
+          styles.testResult,
+          result.success || displayAsSuccess ? styles.success : styles.failure,
+        ]}
+      >
         <View style={styles.testHeader}>
-          {(result.success || displayAsSuccess) ? (
+          {result.success || displayAsSuccess ? (
             <CheckCircle size={20} color="#10B981" />
           ) : (
             <XCircle size={20} color="#EF4444" />
           )}
-          <Text style={[
-            styles.testName, 
-            (result.success || displayAsSuccess) ? styles.successText : styles.failureText
-          ]}>
+          <Text
+            style={[
+              styles.testName,
+              result.success || displayAsSuccess
+                ? styles.successText
+                : styles.failureText,
+            ]}
+          >
             {result.name}
           </Text>
         </View>
-        
+
         {result.details && (
           <Text style={styles.testDetails}>{result.details}</Text>
         )}
-        
+
         {result.warning && (
           <View style={styles.warningContainer}>
             <AlertTriangle size={16} color="#F59E0B" />
             <Text style={styles.testWarning}>{result.warning}</Text>
           </View>
         )}
-        
+
         {result.error && !displayAsSuccess && (
           <Text style={styles.testError}>Error: {result.error}</Text>
         )}
-        
+
         {isPermissionDenied && (
           <View style={styles.infoContainer}>
             <Info size={16} color="#3B82F6" />
             <Text style={styles.testInfo}>
-              Permission denied is expected with proper security rules. This indicates your Firestore is secure!
+              Permission denied is expected with proper security rules. This
+              indicates your Firestore is secure!
             </Text>
           </View>
         )}
@@ -130,13 +159,14 @@ export default function FirebaseTestComponent() {
       </View>
 
       <Text style={styles.description}>
-        Test your Firebase configuration to ensure all services are properly initialized and accessible.
-        Permission denied errors are expected and indicate proper security configuration.
+        Test your Firebase configuration to ensure all services are properly
+        initialized and accessible. Permission denied errors are expected and
+        indicate proper security configuration.
       </Text>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={[styles.button, styles.primaryButton]} 
+        <TouchableOpacity
+          style={[styles.button, styles.primaryButton]}
           onPress={runTests}
           disabled={isRunning}
         >
@@ -151,20 +181,18 @@ export default function FirebaseTestComponent() {
         </TouchableOpacity>
 
         {hasPermissionIssues() && (
-          <TouchableOpacity 
-            style={[styles.button, styles.infoButton]} 
+          <TouchableOpacity
+            style={[styles.button, styles.infoButton]}
             onPress={showDeploymentInstructions}
           >
             <Info size={20} color="#3B82F6" />
-            <Text style={styles.infoButtonText}>
-              Deployment Instructions
-            </Text>
+            <Text style={styles.infoButtonText}>Deployment Instructions</Text>
           </TouchableOpacity>
         )}
 
         {testResults.length > 0 && (
-          <TouchableOpacity 
-            style={[styles.button, styles.secondaryButton]} 
+          <TouchableOpacity
+            style={[styles.button, styles.secondaryButton]}
             onPress={cleanupTestData}
             disabled={isCleaning}
           >
@@ -184,26 +212,40 @@ export default function FirebaseTestComponent() {
         <View style={styles.resultsContainer}>
           <View style={styles.overallStatus}>
             <Text style={styles.overallStatusTitle}>Overall Status</Text>
-            <View style={[
-              styles.statusBadge, 
-              getOverallStatus() === 'success' ? styles.successBadge : styles.failureBadge
-            ]}>
-              <Text style={[
-                styles.statusText,
-                getOverallStatus() === 'success' ? styles.successText : styles.failureText
-              ]}>
-                {getOverallStatus() === 'success' ? 'Firebase Ready' : 'Issues Detected'}
+            <View
+              style={[
+                styles.statusBadge,
+                getOverallStatus() === 'success'
+                  ? styles.successBadge
+                  : styles.failureBadge,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.statusText,
+                  getOverallStatus() === 'success'
+                    ? styles.successText
+                    : styles.failureText,
+                ]}
+              >
+                {getOverallStatus() === 'success'
+                  ? 'Firebase Ready'
+                  : 'Issues Detected'}
               </Text>
             </View>
-            
+
             {hasPermissionIssues() && (
               <Text style={styles.permissionNote}>
-                💡 Permission denied errors indicate your security rules are working correctly!
+                💡 Permission denied errors indicate your security rules are
+                working correctly!
               </Text>
             )}
           </View>
 
-          <ScrollView style={styles.testResults} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={styles.testResults}
+            showsVerticalScrollIndicator={false}
+          >
             {testResults.map(renderTestResult)}
           </ScrollView>
         </View>
@@ -216,7 +258,8 @@ export default function FirebaseTestComponent() {
             Run tests to check your Firebase configuration
           </Text>
           <Text style={styles.emptyStateSubtext}>
-            This will test authentication, Firestore, Storage, and security rules
+            This will test authentication, Firestore, Storage, and security
+            rules
           </Text>
         </View>
       )}

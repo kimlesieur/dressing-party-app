@@ -1,3 +1,4 @@
+import '@/config/firebase'; // This will ensure Firebase is initialized
 import { useEffect } from 'react';
 
 declare global {
@@ -9,5 +10,5 @@ declare global {
 export function useFrameworkReady() {
   useEffect(() => {
     window.frameworkReady?.();
-  });
+  }, []); // Added empty dependency array for single execution
 }

@@ -1,21 +1,74 @@
+import { OptimizedImage } from '@/components/OptimizedImage';
+import { ScreenWrapper } from '@/components/ScreenWrapper';
+import { useAuth } from '@/hooks/useAuth';
+import { router } from 'expo-router';
+import {
+  ChartBar as BarChart3,
+  Bell,
+  Calendar,
+  Crown,
+  CreditCard as Edit,
+  Heart,
+  CircleHelp as HelpCircle,
+  LogIn,
+  LogOut,
+  Settings,
+  Share,
+  Shield,
+  Shirt,
+} from 'lucide-react-native';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Switch } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Settings, CreditCard as Edit, Share, Crown, ChartBar as BarChart3, Heart, Shirt, Calendar, Bell, Shield, CircleHelp as HelpCircle, LogOut } from 'lucide-react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function ProfileScreen() {
-  const [isPublicProfile, setIsPublicProfile] = useState(true);
+  const { userProfile, loading, signOut, isAuthenticated } = useAuth();
+  const [isPublicProfile, setIsPublicProfile] = useState(
+    userProfile?.isPublic ?? true,
+  );
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
-  const userProfile = {
-    name: 'Marie Dubois',
-    username: '@marie_style',
-    avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=200',
-    bio: 'Passionnée de mode et de durabilité 🌱 Partage mes looks du quotidien et mes bonnes adresses thrift ✨',
-    followers: 1847,
-    following: 523,
-    posts: 142,
-  };
+  // Show loading state
+  if (loading) {
+    return (
+      <ScreenWrapper style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      </ScreenWrapper>
+    );
+  }
+
+  // Show login screen if not authenticated
+  if (!isAuthenticated || !userProfile) {
+    return (
+      <ScreenWrapper style={styles.container}>
+        <View style={styles.authContainer}>
+          <View style={styles.authContent}>
+            <Text style={styles.authTitle}>Welcome to Dressing Party</Text>
+            <Text style={styles.authSubtitle}>
+              Sign in to access your profile, manage your wardrobe, and share
+              your style with the community.
+            </Text>
+
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={() => router.push('/login')}
+            >
+              <LogIn size={20} color="#FFFFFF" />
+              <Text style={styles.loginButtonText}>Sign In / Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScreenWrapper>
+    );
+  }
 
   const stats = [
     { icon: Shirt, label: 'Vêtements', value: 52, color: '#8B5CF6' },
@@ -28,30 +81,84 @@ export default function ProfileScreen() {
     {
       title: 'Mon contenu',
       items: [
-        { icon: Shirt, label: 'Mon dressing', action: () => {}, color: '#8B5CF6' },
-        { icon: Heart, label: 'Mes tenues favorites', action: () => {}, color: '#EC4899' },
-        { icon: BarChart3, label: 'Mes statistiques', action: () => {}, color: '#10B981' },
-      ]
+        {
+          icon: Shirt,
+          label: 'Mon dressing',
+          action: () => {},
+          color: '#8B5CF6',
+        },
+        {
+          icon: Heart,
+          label: 'Mes tenues favorites',
+          action: () => {},
+          color: '#EC4899',
+        },
+        {
+          icon: BarChart3,
+          label: 'Mes statistiques',
+          action: () => {},
+          color: '#10B981',
+        },
+      ],
     },
     {
       title: 'Paramètres',
       items: [
-        { icon: Bell, label: 'Notifications', action: () => {}, color: '#F59E0B', toggle: true, value: notificationsEnabled, onToggle: setNotificationsEnabled },
-        { icon: Shield, label: 'Profil public', action: () => {}, color: '#6366F1', toggle: true, value: isPublicProfile, onToggle: setIsPublicProfile },
-        { icon: Settings, label: 'Paramètres généraux', action: () => {}, color: '#6B7280' },
-      ]
+        {
+          icon: Bell,
+          label: 'Notifications',
+          action: () => {},
+          color: '#F59E0B',
+          toggle: true,
+          value: notificationsEnabled,
+          onToggle: setNotificationsEnabled,
+        },
+        {
+          icon: Shield,
+          label: 'Profil public',
+          action: () => {},
+          color: '#6366F1',
+          toggle: true,
+          value: isPublicProfile,
+          onToggle: setIsPublicProfile,
+        },
+        {
+          icon: Settings,
+          label: 'Paramètres généraux',
+          action: () => {},
+          color: '#6B7280',
+        },
+      ],
     },
     {
       title: 'Support',
       items: [
-        { icon: HelpCircle, label: 'Aide et support', action: () => {}, color: '#8B5CF6' },
-        { icon: Share, label: 'Partager l\'app', action: () => {}, color: '#EC4899' },
-      ]
-    }
+        {
+          icon: HelpCircle,
+          label: 'Aide et support',
+          action: () => {},
+          color: '#8B5CF6',
+        },
+        {
+          icon: Share,
+          label: "Partager l'app",
+          action: () => {},
+          color: '#EC4899',
+        },
+      ],
+    },
   ];
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -63,21 +170,26 @@ export default function ProfileScreen() {
         {/* Profile Info */}
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
-            <Image source={{ uri: userProfile.avatar }} style={styles.profileImage} />
+            <OptimizedImage
+              uri={userProfile.avatar || 'https://via.placeholder.com/150'}
+              style={styles.profileImage}
+            />
             <TouchableOpacity style={styles.editImageButton}>
               <Edit size={16} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
-          
-          <Text style={styles.profileName}>{userProfile.name}</Text>
+
+          <Text style={styles.profileName}>{userProfile.displayName}</Text>
           <Text style={styles.profileUsername}>{userProfile.username}</Text>
-          
-          <Text style={styles.profileBio}>{userProfile.bio}</Text>
+
+          <Text style={styles.profileBio}>
+            {userProfile.bio || 'No bio yet'}
+          </Text>
 
           {/* Profile Stats */}
           <View style={styles.profileStats}>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{userProfile.posts}</Text>
+              <Text style={styles.statNumber}>0</Text>
               <Text style={styles.statLabel}>Publications</Text>
             </View>
             <View style={styles.statDivider} />
@@ -111,7 +223,12 @@ export default function ProfileScreen() {
           <View style={styles.statsGrid}>
             {stats.map((stat, index) => (
               <View key={index} style={styles.statCard}>
-                <View style={[styles.statIcon, { backgroundColor: `${stat.color}15` }]}>
+                <View
+                  style={[
+                    styles.statIcon,
+                    { backgroundColor: `${stat.color}15` },
+                  ]}
+                >
                   <stat.icon size={24} color={stat.color} />
                 </View>
                 <Text style={styles.statValue}>{stat.value}</Text>
@@ -127,16 +244,22 @@ export default function ProfileScreen() {
             <Text style={styles.sectionTitle}>{section.title}</Text>
             <View style={styles.menuCard}>
               {section.items.map((item, itemIndex) => (
-                <TouchableOpacity 
-                  key={itemIndex} 
+                <TouchableOpacity
+                  key={itemIndex}
                   style={[
                     styles.menuItem,
-                    itemIndex < section.items.length - 1 && styles.menuItemBorder
+                    itemIndex < section.items.length - 1 &&
+                      styles.menuItemBorder,
                   ]}
                   onPress={item.action}
                 >
                   <View style={styles.menuItemLeft}>
-                    <View style={[styles.menuIcon, { backgroundColor: `${item.color}15` }]}>
+                    <View
+                      style={[
+                        styles.menuIcon,
+                        { backgroundColor: `${item.color}15` },
+                      ]}
+                    >
                       <item.icon size={20} color={item.color} />
                     </View>
                     <Text style={styles.menuItemText}>{item.label}</Text>
@@ -161,18 +284,13 @@ export default function ProfileScreen() {
 
         {/* Logout */}
         <View style={styles.logoutSection}>
-          <TouchableOpacity style={styles.logoutButton}>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
             <LogOut size={20} color="#EF4444" />
-            <Text style={styles.logoutText}>Se déconnecter</Text>
+            <Text style={styles.logoutButtonText}>Se déconnecter</Text>
           </TouchableOpacity>
         </View>
-
-        {/* App Version */}
-        <View style={styles.footer}>
-          <Text style={styles.versionText}>Dressing Party v1.0.0</Text>
-        </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
@@ -442,7 +560,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  logoutText: {
+  logoutButtonText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#EF4444',
@@ -454,5 +572,53 @@ const styles = StyleSheet.create({
   versionText: {
     fontSize: 12,
     color: '#9CA3AF',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#6B7280',
+  },
+  authContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  authContent: {
+    alignItems: 'center',
+    maxWidth: 300,
+  },
+  authTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  authSubtitle: {
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 32,
+    lineHeight: 24,
+  },
+  loginButton: {
+    backgroundColor: '#8B5CF6',
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loginButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });
