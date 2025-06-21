@@ -1,26 +1,30 @@
 import { HomepageStatistics } from '@/components/HomepageStatistics';
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { useGetRecentItems } from '@/hooks/useGetRecentItems';
+import { useWeather } from '@/hooks/useWeather';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const { recentItems, isLoading: isLoadingClothing } = useGetRecentItems();
-
-  const todayWeather = {
-    temperature: 22,
-    condition: 'Ensoleillé',
-    icon: '☀️'
-  };
+  const { weather, isLoading: isLoadingWeather, error: weatherError, refreshWeather } = useWeather();
 
   const suggestedOutfit = {
     name: 'Look Bureau Chic',
     items: ['Blazer noir', 'Jean slim', 'Chemise blanche'],
     image: 'https://images.pexels.com/photos/1021693/pexels-photo-1021693.jpeg?auto=compress&cs=tinysrgb&w=400'
+  };
+
+  // Weather suggestion based on temperature
+  const getWeatherSuggestion = (temp: number) => {
+    if (temp < 10) return 'Parfait pour une tenue chaude et confortable !';
+    if (temp < 20) return 'Idéal pour une tenue à manches longues !';
+    if (temp < 25) return 'Parfait pour une tenue légère et colorée !';
+    return 'Optez pour des vêtements légers et aérés !';
   };
 
   return (
@@ -41,14 +45,35 @@ export default function HomeScreen() {
             <View style={styles.weatherHeader}>
               <LucideIcons.Cloud size={24} color="#FFFFFF" />
               <Text style={styles.weatherTitle}>Météo du jour</Text>
+              <TouchableOpacity onPress={refreshWeather} style={styles.refreshButton}>
+                <LucideIcons.RefreshCw size={16} color="#FFFFFF" />
+              </TouchableOpacity>
             </View>
-            <View style={styles.weatherContent}>
-              <Text style={styles.weatherTemp}>{todayWeather.temperature}°C</Text>
-              <Text style={styles.weatherCondition}>{todayWeather.condition}</Text>
-            </View>
-            <Text style={styles.weatherSuggestion}>
-              Parfait pour une tenue légère et colorée !
-            </Text>
+            
+            {isLoadingWeather ? (
+              <View style={styles.weatherContent}>
+                <ActivityIndicator color="#FFFFFF" size="large" />
+                <Text style={styles.weatherLoading}>Chargement de la météo...</Text>
+              </View>
+            ) : weatherError ? (
+              <View style={styles.weatherContent}>
+                <LucideIcons.AlertCircle size={24} color="#FFFFFF" />
+                <Text style={styles.weatherError}>Impossible de charger la météo</Text>
+              </View>
+            ) : weather ? (
+              <>
+                <View style={styles.weatherContent}>
+                  <Text style={styles.weatherTemp}>{weather.temperature}°C</Text>
+                  <Text style={styles.weatherCondition}>{weather.condition}</Text>
+                </View>
+                <Text style={styles.weatherSuggestion}>
+                  {getWeatherSuggestion(weather.temperature)}
+                </Text>
+                <Text style={styles.weatherLocation}>
+                  📍 {weather.city}
+                </Text>
+              </>
+            ) : null}
           </LinearGradient>
         </View>
 
@@ -161,6 +186,7 @@ const styles = StyleSheet.create({
   weatherHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 12,
   },
   weatherTitle: {
@@ -291,5 +317,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
     marginLeft: 8,
+  },
+  weatherLoading: {
+    fontSize: 14,
+    color: '#E0E7FF',
+    marginLeft: 8,
+  },
+  weatherError: {
+    fontSize: 14,
+    color: '#FEE2E2',
+    marginLeft: 8,
+  },
+  refreshButton: {
+    padding: 4,
+  },
+  weatherLocation: {
+    fontSize: 12,
+    color: '#E0E7FF',
+    marginTop: 4,
   },
 });
