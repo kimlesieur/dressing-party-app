@@ -1,6 +1,13 @@
 import { Tabs } from 'expo-router';
 import { View, StyleSheet, Platform } from 'react-native';
-import { Chrome as Home, Shirt, Plus, Users, User, TestTube } from 'lucide-react-native';
+import {
+  Chrome as Home,
+  Shirt,
+  Plus,
+  Users,
+  User,
+  TestTube,
+} from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
@@ -21,23 +28,20 @@ export default function TabLayout() {
           fontSize: 12,
           fontWeight: '600',
         },
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Accueil',
-          tabBarIcon: ({ size, color }) => (
-            <Home size={size} color={color} />
-          ),
+          tabBarIcon: ({ size, color }) => <Home size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="dressing"
         options={{
           title: 'Dressing',
-          tabBarIcon: ({ size, color }) => (
-            <Shirt size={size} color={color} />
-          ),
+          tabBarIcon: ({ size, color }) => <Shirt size={size} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -45,7 +49,9 @@ export default function TabLayout() {
         options={{
           title: '',
           tabBarIcon: ({ focused }) => (
-            <View style={[styles.addButton, focused && styles.addButtonFocused]}>
+            <View
+              style={[styles.addButton, focused && styles.addButtonFocused]}
+            >
               <Plus size={28} color="#FFFFFF" strokeWidth={3} />
             </View>
           ),
@@ -55,18 +61,14 @@ export default function TabLayout() {
         name="inspirations"
         options={{
           title: 'Inspirations',
-          tabBarIcon: ({ size, color }) => (
-            <Users size={size} color={color} />
-          ),
+          tabBarIcon: ({ size, color }) => <Users size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profil',
-          tabBarIcon: ({ size, color }) => (
-            <User size={size} color={color} />
-          ),
+          tabBarIcon: ({ size, color }) => <User size={size} color={color} />,
         }}
       />
       <Tabs.Screen

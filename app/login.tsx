@@ -3,15 +3,15 @@ import { router } from 'expo-router';
 import { ArrowLeft, Eye, EyeOff, Lock, Mail, User } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -33,13 +33,13 @@ export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   const { signIn, signUp } = useAuth();
 
   const handleSubmit = async () => {
     // Trim the email to remove any whitespace
     const trimmedEmail = email.trim();
-    
+
     if (!trimmedEmail || !password) {
       Alert.alert('Error', 'Please fill in all required fields');
       return;
@@ -73,7 +73,7 @@ export default function LoginScreen() {
       }
     } catch (error: any) {
       let errorMessage = 'An error occurred';
-      
+
       // Handle specific Firebase auth errors
       if (error.code === 'auth/user-not-found') {
         errorMessage = 'No account found with this email';
@@ -84,7 +84,7 @@ export default function LoginScreen() {
       } else if (error.code === 'auth/email-already-in-use') {
         errorMessage = 'This email is already registered';
       }
-      
+
       Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
@@ -101,13 +101,13 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.backButton}
               onPress={() => router.back()}
             >
@@ -117,10 +117,9 @@ export default function LoginScreen() {
               {isSignUp ? 'Create Account' : 'Welcome Back'}
             </Text>
             <Text style={styles.subtitle}>
-              {isSignUp 
-                ? 'Join our fashion community' 
-                : 'Sign in to your account'
-              }
+              {isSignUp
+                ? 'Join our fashion community'
+                : 'Sign in to your account'}
             </Text>
           </View>
 
@@ -188,21 +187,27 @@ export default function LoginScreen() {
             </View>
 
             <TouchableOpacity
-              style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+              style={[
+                styles.submitButton,
+                loading && styles.submitButtonDisabled,
+              ]}
               onPress={handleSubmit}
               disabled={loading}
             >
               <Text style={styles.submitButtonText}>
-                {loading 
-                  ? 'Please wait...' 
-                  : (isSignUp ? 'Create Account' : 'Sign In')
-                }
+                {loading
+                  ? 'Please wait...'
+                  : isSignUp
+                    ? 'Create Account'
+                    : 'Sign In'}
               </Text>
             </TouchableOpacity>
 
             <View style={styles.switchContainer}>
               <Text style={styles.switchText}>
-                {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                {isSignUp
+                  ? 'Already have an account?'
+                  : "Don't have an account?"}
               </Text>
               <TouchableOpacity onPress={toggleMode}>
                 <Text style={styles.switchButton}>

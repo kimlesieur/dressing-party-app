@@ -4,7 +4,14 @@ import { Outfit } from '@/types/firebase';
 import { Link } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
 import React from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function InspirationsScreen() {
@@ -12,12 +19,14 @@ export default function InspirationsScreen() {
 
   const renderItem = ({ item }: { item: Outfit }) => (
     <Link href={`/outfits/${item.id}`} asChild>
-        <TouchableOpacity style={styles.outfitCard}>
-            <OptimizedImage uri={item.imageUrl || ''} style={styles.outfitImage} />
-            <View style={styles.outfitNameContainer}>
-                <Text style={styles.outfitName} numberOfLines={2}>{item.name}</Text>
-            </View>
-        </TouchableOpacity>
+      <TouchableOpacity style={styles.outfitCard}>
+        <OptimizedImage uri={item.imageUrl || ''} style={styles.outfitImage} />
+        <View style={styles.outfitNameContainer}>
+          <Text style={styles.outfitName} numberOfLines={2}>
+            {item.name}
+          </Text>
+        </View>
+      </TouchableOpacity>
     </Link>
   );
 
@@ -48,13 +57,17 @@ export default function InspirationsScreen() {
         />
       ) : (
         <View style={styles.centerContainer}>
-            <LucideIcons.Shirt size={48} color="#CBD5E1" />
-            <Text style={styles.emptyText}>Vous n&apos;avez pas encore créé de tenue.</Text>
-            <Link href="/outfits/create" asChild>
-                <TouchableOpacity style={styles.createButton}>
-                    <Text style={styles.createButtonText}>Créer ma première tenue</Text>
-                </TouchableOpacity>
-            </Link>
+          <LucideIcons.Shirt size={48} color="#CBD5E1" />
+          <Text style={styles.emptyText}>
+            Vous n&apos;avez pas encore créé de tenue.
+          </Text>
+          <Link href="/outfits/create" asChild>
+            <TouchableOpacity style={styles.createButton}>
+              <Text style={styles.createButtonText}>
+                Créer ma première tenue
+              </Text>
+            </TouchableOpacity>
+          </Link>
         </View>
       )}
     </SafeAreaView>
@@ -133,5 +146,5 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '600',
     fontSize: 16,
-  }
+  },
 });

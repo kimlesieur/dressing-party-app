@@ -3,7 +3,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { useGetUserClothing } from '@/hooks/useClothing';
 import { Grid2x2 as Grid, List, Search } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Animated, {
   Extrapolate,
   interpolate,
@@ -18,8 +26,13 @@ export default function DressingScreen() {
   const [searchText, setSearchText] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [activeFilter, setActiveFilter] = useState('Tous');
-  
-  const { data: clothes = [], isLoading, isError, error } = useGetUserClothing(user?.uid || '');
+
+  const {
+    data: clothes = [],
+    isLoading,
+    isError,
+    error,
+  } = useGetUserClothing(user?.uid || '');
 
   const scrollY = useSharedValue(0);
   const headerHeight = useSharedValue(0);
@@ -36,7 +49,7 @@ export default function DressingScreen() {
       scrollY.value,
       [0, headerHeight.value],
       [0, -headerHeight.value],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     );
     return {
       transform: [{ translateY }],
@@ -57,10 +70,19 @@ export default function DressingScreen() {
     };
   });
 
-  const filters = ['Tous', 'Hauts', 'Bas', 'Robes', 'Chaussures', 'Accessoires'];
+  const filters = [
+    'Tous',
+    'Hauts',
+    'Bas',
+    'Robes',
+    'Chaussures',
+    'Accessoires',
+  ];
 
-  const filteredClothes = clothes.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchText.toLowerCase());
+  const filteredClothes = clothes.filter((item) => {
+    const matchesSearch = item.name
+      .toLowerCase()
+      .includes(searchText.toLowerCase());
     const matchesFilter =
       activeFilter === 'Tous' ||
       (activeFilter === 'Hauts' && item.type === 'tops') ||
@@ -86,25 +108,34 @@ export default function DressingScreen() {
         ) : isError ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateTitle}>Erreur</Text>
-            <Text style={styles.emptyStateText}>{error?.message || 'Erreur lors du chargement des vêtements.'}</Text>
+            <Text style={styles.emptyStateText}>
+              {error?.message || 'Erreur lors du chargement des vêtements.'}
+            </Text>
           </View>
         ) : (
           <>
             {filteredClothes.length > 0 ? (
               viewMode === 'grid' ? (
                 <View style={styles.grid}>
-                  {filteredClothes.map(item => <ClothingCard item={item} viewMode="grid" key={item.id} />)}
+                  {filteredClothes.map((item) => (
+                    <ClothingCard item={item} viewMode="grid" key={item.id} />
+                  ))}
                 </View>
               ) : (
                 <View style={styles.list}>
-                  {filteredClothes.map(item => <ClothingCard item={item} viewMode="list" key={item.id} />)}
+                  {filteredClothes.map((item) => (
+                    <ClothingCard item={item} viewMode="list" key={item.id} />
+                  ))}
                 </View>
               )
             ) : (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyStateTitle}>Aucun vêtement trouvé</Text>
+                <Text style={styles.emptyStateTitle}>
+                  Aucun vêtement trouvé
+                </Text>
                 <Text style={styles.emptyStateText}>
-                  Essayez de modifier vos filtres ou ajoutez de nouveaux vêtements à votre dressing.
+                  Essayez de modifier vos filtres ou ajoutez de nouveaux
+                  vêtements à votre dressing.
                 </Text>
               </View>
             )}
@@ -112,15 +143,17 @@ export default function DressingScreen() {
         )}
       </Animated.ScrollView>
 
-      <Animated.View 
-        style={animatedHeaderStyle} 
+      <Animated.View
+        style={animatedHeaderStyle}
         onLayout={(event) => {
           headerHeight.value = event.nativeEvent.layout.height;
         }}
       >
         <View style={styles.header}>
           <Text style={styles.title}>Mon Dressing</Text>
-          <Text style={styles.subtitle}>{filteredClothes.length} vêtements</Text>
+          <Text style={styles.subtitle}>
+            {filteredClothes.length} vêtements
+          </Text>
         </View>
 
         <View style={styles.searchContainer}>
@@ -134,19 +167,39 @@ export default function DressingScreen() {
               placeholderTextColor="#9CA3AF"
             />
           </View>
-          <TouchableOpacity style={styles.viewToggle} onPress={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}>
-            {viewMode === 'grid' ? <List size={24} color="#8B5CF6" /> : <Grid size={24} color="#8B5CF6" />}
+          <TouchableOpacity
+            style={styles.viewToggle}
+            onPress={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+          >
+            {viewMode === 'grid' ? (
+              <List size={24} color="#8B5CF6" />
+            ) : (
+              <Grid size={24} color="#8B5CF6" />
+            )}
           </TouchableOpacity>
         </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersContainer} contentContainerStyle={{ alignItems: 'center' }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.filtersContainer}
+          contentContainerStyle={{ alignItems: 'center' }}
+        >
           {filters.map((filter) => (
             <TouchableOpacity
               key={filter}
-              style={[styles.filterChip, activeFilter === filter && styles.activeFilterChip]}
+              style={[
+                styles.filterChip,
+                activeFilter === filter && styles.activeFilterChip,
+              ]}
               onPress={() => setActiveFilter(filter)}
             >
-              <Text style={[styles.filterText, activeFilter === filter && styles.activeFilterText]}>
+              <Text
+                style={[
+                  styles.filterText,
+                  activeFilter === filter && styles.activeFilterText,
+                ]}
+              >
                 {filter}
               </Text>
             </TouchableOpacity>

@@ -1,4 +1,4 @@
-import QueryClientProvider from "@/config/query/QueryClientProvider";
+import QueryClientProvider from '@/config/query/QueryClientProvider';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -19,6 +19,6 @@ function RootLayout() {
       </QueryClientProvider>
     </SafeAreaProvider>
   );
-};
+}
 
 export default RootLayout;

@@ -1,14 +1,37 @@
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { useAuth } from '@/hooks/useAuth';
 import { router } from 'expo-router';
-import { ChartBar as BarChart3, Bell, Calendar, Crown, CreditCard as Edit, Heart, CircleHelp as HelpCircle, LogIn, LogOut, Settings, Share, Shield, Shirt } from 'lucide-react-native';
+import {
+  ChartBar as BarChart3,
+  Bell,
+  Calendar,
+  Crown,
+  CreditCard as Edit,
+  Heart,
+  CircleHelp as HelpCircle,
+  LogIn,
+  LogOut,
+  Settings,
+  Share,
+  Shield,
+  Shirt,
+} from 'lucide-react-native';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
   const { userProfile, loading, signOut, isAuthenticated } = useAuth();
-  const [isPublicProfile, setIsPublicProfile] = useState(userProfile?.isPublic ?? true);
+  const [isPublicProfile, setIsPublicProfile] = useState(
+    userProfile?.isPublic ?? true,
+  );
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   // Show loading state
@@ -30,10 +53,11 @@ export default function ProfileScreen() {
           <View style={styles.authContent}>
             <Text style={styles.authTitle}>Welcome to Dressing Party</Text>
             <Text style={styles.authSubtitle}>
-              Sign in to access your profile, manage your wardrobe, and share your style with the community.
+              Sign in to access your profile, manage your wardrobe, and share
+              your style with the community.
             </Text>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.loginButton}
               onPress={() => router.push('/login')}
             >
@@ -57,26 +81,72 @@ export default function ProfileScreen() {
     {
       title: 'Mon contenu',
       items: [
-        { icon: Shirt, label: 'Mon dressing', action: () => {}, color: '#8B5CF6' },
-        { icon: Heart, label: 'Mes tenues favorites', action: () => {}, color: '#EC4899' },
-        { icon: BarChart3, label: 'Mes statistiques', action: () => {}, color: '#10B981' },
-      ]
+        {
+          icon: Shirt,
+          label: 'Mon dressing',
+          action: () => {},
+          color: '#8B5CF6',
+        },
+        {
+          icon: Heart,
+          label: 'Mes tenues favorites',
+          action: () => {},
+          color: '#EC4899',
+        },
+        {
+          icon: BarChart3,
+          label: 'Mes statistiques',
+          action: () => {},
+          color: '#10B981',
+        },
+      ],
     },
     {
       title: 'Paramètres',
       items: [
-        { icon: Bell, label: 'Notifications', action: () => {}, color: '#F59E0B', toggle: true, value: notificationsEnabled, onToggle: setNotificationsEnabled },
-        { icon: Shield, label: 'Profil public', action: () => {}, color: '#6366F1', toggle: true, value: isPublicProfile, onToggle: setIsPublicProfile },
-        { icon: Settings, label: 'Paramètres généraux', action: () => {}, color: '#6B7280' },
-      ]
+        {
+          icon: Bell,
+          label: 'Notifications',
+          action: () => {},
+          color: '#F59E0B',
+          toggle: true,
+          value: notificationsEnabled,
+          onToggle: setNotificationsEnabled,
+        },
+        {
+          icon: Shield,
+          label: 'Profil public',
+          action: () => {},
+          color: '#6366F1',
+          toggle: true,
+          value: isPublicProfile,
+          onToggle: setIsPublicProfile,
+        },
+        {
+          icon: Settings,
+          label: 'Paramètres généraux',
+          action: () => {},
+          color: '#6B7280',
+        },
+      ],
     },
     {
       title: 'Support',
       items: [
-        { icon: HelpCircle, label: 'Aide et support', action: () => {}, color: '#8B5CF6' },
-        { icon: Share, label: 'Partager l\'app', action: () => {}, color: '#EC4899' },
-      ]
-    }
+        {
+          icon: HelpCircle,
+          label: 'Aide et support',
+          action: () => {},
+          color: '#8B5CF6',
+        },
+        {
+          icon: Share,
+          label: "Partager l'app",
+          action: () => {},
+          color: '#EC4899',
+        },
+      ],
+    },
   ];
 
   const handleSignOut = async () => {
@@ -100,19 +170,21 @@ export default function ProfileScreen() {
         {/* Profile Info */}
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
-            <OptimizedImage 
-              uri={userProfile.avatar || 'https://via.placeholder.com/150'} 
-              style={styles.profileImage} 
+            <OptimizedImage
+              uri={userProfile.avatar || 'https://via.placeholder.com/150'}
+              style={styles.profileImage}
             />
             <TouchableOpacity style={styles.editImageButton}>
               <Edit size={16} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
-          
+
           <Text style={styles.profileName}>{userProfile.displayName}</Text>
           <Text style={styles.profileUsername}>{userProfile.username}</Text>
-          
-          <Text style={styles.profileBio}>{userProfile.bio || 'No bio yet'}</Text>
+
+          <Text style={styles.profileBio}>
+            {userProfile.bio || 'No bio yet'}
+          </Text>
 
           {/* Profile Stats */}
           <View style={styles.profileStats}>
@@ -151,7 +223,12 @@ export default function ProfileScreen() {
           <View style={styles.statsGrid}>
             {stats.map((stat, index) => (
               <View key={index} style={styles.statCard}>
-                <View style={[styles.statIcon, { backgroundColor: `${stat.color}15` }]}>
+                <View
+                  style={[
+                    styles.statIcon,
+                    { backgroundColor: `${stat.color}15` },
+                  ]}
+                >
                   <stat.icon size={24} color={stat.color} />
                 </View>
                 <Text style={styles.statValue}>{stat.value}</Text>
@@ -167,16 +244,22 @@ export default function ProfileScreen() {
             <Text style={styles.sectionTitle}>{section.title}</Text>
             <View style={styles.menuCard}>
               {section.items.map((item, itemIndex) => (
-                <TouchableOpacity 
-                  key={itemIndex} 
+                <TouchableOpacity
+                  key={itemIndex}
                   style={[
                     styles.menuItem,
-                    itemIndex < section.items.length - 1 && styles.menuItemBorder
+                    itemIndex < section.items.length - 1 &&
+                      styles.menuItemBorder,
                   ]}
                   onPress={item.action}
                 >
                   <View style={styles.menuItemLeft}>
-                    <View style={[styles.menuIcon, { backgroundColor: `${item.color}15` }]}>
+                    <View
+                      style={[
+                        styles.menuIcon,
+                        { backgroundColor: `${item.color}15` },
+                      ]}
+                    >
                       <item.icon size={20} color={item.color} />
                     </View>
                     <Text style={styles.menuItemText}>{item.label}</Text>
