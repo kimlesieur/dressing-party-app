@@ -5,7 +5,9 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
+  onSnapshot,
   orderBy,
   query,
   updateDoc,
@@ -47,6 +49,24 @@ export class ClothingService {
     }
   }
 
+  // Get a single clothing item by ID
+  static async getClothingItem(itemId: string): Promise<ClothingItem | null> {
+    try {
+      const docRef = doc(db, 'clothing', itemId);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() } as ClothingItem;
+      } else {
+        console.log('No such document!');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error getting clothing item details:', error);
+      throw error;
+    }
+  }
+
   // Get all clothing items for a user
   static async getUserClothing(userId: string): Promise<ClothingItem[]> {
     try {
@@ -73,17 +93,64 @@ export class ClothingService {
     }
   }
 
+  // Get all clothing items for a user with real-time updates
+  static subscribeToUserClothing(userId: string, onUpdate: (items: ClothingItem[]) => void): () => void {
+    try {
+      const q = query(
+        collection(db, 'clothing'),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc')
+      );
+
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const clothingItems: ClothingItem[] = [];
+        querySnapshot.forEach((doc) => {
+          clothingItems.push({
+            id: doc.id,
+            ...doc.data(),
+          } as ClothingItem);
+        });
+        onUpdate(clothingItems);
+      }, (error) => {
+        console.error('Error in clothing subscription:', error);
+        // Maybe call onUpdate with an empty array or an error state
+      });
+
+      return unsubscribe;
+    } catch (error) {
+      console.error('Error setting up user clothing subscription:', error);
+      throw error;
+    }
+  }
+
   // Update a clothing item
   static async updateClothingItem(
-    itemId: string, 
-    updates: Partial<ClothingItem>
+    itemId: string,
+    userId: string,
+    updates: Partial<Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'>>,
+    newImageFile?: Blob
   ): Promise<void> {
     try {
       const itemRef = doc(db, 'clothing', itemId);
-      await updateDoc(itemRef, {
-        ...updates,
-        updatedAt: new Date(),
-      });
+      const updateData: any = { ...updates, updatedAt: new Date() };
+
+      if (newImageFile) {
+        const oldDocSnap = await getDoc(itemRef);
+        if (oldDocSnap.exists()) {
+            const oldData = oldDocSnap.data();
+            if (oldData.imageUrl) {
+                const oldImageRef = ref(storage, oldData.imageUrl);
+                deleteObject(oldImageRef).catch(err => console.error("Error deleting old image:", err));
+            }
+        }
+        
+        const imageRef = ref(storage, `clothing/${userId}/${Date.now()}`);
+        const snapshot = await uploadBytes(imageRef, newImageFile);
+        const imageUrl = await getDownloadURL(snapshot.ref);
+        updateData.imageUrl = imageUrl;
+      }
+
+      await updateDoc(itemRef, updateData);
     } catch (error) {
       console.error('Error updating clothing item:', error);
       throw error;

@@ -1,8 +1,9 @@
+import { OptimizedImage } from '@/components/OptimizedImage';
 import { useAuth } from '@/hooks/useAuth';
 import { router } from 'expo-router';
 import { ChartBar as BarChart3, Bell, Calendar, Crown, CreditCard as Edit, Heart, CircleHelp as HelpCircle, LogIn, LogOut, Settings, Share, Shield, Shirt } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Image, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
@@ -99,8 +100,8 @@ export default function ProfileScreen() {
         {/* Profile Info */}
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
-            <Image 
-              source={{ uri: userProfile.avatar || 'https://via.placeholder.com/150' }} 
+            <OptimizedImage 
+              uri={userProfile.avatar || 'https://via.placeholder.com/150'} 
               style={styles.profileImage} 
             />
             <TouchableOpacity style={styles.editImageButton}>
