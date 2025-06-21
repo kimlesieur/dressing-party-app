@@ -1,7 +1,7 @@
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { useGetClothingItem } from '@/hooks/useClothing';
 import { useGetOutfit } from '@/hooks/useOutfits';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -56,7 +56,11 @@ export default function OutfitDetailScreen() {
           <LucideIcons.ChevronLeft size={24} color="#1F2937" />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>{outfit.name}</Text>
-        <View style={{width: 24}} />
+        <Link href={`/outfits/edit/${id}`} asChild>
+            <TouchableOpacity style={styles.editButton}>
+                <LucideIcons.FilePenLine size={22} color="#1F2937" />
+            </TouchableOpacity>
+        </Link>
       </View>
       <ScrollView>
         <OptimizedImage uri={outfit.imageUrl || ''} style={styles.outfitImage} />
@@ -91,6 +95,9 @@ const styles = StyleSheet.create({
         borderBottomColor: '#E5E7EB',
     },
     backButton: {
+        padding: 4,
+    },
+    editButton: {
         padding: 4,
     },
     headerTitle: {
