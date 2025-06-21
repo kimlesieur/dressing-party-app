@@ -1,10 +1,10 @@
 import { OptimizedImage } from '@/components/OptimizedImage';
+import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useGetClothingItem } from '@/hooks/useClothing';
 import { useGetOutfit } from '@/hooks/useOutfits';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 function OutfitClothingItem({ id }: { id: string }) {
   const { data: clothingItem, isLoading } = useGetClothingItem(id);
@@ -50,7 +50,7 @@ export default function OutfitDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <LucideIcons.ChevronLeft size={24} color="#1F2937" />
@@ -72,7 +72,7 @@ export default function OutfitDetailScreen() {
           ))}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 

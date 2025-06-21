@@ -1,4 +1,5 @@
 import { OutfitEditor } from "@/components/OutfitEditor";
+import { ScreenWrapper } from "@/components/ScreenWrapper";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
 import {
@@ -8,14 +9,13 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function EditOutfitScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
 
     return (
-        <SafeAreaView style={styles.container}>
+        <ScreenWrapper style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <LucideIcons.ChevronLeft size={24} color="#1F2937" />
@@ -27,7 +27,7 @@ export default function EditOutfitScreen() {
             <ScrollView>
                 <OutfitEditor outfitId={id} />
             </ScrollView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 }
 

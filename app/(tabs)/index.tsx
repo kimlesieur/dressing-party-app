@@ -1,5 +1,6 @@
 import { HomepageStatistics } from '@/components/HomepageStatistics';
 import { OptimizedImage } from '@/components/OptimizedImage';
+import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useGetRecentItems } from '@/hooks/useGetRecentItems';
 import { useGetRandomUserOutfits } from '@/hooks/useOutfits';
 import { useWeather } from '@/hooks/useWeather';
@@ -8,7 +9,6 @@ import { Link } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
 import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const { recentItems } = useGetRecentItems();
@@ -24,7 +24,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -145,7 +145,7 @@ export default function HomeScreen() {
           </Link>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
