@@ -43,14 +43,7 @@ export default function EditClothingScreen() {
 
   useEffect(() => {
     if (initialClothingItem) {
-      const {
-        id: itemId,
-        userId,
-        createdAt,
-        updatedAt,
-        imageUrl,
-        ...data
-      } = initialClothingItem;
+      const { imageUrl, ...data } = initialClothingItem;
       setClothingData(data);
       setSelectedImage(imageUrl);
     }
