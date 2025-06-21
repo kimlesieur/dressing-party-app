@@ -10,7 +10,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
-  const { recentItems, isLoading: isLoadingClothing } = useGetRecentItems();
+  const { recentItems } = useGetRecentItems();
   const { weather, isLoading: isLoadingWeather, error: weatherError, refreshWeather } = useWeather();
 
   const suggestedOutfit = {
