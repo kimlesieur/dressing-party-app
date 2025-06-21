@@ -1,84 +1,115 @@
-import { Tabs } from 'expo-router';
-import { View, StyleSheet, Platform } from 'react-native';
-import { Chrome as Home, Shirt, Plus, Users, User, TestTube } from 'lucide-react-native';
+import AddButtonMenu from '@/components/AddButtonMenu';
+import { Tabs, useRouter } from 'expo-router';
+import {
+  Chrome as Home,
+  Plus,
+  Shirt,
+  TestTube,
+  User,
+  Users,
+} from 'lucide-react-native';
+import React, { useState } from 'react';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 export default function TabLayout() {
+  const router = useRouter();
+  const [isMenuVisible, setMenuVisible] = useState(false);
+
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#8B5CF6',
-        tabBarInactiveTintColor: '#9CA3AF',
-        tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopWidth: 1,
-          borderTopColor: '#F3F4F6',
-          height: Platform.OS === 'ios' ? 90 : 70,
-          paddingBottom: Platform.OS === 'ios' ? 30 : 10,
-          paddingTop: 10,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-        },
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Accueil',
-          tabBarIcon: ({ size, color }) => (
-            <Home size={size} color={color} />
-          ),
+    <View style={{ flex: 1 }}>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: '#8B5CF6',
+          tabBarInactiveTintColor: '#9CA3AF',
+          tabBarStyle: {
+            backgroundColor: '#FFFFFF',
+            borderTopWidth: 1,
+            borderTopColor: '#F3F4F6',
+            height: Platform.OS === 'ios' ? 90 : 70,
+            paddingBottom: Platform.OS === 'ios' ? 30 : 10,
+            paddingTop: 10,
+          },
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: '600',
+          },
         }}
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Accueil',
+            tabBarIcon: ({ size, color }) => <Home size={size} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="dressing"
+          options={{
+            title: 'Dressing',
+            tabBarIcon: ({ size, color }) => (
+              <Shirt size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="add"
+          options={{
+            title: '',
+            tabBarButton: (props) => (
+              <Pressable
+                onPress={() => router.push('/(tabs)/add')}
+                onLongPress={() => setMenuVisible(true)}
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <View
+                  style={[
+                    styles.addButton,
+                    props.accessibilityState?.selected &&
+                      styles.addButtonFocused,
+                  ]}
+                >
+                  <Plus size={28} color="#FFFFFF" strokeWidth={3} />
+                </View>
+              </Pressable>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="inspirations"
+          options={{
+            title: 'Inspirations',
+            tabBarIcon: ({ size, color }) => (
+              <Users size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: 'Profil',
+            tabBarIcon: ({ size, color }) => <User size={size} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="test"
+          options={{
+            title: 'Test',
+            tabBarIcon: ({ size, color }) => (
+              <TestTube size={size} color={color} />
+            ),
+          }}
+        />
+      </Tabs>
+      <AddButtonMenu
+        isOpen={isMenuVisible}
+        onClose={() => setMenuVisible(false)}
       />
-      <Tabs.Screen
-        name="dressing"
-        options={{
-          title: 'Dressing',
-          tabBarIcon: ({ size, color }) => (
-            <Shirt size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="add"
-        options={{
-          title: '',
-          tabBarIcon: ({ focused }) => (
-            <View style={[styles.addButton, focused && styles.addButtonFocused]}>
-              <Plus size={28} color="#FFFFFF" strokeWidth={3} />
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="inspirations"
-        options={{
-          title: 'Inspirations',
-          tabBarIcon: ({ size, color }) => (
-            <Users size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profil',
-          tabBarIcon: ({ size, color }) => (
-            <User size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="test"
-        options={{
-          title: 'Test',
-          tabBarIcon: ({ size, color }) => (
-            <TestTube size={size} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+    </View>
   );
 }
 

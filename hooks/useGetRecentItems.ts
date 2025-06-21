@@ -4,7 +4,9 @@ import { useGetUserClothing } from './useClothing';
 
 export function useGetRecentItems(limit = 5) {
   const { user } = useAuth();
-  const { data: clothingItems, isLoading } = useGetUserClothing(user?.uid);
+  const { data: clothingItems, isLoading } = useGetUserClothing(
+    user?.uid || '',
+  );
 
   const recentItems = useMemo(() => {
     if (!clothingItems) {
@@ -18,4 +20,4 @@ export function useGetRecentItems(limit = 5) {
   }, [clothingItems, limit]);
 
   return { recentItems, isLoading };
-} 
+}

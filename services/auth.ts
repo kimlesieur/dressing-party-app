@@ -1,19 +1,27 @@
-import { 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signOut as firebaseSignOut,
-  User as FirebaseUser,
-  updateProfile
-} from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/config/firebase';
 import { UserProfile } from '@/types/firebase';
+import {
+  createUserWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export class AuthService {
   // Sign up with email and password
-  static async signUp(email: string, password: string, displayName: string, username: string) {
+  static async signUp(
+    email: string,
+    password: string,
+    displayName: string,
+    username: string,
+  ) {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
       const user = userCredential.user;
 
       // Update the user's display name
@@ -22,7 +30,7 @@ export class AuthService {
       // Create user profile in Firestore
       const userProfile: UserProfile = {
         uid: user.uid,
-        email: user.email!,
+        email: user.email || '',
         displayName,
         username,
         bio: '',
@@ -46,12 +54,18 @@ export class AuthService {
   // Sign in with email and password
   static async signIn(email: string, password: string) {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
       const user = userCredential.user;
 
       // Get user profile from Firestore
       const userDoc = await getDoc(doc(db, 'users', user.uid));
-      const userProfile = userDoc.exists() ? userDoc.data() as UserProfile : null;
+      const userProfile = userDoc.exists()
+        ? (userDoc.data() as UserProfile)
+        : null;
 
       return { user, userProfile };
     } catch (error) {
@@ -74,7 +88,7 @@ export class AuthService {
   static async getCurrentUserProfile(uid: string): Promise<UserProfile | null> {
     try {
       const userDoc = await getDoc(doc(db, 'users', uid));
-      return userDoc.exists() ? userDoc.data() as UserProfile : null;
+      return userDoc.exists() ? (userDoc.data() as UserProfile) : null;
     } catch (error) {
       console.error('Error getting user profile:', error);
       return null;
@@ -85,10 +99,14 @@ export class AuthService {
   static async updateUserProfile(uid: string, updates: Partial<UserProfile>) {
     try {
       const userRef = doc(db, 'users', uid);
-      await setDoc(userRef, { 
-        ...updates, 
-        updatedAt: new Date() 
-      }, { merge: true });
+      await setDoc(
+        userRef,
+        {
+          ...updates,
+          updatedAt: new Date(),
+        },
+        { merge: true },
+      );
     } catch (error) {
       console.error('Error updating user profile:', error);
       throw error;

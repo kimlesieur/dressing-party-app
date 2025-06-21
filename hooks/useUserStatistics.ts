@@ -4,7 +4,7 @@ import { useGetUserClothing } from './useClothing';
 
 export function useUserStatistics() {
   const { user } = useAuth();
-  const { data: clothingItems } = useGetUserClothing(user?.uid);
+  const { data: clothingItems } = useGetUserClothing(user?.uid || '');
 
   const stats = useMemo(() => {
     if (!clothingItems || clothingItems.length === 0) {
@@ -19,19 +19,25 @@ export function useUserStatistics() {
     const brandCounts: { [key: string]: number } = {};
     const colorCounts: { [key: string]: number } = {};
 
-    clothingItems.forEach(item => {
+    clothingItems.forEach((item) => {
       // Brand
       if (item.brand) {
         brandCounts[item.brand] = (brandCounts[item.brand] || 0) + 1;
       }
       // Colors
-      item.colors.forEach(color => {
+      item.colors.forEach((color) => {
         colorCounts[color] = (colorCounts[color] || 0) + 1;
       });
     });
 
-    const favoriteBrand = Object.keys(brandCounts).reduce((a, b) => brandCounts[a] > brandCounts[b] ? a : b, '-');
-    const dominantColor = Object.keys(colorCounts).reduce((a, b) => colorCounts[a] > colorCounts[b] ? a : b, '-');
+    const favoriteBrand = Object.keys(brandCounts).reduce(
+      (a, b) => (brandCounts[a] > brandCounts[b] ? a : b),
+      '-',
+    );
+    const dominantColor = Object.keys(colorCounts).reduce(
+      (a, b) => (colorCounts[a] > colorCounts[b] ? a : b),
+      '-',
+    );
 
     return {
       totalClothes: clothingItems.length,
@@ -42,4 +48,4 @@ export function useUserStatistics() {
   }, [clothingItems]);
 
   return { stats };
-} 
+}

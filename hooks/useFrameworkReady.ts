@@ -10,5 +10,5 @@ declare global {
 export function useFrameworkReady() {
   useEffect(() => {
     window.frameworkReady?.();
-  }, []);  // Added empty dependency array for single execution
+  }, []); // Added empty dependency array for single execution
 }

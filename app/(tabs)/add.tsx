@@ -1,3 +1,4 @@
+import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useAuth } from '@/hooks/useAuth';
 import { ClothingService } from '@/services/clothing';
 import { ClothingItem } from '@/types/firebase';
@@ -5,15 +6,25 @@ import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { Camera, Check, Image as ImageIcon, X } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import { OptimizedImage } from '@/components/OptimizedImage';
 
 export default function AddClothingScreen() {
   const { user } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [clothingData, setClothingData] = useState<Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'>>({
+  const [clothingData, setClothingData] = useState<
+    Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'>
+  >({
     name: '',
     type: '',
     subCategory: '',
@@ -25,30 +36,66 @@ export default function AddClothingScreen() {
   const [isLoading, setIsLoading] = useState(false);
 
   const clothingTypes = [
-    { id: 'tops', name: 'Hauts', subCategories: ['T-shirt', 'Chemise', 'Pull', 'Débardeur', 'Sweat'] },
-    { id: 'bottoms', name: 'Bas', subCategories: ['Jean', 'Pantalon', 'Short', 'Jupe', 'Legging'] },
-    { id: 'dresses', name: 'Robes', subCategories: ['Robe courte', 'Robe longue', 'Robe de soirée'] },
-    { id: 'shoes', name: 'Chaussures', subCategories: ['Baskets', 'Escarpins', 'Boots', 'Sandales'] },
-    { id: 'accessories', name: 'Accessoires', subCategories: ['Sac', 'Bijoux', 'Ceinture', 'Écharpe'] },
-    { id: 'outerwear', name: 'Manteaux/Vestes', subCategories: ['Manteau', 'Veste', 'Blazer', 'Cardigan'] },
+    {
+      id: 'tops',
+      name: 'Hauts',
+      subCategories: ['T-shirt', 'Chemise', 'Pull', 'Débardeur', 'Sweat'],
+    },
+    {
+      id: 'bottoms',
+      name: 'Bas',
+      subCategories: ['Jean', 'Pantalon', 'Short', 'Jupe', 'Legging'],
+    },
+    {
+      id: 'dresses',
+      name: 'Robes',
+      subCategories: ['Robe courte', 'Robe longue', 'Robe de soirée'],
+    },
+    {
+      id: 'shoes',
+      name: 'Chaussures',
+      subCategories: ['Baskets', 'Escarpins', 'Boots', 'Sandales'],
+    },
+    {
+      id: 'accessories',
+      name: 'Accessoires',
+      subCategories: ['Sac', 'Bijoux', 'Ceinture', 'Écharpe'],
+    },
+    {
+      id: 'outerwear',
+      name: 'Manteaux/Vestes',
+      subCategories: ['Manteau', 'Veste', 'Blazer', 'Cardigan'],
+    },
   ];
 
   const seasons = ['Printemps', 'Été', 'Automne', 'Hiver'];
-  const colors = ['Noir', 'Blanc', 'Gris', 'Rouge', 'Bleu', 'Vert', 'Jaune', 'Rose', 'Beige', 'Marron', 'Multicolore'];
+  const colors = [
+    'Noir',
+    'Blanc',
+    'Gris',
+    'Rouge',
+    'Bleu',
+    'Vert',
+    'Jaune',
+    'Rose',
+    'Beige',
+    'Marron',
+    'Multicolore',
+  ];
 
   const getColorHex = (colorName: string) => {
     const colorMap: { [key: string]: string } = {
-      'Noir': '#1F2937',
-      'Blanc': '#F9FAFB',
-      'Gris': '#9CA3AF',
-      'Rouge': '#EF4444',
-      'Bleu': '#3B82F6',
-      'Vert': '#10B981',
-      'Jaune': '#F59E0B',
-      'Rose': '#EC4899',
-      'Beige': '#D97706',
-      'Marron': '#92400E',
-      'Multicolore': '#8B5CF6',
+      Noir: '#1F2937',
+      Blanc: '#F9FAFB',
+      Gris: '#9CA3AF',
+      Rouge: '#EF4444',
+      Bleu: '#3B82F6',
+      Vert: '#10B981',
+      Jaune: '#F59E0B',
+      Rose: '#EC4899',
+      Beige: '#D97706',
+      Marron: '#92400E',
+      Multicolore: '#8B5CF6',
     };
     return colorMap[colorName] || '#9CA3AF';
   };
@@ -56,7 +103,10 @@ export default function AddClothingScreen() {
   const openCamera = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission requise', 'Nous avons besoin de votre permission pour accéder à la caméra');
+      Alert.alert(
+        'Permission requise',
+        'Nous avons besoin de votre permission pour accéder à la caméra',
+      );
       return;
     }
 
@@ -86,20 +136,20 @@ export default function AddClothingScreen() {
   };
 
   const handleSeasonToggle = (season: string) => {
-    setClothingData(prev => ({
+    setClothingData((prev) => ({
       ...prev,
       seasons: prev.seasons.includes(season)
-        ? prev.seasons.filter(s => s !== season)
-        : [...prev.seasons, season]
+        ? prev.seasons.filter((s) => s !== season)
+        : [...prev.seasons, season],
     }));
   };
 
   const handleColorToggle = (color: string) => {
-    setClothingData(prev => ({
+    setClothingData((prev) => ({
       ...prev,
       colors: prev.colors.includes(color)
-        ? prev.colors.filter(c => c !== color)
-        : [...prev.colors, color]
+        ? prev.colors.filter((c) => c !== color)
+        : [...prev.colors, color],
     }));
   };
 
@@ -111,12 +161,18 @@ export default function AddClothingScreen() {
 
   const handleSave = async () => {
     if (!selectedImage || !clothingData.name || !clothingData.type) {
-      Alert.alert('Informations manquantes', 'Veuillez ajouter au minimum une photo, un nom et un type de vêtement.');
+      Alert.alert(
+        'Informations manquantes',
+        'Veuillez ajouter au minimum une photo, un nom et un type de vêtement.',
+      );
       return;
     }
 
     if (!user) {
-      Alert.alert('Erreur', 'Vous devez être connecté pour ajouter un vêtement.');
+      Alert.alert(
+        'Erreur',
+        'Vous devez être connecté pour ajouter un vêtement.',
+      );
       return;
     }
 
@@ -130,8 +186,8 @@ export default function AddClothingScreen() {
       await ClothingService.addClothingItem(user.uid, clothingData, imageBlob);
 
       Alert.alert('Succès', 'Votre vêtement a été ajouté à votre dressing !', [
-        { 
-          text: 'OK', 
+        {
+          text: 'OK',
           onPress: () => {
             // Reset form
             setSelectedImage(null);
@@ -146,21 +202,24 @@ export default function AddClothingScreen() {
             });
             // Navigate back to dressing
             router.push('/(tabs)/dressing');
-          }
-        }
+          },
+        },
       ]);
     } catch (error) {
       console.error('Error adding clothing item:', error);
-      Alert.alert('Erreur', 'Une erreur est survenue lors de l\'ajout du vêtement. Veuillez réessayer.');
+      Alert.alert(
+        'Erreur',
+        "Une erreur est survenue lors de l'ajout du vêtement. Veuillez réessayer.",
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const selectedType = clothingTypes.find(t => t.id === clothingData.type);
+  const selectedType = clothingTypes.find((t) => t.id === clothingData.type);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -173,8 +232,11 @@ export default function AddClothingScreen() {
           <Text style={styles.sectionTitle}>Photo du vêtement *</Text>
           {selectedImage ? (
             <View style={styles.imageContainer}>
-              <OptimizedImage uri={selectedImage} style={styles.selectedImage} />
-              <TouchableOpacity 
+              <OptimizedImage
+                uri={selectedImage}
+                style={styles.selectedImage}
+              />
+              <TouchableOpacity
                 style={styles.removeImageButton}
                 onPress={() => setSelectedImage(null)}
               >
@@ -183,13 +245,21 @@ export default function AddClothingScreen() {
             </View>
           ) : (
             <View style={styles.imageUploadContainer}>
-              <TouchableOpacity style={styles.imageUploadButton} onPress={openCamera}>
+              <TouchableOpacity
+                style={styles.imageUploadButton}
+                onPress={openCamera}
+              >
                 <Camera size={32} color="#8B5CF6" />
                 <Text style={styles.imageUploadText}>Prendre une photo</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.imageUploadButton} onPress={openImagePicker}>
+              <TouchableOpacity
+                style={styles.imageUploadButton}
+                onPress={openImagePicker}
+              >
                 <ImageIcon size={32} color="#8B5CF6" />
-                <Text style={styles.imageUploadText}>Choisir de la galerie</Text>
+                <Text style={styles.imageUploadText}>
+                  Choisir de la galerie
+                </Text>
               </TouchableOpacity>
             </View>
           )}
@@ -198,31 +268,47 @@ export default function AddClothingScreen() {
         {/* Basic Info */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Informations de base</Text>
-          
+
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Nom du vêtement *</Text>
             <TextInput
               style={styles.textInput}
               placeholder="Ex: T-shirt blanc Uniqlo"
               value={clothingData.name}
-              onChangeText={(text) => setClothingData(prev => ({ ...prev, name: text }))}
+              onChangeText={(text) =>
+                setClothingData((prev) => ({ ...prev, name: text }))
+              }
             />
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Type de vêtement *</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.optionsScroll}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.optionsScroll}
+            >
               {clothingTypes.map((type) => (
                 <TouchableOpacity
                   key={type.id}
-                  style={[styles.optionChip, clothingData.type === type.id && styles.selectedChip]}
-                  onPress={() => setClothingData(prev => ({ 
-                    ...prev, 
-                    type: type.id, 
-                    subCategory: '' 
-                  }))}
+                  style={[
+                    styles.optionChip,
+                    clothingData.type === type.id && styles.selectedChip,
+                  ]}
+                  onPress={() =>
+                    setClothingData((prev) => ({
+                      ...prev,
+                      type: type.id,
+                      subCategory: '',
+                    }))
+                  }
                 >
-                  <Text style={[styles.optionText, clothingData.type === type.id && styles.selectedText]}>
+                  <Text
+                    style={[
+                      styles.optionText,
+                      clothingData.type === type.id && styles.selectedText,
+                    ]}
+                  >
                     {type.name}
                   </Text>
                 </TouchableOpacity>
@@ -233,14 +319,33 @@ export default function AddClothingScreen() {
           {selectedType && (
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Sous-catégorie</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.optionsScroll}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.optionsScroll}
+              >
                 {selectedType.subCategories.map((subCat) => (
                   <TouchableOpacity
                     key={subCat}
-                    style={[styles.optionChip, clothingData.subCategory === subCat && styles.selectedChip]}
-                    onPress={() => setClothingData(prev => ({ ...prev, subCategory: subCat }))}
+                    style={[
+                      styles.optionChip,
+                      clothingData.subCategory === subCat &&
+                        styles.selectedChip,
+                    ]}
+                    onPress={() =>
+                      setClothingData((prev) => ({
+                        ...prev,
+                        subCategory: subCat,
+                      }))
+                    }
                   >
-                    <Text style={[styles.optionText, clothingData.subCategory === subCat && styles.selectedText]}>
+                    <Text
+                      style={[
+                        styles.optionText,
+                        clothingData.subCategory === subCat &&
+                          styles.selectedText,
+                      ]}
+                    >
                       {subCat}
                     </Text>
                   </TouchableOpacity>
@@ -255,7 +360,9 @@ export default function AddClothingScreen() {
               style={styles.textInput}
               placeholder="Ex: Zara, H&M, Uniqlo..."
               value={clothingData.brand}
-              onChangeText={(text) => setClothingData(prev => ({ ...prev, brand: text }))}
+              onChangeText={(text) =>
+                setClothingData((prev) => ({ ...prev, brand: text }))
+              }
             />
           </View>
         </View>
@@ -267,10 +374,19 @@ export default function AddClothingScreen() {
             {seasons.map((season) => (
               <TouchableOpacity
                 key={season}
-                style={[styles.optionChip, clothingData.seasons.includes(season) && styles.selectedChip]}
+                style={[
+                  styles.optionChip,
+                  clothingData.seasons.includes(season) && styles.selectedChip,
+                ]}
                 onPress={() => handleSeasonToggle(season)}
               >
-                <Text style={[styles.optionText, clothingData.seasons.includes(season) && styles.selectedText]}>
+                <Text
+                  style={[
+                    styles.optionText,
+                    clothingData.seasons.includes(season) &&
+                      styles.selectedText,
+                  ]}
+                >
                   {season}
                 </Text>
               </TouchableOpacity>
@@ -288,17 +404,23 @@ export default function AddClothingScreen() {
                 style={[
                   styles.colorChip,
                   { backgroundColor: getColorHex(color) },
-                  clothingData.colors.includes(color) && styles.selectedColorChip
+                  clothingData.colors.includes(color) &&
+                    styles.selectedColorChip,
                 ]}
                 onPress={() => handleColorToggle(color)}
               >
                 {clothingData.colors.includes(color) && (
-                  <Check size={16} color={color === 'Blanc' ? '#1F2937' : '#FFFFFF'} />
+                  <Check
+                    size={16}
+                    color={color === 'Blanc' ? '#1F2937' : '#FFFFFF'}
+                  />
                 )}
-                <Text style={[
-                  styles.colorText,
-                  { color: color === 'Blanc' ? '#1F2937' : '#FFFFFF' }
-                ]}>
+                <Text
+                  style={[
+                    styles.colorText,
+                    { color: color === 'Blanc' ? '#1F2937' : '#FFFFFF' },
+                  ]}
+                >
                   {color}
                 </Text>
               </TouchableOpacity>
@@ -313,7 +435,9 @@ export default function AddClothingScreen() {
             style={[styles.textInput, styles.textArea]}
             placeholder="Ex: À porter avec le jean noir, reçu en cadeau..."
             value={clothingData.notes}
-            onChangeText={(text) => setClothingData(prev => ({ ...prev, notes: text }))}
+            onChangeText={(text) =>
+              setClothingData((prev) => ({ ...prev, notes: text }))
+            }
             multiline
             numberOfLines={3}
           />
@@ -321,8 +445,8 @@ export default function AddClothingScreen() {
 
         {/* Save Button */}
         <View style={styles.saveContainer}>
-          <TouchableOpacity 
-            style={[styles.saveButton, isLoading && styles.disabledButton]} 
+          <TouchableOpacity
+            style={[styles.saveButton, isLoading && styles.disabledButton]}
             onPress={handleSave}
             disabled={isLoading}
           >
@@ -331,13 +455,15 @@ export default function AddClothingScreen() {
             ) : (
               <>
                 <Check size={24} color="#FFFFFF" />
-                <Text style={styles.saveButtonText}>Ajouter à mon dressing</Text>
+                <Text style={styles.saveButtonText}>
+                  Ajouter à mon dressing
+                </Text>
               </>
             )}
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 

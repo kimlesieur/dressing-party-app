@@ -9,7 +9,8 @@ export const MOCK_CLOTHES: ClothingItem[] = [
     brand: 'Patagonia',
     colors: ['Blanc', 'Noir'],
     seasons: ['Printemps', 'Été', 'Automne'],
-    imageUrl: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=500&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=500&q=80',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -21,19 +22,21 @@ export const MOCK_CLOTHES: ClothingItem[] = [
     brand: 'A.P.C.',
     colors: ['Bleu'],
     seasons: ['Toutes'],
-    imageUrl: 'https://images.unsplash.com/photo-1602293589930-45a9ec88e5c3?w=500&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1602293589930-45a9ec88e5c3?w=500&q=80',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
   {
     id: '3',
     userId: '1',
-    name: 'Robe d\'été à fleurs',
+    name: "Robe d'été à fleurs",
     type: 'dresses',
     brand: 'Sézane',
     colors: ['Multicolore', 'Rose'],
     seasons: ['Été'],
-    imageUrl: 'https://images.unsplash.com/photo-1594744806422-7217c3777559?w=500&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1594744806422-7217c3777559?w=500&q=80',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -45,7 +48,8 @@ export const MOCK_CLOTHES: ClothingItem[] = [
     brand: 'Veja',
     colors: ['Blanc'],
     seasons: ['Toutes'],
-    imageUrl: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500&q=80',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -57,7 +61,8 @@ export const MOCK_CLOTHES: ClothingItem[] = [
     brand: 'Fjällräven',
     colors: ['Gris'],
     seasons: ['Toutes'],
-    imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb68c6a62?w=500&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1553062407-98eeb68c6a62?w=500&q=80',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -69,7 +74,8 @@ export const MOCK_CLOTHES: ClothingItem[] = [
     brand: 'Uniqlo',
     colors: ['Gris', 'Noir'],
     seasons: ['Automne', 'Hiver'],
-    imageUrl: 'https://images.unsplash.com/photo-1616258417212-7422a5786c4f?w=500&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1616258417212-7422a5786c4f?w=500&q=80',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -81,7 +87,8 @@ export const MOCK_CLOTHES: ClothingItem[] = [
     brand: 'Dockers',
     colors: ['Beige'],
     seasons: ['Printemps', 'Été', 'Automne'],
-    imageUrl: 'https://images.unsplash.com/photo-1605518216944-70f906a23995?w=500&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1605518216944-70f906a23995?w=500&q=80',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -93,11 +100,12 @@ export const MOCK_CLOTHES: ClothingItem[] = [
     brand: 'Birkenstock',
     colors: ['Marron'],
     seasons: ['Été'],
-    imageUrl: 'https://images.unsplash.com/photo-1603487742131-419142953b88?w=500&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1603487742131-419142953b88?w=500&q=80',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
-   {
+  {
     id: '9',
     userId: '1',
     name: 'Écharpe en cachemire',
@@ -105,7 +113,8 @@ export const MOCK_CLOTHES: ClothingItem[] = [
     brand: 'Eric Bompard',
     colors: ['Gris'],
     seasons: ['Hiver'],
-    imageUrl: 'https://images.unsplash.com/photo-1542359649-31e03cdde49d?w=500&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1542359649-31e03cdde49d?w=500&q=80',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -117,7 +126,8 @@ export const MOCK_CLOTHES: ClothingItem[] = [
     brand: 'COS',
     colors: ['Blanc'],
     seasons: ['Printemps', 'Été'],
-    imageUrl: 'https://images.unsplash.com/photo-1621072151979-39b06f54c375?w=500&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1621072151979-39b06f54c375?w=500&q=80',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -129,7 +139,8 @@ export const MOCK_CLOTHES: ClothingItem[] = [
     brand: 'Zara',
     colors: ['Rose', 'Rouge'],
     seasons: ['Printemps', 'Été'],
-    imageUrl: 'https://images.unsplash.com/photo-1583496661160-fb5207753051?w=500&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1583496661160-fb5207753051?w=500&q=80',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -141,8 +152,9 @@ export const MOCK_CLOTHES: ClothingItem[] = [
     brand: 'Clarks',
     colors: ['Marron'],
     seasons: ['Automne', 'Hiver'],
-    imageUrl: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500&q=80',
     createdAt: new Date(),
     updatedAt: new Date(),
-  }
-]; 
+  },
+];

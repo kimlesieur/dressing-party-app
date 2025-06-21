@@ -7,12 +7,11 @@ interface OptimizedImageProps extends Omit<ImageProps, 'source'> {
   fallback?: string;
 }
 
-export function OptimizedImage({ 
-  uri, 
-  placeholder = "https://via.placeholder.com/200x200/F3F4F6/9CA3AF?text=Chargement...",
-  fallback = "https://via.placeholder.com/200x200/F3F4F6/9CA3AF?text=Image+non+disponible",
+export function OptimizedImage({
+  uri,
+  placeholder = 'https://via.placeholder.com/200x200/F3F4F6/9CA3AF?text=Chargement...',
   style,
-  ...props 
+  ...props
 }: OptimizedImageProps) {
   return (
     <Image
@@ -30,4 +29,4 @@ export function OptimizedImage({
       {...props}
     />
   );
-} 
+}

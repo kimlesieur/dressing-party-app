@@ -1,23 +1,32 @@
 import { HomepageStatistics } from '@/components/HomepageStatistics';
 import { OptimizedImage } from '@/components/OptimizedImage';
+import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useGetRecentItems } from '@/hooks/useGetRecentItems';
+import { useGetRandomUserOutfits } from '@/hooks/useOutfits';
 import { useWeather } from '@/hooks/useWeather';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
 import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function HomeScreen() {
   const { recentItems } = useGetRecentItems();
-  const { weather, isLoading: isLoadingWeather, error: weatherError, refreshWeather } = useWeather();
-
-  const suggestedOutfit = {
-    name: 'Look Bureau Chic',
-    items: ['Blazer noir', 'Jean slim', 'Chemise blanche'],
-    image: 'https://images.pexels.com/photos/1021693/pexels-photo-1021693.jpeg?auto=compress&cs=tinysrgb&w=400'
-  };
+  const {
+    weather,
+    isLoading: isLoadingWeather,
+    error: weatherError,
+    refreshWeather,
+  } = useWeather();
+  const { data: randomOutfits, isLoading: isLoadingOutfits } =
+    useGetRandomUserOutfits(3);
 
   // Weather suggestion based on temperature
   const getWeatherSuggestion = (temp: number) => {
@@ -28,7 +37,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -45,33 +54,42 @@ export default function HomeScreen() {
             <View style={styles.weatherHeader}>
               <LucideIcons.Cloud size={24} color="#FFFFFF" />
               <Text style={styles.weatherTitle}>Météo du jour</Text>
-              <TouchableOpacity onPress={refreshWeather} style={styles.refreshButton}>
+              <TouchableOpacity
+                onPress={refreshWeather}
+                style={styles.refreshButton}
+              >
                 <LucideIcons.RefreshCw size={16} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
-            
+
             {isLoadingWeather ? (
               <View style={styles.weatherContent}>
                 <ActivityIndicator color="#FFFFFF" size="large" />
-                <Text style={styles.weatherLoading}>Chargement de la météo...</Text>
+                <Text style={styles.weatherLoading}>
+                  Chargement de la météo...
+                </Text>
               </View>
             ) : weatherError ? (
               <View style={styles.weatherContent}>
                 <LucideIcons.AlertCircle size={24} color="#FFFFFF" />
-                <Text style={styles.weatherError}>Impossible de charger la météo</Text>
+                <Text style={styles.weatherError}>
+                  Impossible de charger la météo
+                </Text>
               </View>
             ) : weather ? (
               <>
                 <View style={styles.weatherContent}>
-                  <Text style={styles.weatherTemp}>{weather.temperature}°C</Text>
-                  <Text style={styles.weatherCondition}>{weather.condition}</Text>
+                  <Text style={styles.weatherTemp}>
+                    {weather.temperature}°C
+                  </Text>
+                  <Text style={styles.weatherCondition}>
+                    {weather.condition}
+                  </Text>
                 </View>
                 <Text style={styles.weatherSuggestion}>
                   {getWeatherSuggestion(weather.temperature)}
                 </Text>
-                <Text style={styles.weatherLocation}>
-                  📍 {weather.city}
-                </Text>
+                <Text style={styles.weatherLocation}>📍 {weather.city}</Text>
               </>
             ) : null}
           </LinearGradient>
@@ -81,18 +99,35 @@ export default function HomeScreen() {
         <View style={styles.card}>
           <View style={styles.sectionHeader}>
             <LucideIcons.Star size={20} color="#8B5CF6" />
-            <Text style={styles.sectionTitle}>Tenue suggérée</Text>
+            <Text style={styles.sectionTitle}>Tenues suggérées</Text>
           </View>
-          <TouchableOpacity style={styles.outfitCard}>
-            <OptimizedImage uri={suggestedOutfit.image} style={styles.outfitImage} />
-            <View style={styles.outfitInfo}>
-              <Text style={styles.outfitName}>{suggestedOutfit.name}</Text>
-              <Text style={styles.outfitItems}>
-                {suggestedOutfit.items.join(' • ')}
-              </Text>
-            </View>
-            <LucideIcons.Heart size={24} color="#EC4899" />
-          </TouchableOpacity>
+          {isLoadingOutfits ? (
+            <ActivityIndicator color="#8B5CF6" />
+          ) : randomOutfits && randomOutfits.length > 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.suggestedOutfitsContainer}
+            >
+              {randomOutfits.map((outfit) => (
+                <Link href={`/outfits/${outfit.id}`} asChild key={outfit.id}>
+                  <TouchableOpacity style={styles.outfitCard}>
+                    <OptimizedImage
+                      uri={outfit.imageUrl || ''}
+                      style={styles.outfitImage}
+                    />
+                    <View style={styles.outfitInfo}>
+                      <Text style={styles.outfitName}>{outfit.name}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </Link>
+              ))}
+            </ScrollView>
+          ) : (
+            <Text style={styles.noOutfitsText}>
+              Aucune tenue suggérée pour le moment. Créez-en une !
+            </Text>
+          )}
         </View>
 
         <HomepageStatistics />
@@ -103,12 +138,21 @@ export default function HomeScreen() {
             <LucideIcons.Shirt size={20} color="#8B5CF6" />
             <Text style={styles.sectionTitle}>Derniers ajouts</Text>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recentItems}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.recentItems}
+          >
             {recentItems.map((item) => (
               <Link href={`/clothing/${item.id}`} asChild key={item.id}>
                 <TouchableOpacity style={styles.recentItem}>
-                  <OptimizedImage uri={item.image} style={styles.recentItemImage} />
-                  <Text style={styles.recentItemName} numberOfLines={2}>{item.name}</Text>
+                  <OptimizedImage
+                    uri={item.image}
+                    style={styles.recentItemImage}
+                  />
+                  <Text style={styles.recentItemName} numberOfLines={2}>
+                    {item.name}
+                  </Text>
                 </TouchableOpacity>
               </Link>
             ))}
@@ -128,18 +172,20 @@ export default function HomeScreen() {
               </LinearGradient>
             </TouchableOpacity>
           </Link>
-          <TouchableOpacity style={styles.actionButton}>
-            <LinearGradient
-              colors={['#EC4899', '#DB2777']}
-              style={styles.actionGradient}
-            >
-              <LucideIcons.Shirt size={24} color="#FFFFFF" />
-              <Text style={styles.actionText}>Créer une tenue</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+          <Link href="/outfits/create" asChild>
+            <TouchableOpacity style={styles.actionButton}>
+              <LinearGradient
+                colors={['#EC4899', '#DB2777']}
+                style={styles.actionGradient}
+              >
+                <LucideIcons.Shirt size={24} color="#FFFFFF" />
+                <Text style={styles.actionText}>Créer une tenue</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </Link>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
@@ -233,6 +279,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
     borderRadius: 12,
     padding: 16,
+    marginRight: 12,
+    width: 280,
   },
   outfitImage: {
     width: 60,
@@ -252,6 +300,15 @@ const styles = StyleSheet.create({
   outfitItems: {
     fontSize: 14,
     color: '#6B7280',
+  },
+  suggestedOutfitsContainer: {
+    marginHorizontal: -20,
+    paddingHorizontal: 20,
+  },
+  noOutfitsText: {
+    textAlign: 'center',
+    color: '#6B7280',
+    paddingVertical: 20,
   },
   statsGrid: {
     flexDirection: 'row',

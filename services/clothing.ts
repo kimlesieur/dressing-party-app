@@ -11,16 +11,24 @@ import {
   orderBy,
   query,
   updateDoc,
-  where
+  where,
 } from 'firebase/firestore';
-import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from 'firebase/storage';
 
 export class ClothingService {
   // Add a new clothing item
   static async addClothingItem(
-    userId: string, 
-    clothingData: Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'>,
-    imageFile: Blob
+    userId: string,
+    clothingData: Omit<
+      ClothingItem,
+      'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'
+    >,
+    imageFile: Blob,
   ): Promise<ClothingItem> {
     try {
       // Upload image to Firebase Storage
@@ -38,7 +46,7 @@ export class ClothingService {
       };
 
       const docRef = await addDoc(collection(db, 'clothing'), clothingItem);
-      
+
       return {
         ...clothingItem,
         id: docRef.id,
@@ -67,25 +75,49 @@ export class ClothingService {
     }
   }
 
+  // Get multiple clothing items by their IDs
+  static async getClothingItemsByIds(
+    itemIds: string[],
+  ): Promise<ClothingItem[]> {
+    if (itemIds.length === 0) {
+      return [];
+    }
+    try {
+      const q = query(
+        collection(db, 'clothing'),
+        where('__name__', 'in', itemIds),
+      );
+      const querySnapshot = await getDocs(q);
+      const clothingItems: ClothingItem[] = [];
+      querySnapshot.forEach((doc) => {
+        clothingItems.push({ id: doc.id, ...doc.data() } as ClothingItem);
+      });
+      return clothingItems;
+    } catch (error) {
+      console.error('Error getting clothing items by IDs:', error);
+      throw error;
+    }
+  }
+
   // Get all clothing items for a user
   static async getUserClothing(userId: string): Promise<ClothingItem[]> {
     try {
       const q = query(
         collection(db, 'clothing'),
         where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+        orderBy('createdAt', 'desc'),
       );
-      
+
       const querySnapshot = await getDocs(q);
       const clothingItems: ClothingItem[] = [];
-      
+
       querySnapshot.forEach((doc) => {
         clothingItems.push({
           id: doc.id,
           ...doc.data(),
         } as ClothingItem);
       });
-      
+
       return clothingItems;
     } catch (error) {
       console.error('Error getting user clothing:', error);
@@ -94,27 +126,34 @@ export class ClothingService {
   }
 
   // Get all clothing items for a user with real-time updates
-  static subscribeToUserClothing(userId: string, onUpdate: (items: ClothingItem[]) => void): () => void {
+  static subscribeToUserClothing(
+    userId: string,
+    onUpdate: (items: ClothingItem[]) => void,
+  ): () => void {
     try {
       const q = query(
         collection(db, 'clothing'),
         where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+        orderBy('createdAt', 'desc'),
       );
 
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const clothingItems: ClothingItem[] = [];
-        querySnapshot.forEach((doc) => {
-          clothingItems.push({
-            id: doc.id,
-            ...doc.data(),
-          } as ClothingItem);
-        });
-        onUpdate(clothingItems);
-      }, (error) => {
-        console.error('Error in clothing subscription:', error);
-        // Maybe call onUpdate with an empty array or an error state
-      });
+      const unsubscribe = onSnapshot(
+        q,
+        (querySnapshot) => {
+          const clothingItems: ClothingItem[] = [];
+          querySnapshot.forEach((doc) => {
+            clothingItems.push({
+              id: doc.id,
+              ...doc.data(),
+            } as ClothingItem);
+          });
+          onUpdate(clothingItems);
+        },
+        (error) => {
+          console.error('Error in clothing subscription:', error);
+          // Maybe call onUpdate with an empty array or an error state
+        },
+      );
 
       return unsubscribe;
     } catch (error) {
@@ -127,8 +166,13 @@ export class ClothingService {
   static async updateClothingItem(
     itemId: string,
     userId: string,
-    updates: Partial<Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'>>,
-    newImageFile?: Blob
+    updates: Partial<
+      Omit<
+        ClothingItem,
+        'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'
+      >
+    >,
+    newImageFile?: Blob,
   ): Promise<void> {
     try {
       const itemRef = doc(db, 'clothing', itemId);
@@ -137,13 +181,15 @@ export class ClothingService {
       if (newImageFile) {
         const oldDocSnap = await getDoc(itemRef);
         if (oldDocSnap.exists()) {
-            const oldData = oldDocSnap.data();
-            if (oldData.imageUrl) {
-                const oldImageRef = ref(storage, oldData.imageUrl);
-                deleteObject(oldImageRef).catch(err => console.error("Error deleting old image:", err));
-            }
+          const oldData = oldDocSnap.data();
+          if (oldData.imageUrl) {
+            const oldImageRef = ref(storage, oldData.imageUrl);
+            deleteObject(oldImageRef).catch((err) =>
+              console.error('Error deleting old image:', err),
+            );
+          }
         }
-        
+
         const imageRef = ref(storage, `clothing/${userId}/${Date.now()}`);
         const snapshot = await uploadBytes(imageRef, newImageFile);
         const imageUrl = await getDownloadURL(snapshot.ref);
@@ -158,11 +204,14 @@ export class ClothingService {
   }
 
   // Delete a clothing item
-  static async deleteClothingItem(itemId: string, imageUrl: string): Promise<void> {
+  static async deleteClothingItem(
+    itemId: string,
+    imageUrl: string,
+  ): Promise<void> {
     try {
       // Delete the document
       await deleteDoc(doc(db, 'clothing', itemId));
-      
+
       // Delete the image from storage
       const imageRef = ref(storage, imageUrl);
       await deleteObject(imageRef);
@@ -174,36 +223,46 @@ export class ClothingService {
 
   // Filter clothing items
   static filterClothing(
-    items: ClothingItem[], 
+    items: ClothingItem[],
     filters: {
       type?: string;
       season?: string;
       color?: string;
       brand?: string;
       search?: string;
-    }
+    },
   ): ClothingItem[] {
-    return items.filter(item => {
-      if (filters.type && filters.type !== 'Tous' && item.type !== filters.type) {
+    return items.filter((item) => {
+      if (
+        filters.type &&
+        filters.type !== 'Tous' &&
+        item.type !== filters.type
+      ) {
         return false;
       }
-      
+
       if (filters.season && !item.seasons.includes(filters.season)) {
         return false;
       }
-      
+
       if (filters.color && !item.colors.includes(filters.color)) {
         return false;
       }
-      
-      if (filters.brand && item.brand?.toLowerCase() !== filters.brand.toLowerCase()) {
+
+      if (
+        filters.brand &&
+        item.brand?.toLowerCase() !== filters.brand.toLowerCase()
+      ) {
         return false;
       }
-      
-      if (filters.search && !item.name.toLowerCase().includes(filters.search.toLowerCase())) {
+
+      if (
+        filters.search &&
+        !item.name.toLowerCase().includes(filters.search.toLowerCase())
+      ) {
         return false;
       }
-      
+
       return true;
     });
   }

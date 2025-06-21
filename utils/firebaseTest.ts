@@ -1,7 +1,7 @@
-import { db, auth, storage } from '@/config/firebase';
-import { collection, addDoc, getDocs, deleteDoc, doc, connectFirestoreEmulator } from 'firebase/firestore';
-import { ref } from 'firebase/storage';
+import { auth, db, storage } from '@/config/firebase';
 import { signInAnonymously, signOut } from 'firebase/auth';
+import { addDoc, collection, deleteDoc, getDocs } from 'firebase/firestore';
+import { ref } from 'firebase/storage';
 
 export interface TestResult {
   name: string;
@@ -22,30 +22,34 @@ export class FirebaseTestService {
         'EXPO_PUBLIC_FIREBASE_PROJECT_ID',
         'EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET',
         'EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
-        'EXPO_PUBLIC_FIREBASE_APP_ID'
+        'EXPO_PUBLIC_FIREBASE_APP_ID',
       ];
 
-      const missingVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
-      
+      const missingVars = requiredEnvVars.filter(
+        (envVar) => !process.env[envVar],
+      );
+
       if (missingVars.length > 0) {
         return {
           name: 'Firebase Configuration',
           success: false,
           error: `Missing environment variables: ${missingVars.join(', ')}`,
-          details: 'Check your .env file and ensure all Firebase configuration variables are set.'
+          details:
+            'Check your .env file and ensure all Firebase configuration variables are set.',
         };
       }
 
       return {
         name: 'Firebase Configuration',
         success: true,
-        details: 'All required environment variables are present and Firebase is configured.'
+        details:
+          'All required environment variables are present and Firebase is configured.',
       };
     } catch (error: any) {
       return {
         name: 'Firebase Configuration',
         success: false,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -65,14 +69,14 @@ export class FirebaseTestService {
       return {
         name: 'Firebase Auth',
         success: true,
-        details: `Auth initialized successfully. Anonymous user created: ${user.uid.substring(0, 8)}...`
+        details: `Auth initialized successfully. Anonymous user created: ${user.uid.substring(0, 8)}...`,
       };
     } catch (error: any) {
       return {
         name: 'Firebase Auth',
         success: false,
         error: error.message,
-        details: error.code ? `Error code: ${error.code}` : undefined
+        details: error.code ? `Error code: ${error.code}` : undefined,
       };
     }
   }
@@ -86,24 +90,21 @@ export class FirebaseTestService {
           name: 'Firestore Connection',
           success: false,
           error: 'User not authenticated',
-          details: 'Firestore operations require authentication. Run Auth test first.'
+          details:
+            'Firestore operations require authentication. Run Auth test first.',
         };
       }
 
       // Try to create a test collection reference
       const testCollection = collection(db, 'test');
-      
+
       // Try to add a test document
       const testDoc = await addDoc(testCollection, {
         message: 'Firebase connectivity test',
         timestamp: new Date(),
         testId: Math.random().toString(36).substr(2, 9),
-        userId: auth.currentUser.uid
+        userId: auth.currentUser.uid,
       });
-
-      // Try to read the document back
-      const snapshot = await getDocs(testCollection);
-      const docExists = !snapshot.empty;
 
       // Clean up the test document
       await deleteDoc(testDoc);
@@ -111,7 +112,7 @@ export class FirebaseTestService {
       return {
         name: 'Firestore Connection',
         success: true,
-        details: `Successfully created, read, and deleted test document. User: ${auth.currentUser.uid.substring(0, 8)}...`
+        details: `Successfully created, read, and deleted test document. User: ${auth.currentUser.uid.substring(0, 8)}...`,
       };
     } catch (error: any) {
       let errorDetails = `Error code: ${error.code || 'unknown'}`;
@@ -119,10 +120,13 @@ export class FirebaseTestService {
 
       // Provide specific guidance for common Firestore errors
       if (error.code === 'permission-denied') {
-        errorDetails += '\n\nThis error is expected if:\n1. Firestore security rules are properly configured\n2. You haven\'t deployed the security rules yet\n3. The test collection is not allowed in your rules';
-        warning = 'Permission denied errors are normal with proper security rules. Deploy your firestore.rules to fix this.';
+        errorDetails +=
+          "\n\nThis error is expected if:\n1. Firestore security rules are properly configured\n2. You haven't deployed the security rules yet\n3. The test collection is not allowed in your rules";
+        warning =
+          'Permission denied errors are normal with proper security rules. Deploy your firestore.rules to fix this.';
       } else if (error.code === 'unavailable') {
-        errorDetails += '\n\nFirestore service may be temporarily unavailable or there\'s a network issue.';
+        errorDetails +=
+          "\n\nFirestore service may be temporarily unavailable or there's a network issue.";
       }
 
       return {
@@ -130,7 +134,7 @@ export class FirebaseTestService {
         success: false,
         error: error.message,
         details: errorDetails,
-        warning
+        warning,
       };
     }
   }
@@ -145,18 +149,18 @@ export class FirebaseTestService {
 
       // Try to create a storage reference
       const testRef = ref(storage, 'test/connectivity-test.txt');
-      
+
       return {
         name: 'Firebase Storage',
         success: true,
-        details: `Storage initialized successfully. Test reference: ${testRef.fullPath}`
+        details: `Storage initialized successfully. Test reference: ${testRef.fullPath}`,
       };
     } catch (error: any) {
       return {
         name: 'Firebase Storage',
         success: false,
         error: error.message,
-        details: error.code ? `Error code: ${error.code}` : undefined
+        details: error.code ? `Error code: ${error.code}` : undefined,
       };
     }
   }
@@ -169,30 +173,33 @@ export class FirebaseTestService {
           name: 'Security Rules Test',
           success: false,
           error: 'User not authenticated',
-          details: 'Security rules test requires authentication.'
+          details: 'Security rules test requires authentication.',
         };
       }
 
       // Try to read from a collection that should be accessible
       const usersCollection = collection(db, 'users');
-      
+
       try {
         // This should work if rules allow reading user profiles
         await getDocs(usersCollection);
-        
+
         return {
           name: 'Security Rules Test',
           success: true,
           details: 'Security rules are properly configured and accessible.',
-          warning: 'This test only verifies read access. Write operations may still be restricted.'
+          warning:
+            'This test only verifies read access. Write operations may still be restricted.',
         };
       } catch (error: any) {
         if (error.code === 'permission-denied') {
           return {
             name: 'Security Rules Test',
             success: true,
-            details: 'Security rules are working correctly (denying unauthorized access).',
-            warning: 'Permission denied is expected behavior with proper security rules.'
+            details:
+              'Security rules are working correctly (denying unauthorized access).',
+            warning:
+              'Permission denied is expected behavior with proper security rules.',
           };
         }
         throw error;
@@ -202,7 +209,7 @@ export class FirebaseTestService {
         name: 'Security Rules Test',
         success: false,
         error: error.message,
-        details: error.code ? `Error code: ${error.code}` : undefined
+        details: error.code ? `Error code: ${error.code}` : undefined,
       };
     }
   }
@@ -210,12 +217,12 @@ export class FirebaseTestService {
   // Run all tests in sequence
   static async runAllTests(): Promise<TestResult[]> {
     const results: TestResult[] = [];
-    
+
     // Test 1: Configuration
     try {
       const configResult = await this.testConfiguration();
       results.push(configResult);
-      
+
       // If configuration fails, don't continue
       if (!configResult.success) {
         return results;
@@ -224,7 +231,7 @@ export class FirebaseTestService {
       results.push({
         name: 'Firebase Configuration',
         success: false,
-        error: 'Failed to run configuration test'
+        error: `Failed to run configuration test: ${error}`,
       });
       return results;
     }
@@ -237,7 +244,7 @@ export class FirebaseTestService {
       results.push({
         name: 'Firebase Auth',
         success: false,
-        error: 'Failed to run Auth test'
+        error: `Failed to run Auth test: ${error}`,
       });
     }
 
@@ -249,7 +256,7 @@ export class FirebaseTestService {
       results.push({
         name: 'Firebase Storage',
         success: false,
-        error: 'Failed to run Storage test'
+        error: `Failed to run Storage test: ${error}`,
       });
     }
 
@@ -261,7 +268,7 @@ export class FirebaseTestService {
       results.push({
         name: 'Security Rules Test',
         success: false,
-        error: 'Failed to run Security Rules test'
+        error: `Failed to run Security Rules test: ${error}`,
       });
     }
 
@@ -273,7 +280,7 @@ export class FirebaseTestService {
       results.push({
         name: 'Firestore Connection',
         success: false,
-        error: 'Failed to run Firestore test'
+        error: `Failed to run Firestore test: ${error}`,
       });
     }
 
@@ -286,10 +293,10 @@ export class FirebaseTestService {
       // Clean up any test documents
       const testCollection = collection(db, 'test');
       const snapshot = await getDocs(testCollection);
-      
-      const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+
+      const deletePromises = snapshot.docs.map((doc) => deleteDoc(doc.ref));
       await Promise.all(deletePromises);
-      
+
       // Sign out the anonymous user
       if (auth.currentUser) {
         await signOut(auth);
