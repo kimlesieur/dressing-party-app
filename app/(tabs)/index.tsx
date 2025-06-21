@@ -1,4 +1,6 @@
+import { HomepageStatistics } from '@/components/HomepageStatistics';
 import { OptimizedImage } from '@/components/OptimizedImage';
+import { useGetRecentItems } from '@/hooks/useGetRecentItems';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
@@ -7,24 +9,13 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
+  const { recentItems, isLoading: isLoadingClothing } = useGetRecentItems();
+
   const todayWeather = {
     temperature: 22,
     condition: 'Ensoleillé',
     icon: '☀️'
   };
-
-  const stats = {
-    totalClothes: 52,
-    outfitsCreated: 8,
-    favoriteBrand: 'Zara',
-    dominantColor: 'Bleu'
-  };
-
-  const recentItems = [
-    { id: 1, name: 'Robe d\'été', image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=300' },
-    { id: 2, name: 'Blazer noir', image: 'https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=300' },
-    { id: 3, name: 'Jean slim', image: 'https://images.pexels.com/photos/1598507/pexels-photo-1598507.jpeg?auto=compress&cs=tinysrgb&w=300' },
-  ];
 
   const suggestedOutfit = {
     name: 'Look Bureau Chic',
@@ -79,31 +70,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Stats */}
-        <View style={styles.card}>
-          <View style={styles.sectionHeader}>
-            <LucideIcons.TrendingUp size={20} color="#8B5CF6" />
-            <Text style={styles.sectionTitle}>Mes statistiques</Text>
-          </View>
-          <View style={styles.statsGrid}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{stats.totalClothes}</Text>
-              <Text style={styles.statLabel}>Vêtements</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{stats.outfitsCreated}</Text>
-              <Text style={styles.statLabel}>Tenues créées</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{stats.favoriteBrand}</Text>
-              <Text style={styles.statLabel}>Marque favorite</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{stats.dominantColor}</Text>
-              <Text style={styles.statLabel}>Couleur dominante</Text>
-            </View>
-          </View>
-        </View>
+        <HomepageStatistics />
 
         {/* Recent Items */}
         <View style={styles.card}>
@@ -113,10 +80,12 @@ export default function HomeScreen() {
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recentItems}>
             {recentItems.map((item) => (
-              <TouchableOpacity key={item.id} style={styles.recentItem}>
-                <OptimizedImage uri={item.image} style={styles.recentItemImage} />
-                <Text style={styles.recentItemName}>{item.name}</Text>
-              </TouchableOpacity>
+              <Link href={`/clothing/${item.id}`} asChild key={item.id}>
+                <TouchableOpacity style={styles.recentItem}>
+                  <OptimizedImage uri={item.image} style={styles.recentItemImage} />
+                  <Text style={styles.recentItemName} numberOfLines={2}>{item.name}</Text>
+                </TouchableOpacity>
+              </Link>
             ))}
           </ScrollView>
         </View>
