@@ -1,17 +1,18 @@
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy,
-  increment
-} from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { Outfit } from '@/types/firebase';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  increment,
+  orderBy,
+  query,
+  updateDoc,
+  where
+} from 'firebase/firestore';
 
 export class OutfitService {
   // Create a new outfit
@@ -36,6 +37,24 @@ export class OutfitService {
       } as Outfit;
     } catch (error) {
       console.error('Error creating outfit:', error);
+      throw error;
+    }
+  }
+
+  // Get a single outfit
+  static async getOutfit(outfitId: string): Promise<Outfit | null> {
+    try {
+      const outfitRef = doc(db, 'outfits', outfitId);
+      const docSnap = await getDoc(outfitRef);
+
+      if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() } as Outfit;
+      } else {
+        console.log('No such outfit!');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error getting outfit:', error);
       throw error;
     }
   }
