@@ -84,12 +84,14 @@ export default function HomeScreen() {
           ) : randomOutfits && randomOutfits.length > 0 ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.suggestedOutfitsContainer}>
               {randomOutfits.map(outfit => (
-                <TouchableOpacity key={outfit.id} style={styles.outfitCard}>
-                  <OptimizedImage uri={outfit.imageUrl || ''} style={styles.outfitImage} />
-                  <View style={styles.outfitInfo}>
-                    <Text style={styles.outfitName}>{outfit.name}</Text>
-                  </View>
-                </TouchableOpacity>
+                <Link href={`/outfits/${outfit.id}`} asChild key={outfit.id}>
+                  <TouchableOpacity style={styles.outfitCard}>
+                    <OptimizedImage uri={outfit.imageUrl || ''} style={styles.outfitImage} />
+                    <View style={styles.outfitInfo}>
+                      <Text style={styles.outfitName}>{outfit.name}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </Link>
               ))}
             </ScrollView>
           ) : (
