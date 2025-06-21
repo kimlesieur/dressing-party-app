@@ -14,4 +14,5 @@ declare global {
 }
 
 // Ensure this file is treated as a module
-export {};
+// eslint-disable-next-line prettier/prettier
+export { };

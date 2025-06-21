@@ -35,7 +35,7 @@ export const useWeather = () => {
   // Get user's current location
   const getCurrentLocation = async (): Promise<Coordinates> => {
     const { status } = await Location.requestForegroundPermissionsAsync();
-    
+
     if (status !== 'granted') {
       throw new Error('Permission to access location was denied');
     }
@@ -59,24 +59,26 @@ export const useWeather = () => {
       }
 
       const response = await fetch(
-        `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${coords.latitude},${coords.longitude}&aqi=no`
+        `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${coords.latitude},${coords.longitude}&aqi=no`,
       );
-      
+
       if (!response.ok) {
         throw new Error(`Weather API error: ${response.status}`);
       }
-      
+
       const data: WeatherAPIResponse = await response.json();
-      
+
       setWeather({
         temperature: Math.round(data.current.temp_c),
         condition: data.current.condition.text,
         icon: data.current.condition.icon,
-        city: data.location.name
+        city: data.location.name,
       });
     } catch (error) {
       console.error('Weather fetch error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch weather');
+      setError(
+        error instanceof Error ? error.message : 'Failed to fetch weather',
+      );
     }
   };
 
@@ -89,24 +91,26 @@ export const useWeather = () => {
       }
 
       const response = await fetch(
-        `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(city)}&aqi=no`
+        `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(city)}&aqi=no`,
       );
-      
+
       if (!response.ok) {
         throw new Error(`Weather API error: ${response.status}`);
       }
-      
+
       const data: WeatherAPIResponse = await response.json();
-      
+
       setWeather({
         temperature: Math.round(data.current.temp_c),
         condition: data.current.condition.text,
         icon: data.current.condition.icon,
-        city: data.location.name
+        city: data.location.name,
       });
     } catch (error) {
       console.error('Weather fetch error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch weather');
+      setError(
+        error instanceof Error ? error.message : 'Failed to fetch weather',
+      );
     }
   };
 
@@ -120,15 +124,19 @@ export const useWeather = () => {
         const coords = await getCurrentLocation();
         setLocation(coords);
         await fetchWeatherByCoords(coords);
-        
       } catch (locationError) {
-        console.warn('Location error, falling back to default city:', locationError);
-        
+        console.warn(
+          'Location error, falling back to default city:',
+          locationError,
+        );
+
         // Fallback to default city if location fails
         try {
           await fetchWeatherByCity('Paris');
         } catch (weatherError) {
-          setError('Unable to fetch weather data');
+          setError(
+            `Unable to fetch weather data: ${weatherError instanceof Error ? weatherError.message : 'Unknown error'}`,
+          );
         }
       } finally {
         setIsLoading(false);
@@ -142,21 +150,21 @@ export const useWeather = () => {
   const refreshWeather = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     if (location) {
       await fetchWeatherByCoords(location);
     } else {
       await fetchWeatherByCity('Paris');
     }
-    
+
     setIsLoading(false);
   };
 
-  return { 
-    weather, 
-    isLoading, 
-    error, 
+  return {
+    weather,
+    isLoading,
+    error,
     location,
-    refreshWeather 
+    refreshWeather,
   };
-}; 
+};

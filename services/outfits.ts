@@ -11,14 +11,17 @@ import {
   orderBy,
   query,
   updateDoc,
-  where
+  where,
 } from 'firebase/firestore';
 
 export class OutfitService {
   // Create a new outfit
   static async createOutfit(
     userId: string,
-    outfitData: Omit<Outfit, 'id' | 'userId' | 'likes' | 'createdAt' | 'updatedAt'>
+    outfitData: Omit<
+      Outfit,
+      'id' | 'userId' | 'likes' | 'createdAt' | 'updatedAt'
+    >,
   ): Promise<Outfit> {
     try {
       const outfit = {
@@ -30,7 +33,7 @@ export class OutfitService {
       };
 
       const docRef = await addDoc(collection(db, 'outfits'), outfit);
-      
+
       return {
         ...outfit,
         id: docRef.id,
@@ -65,19 +68,19 @@ export class OutfitService {
       const q = query(
         collection(db, 'outfits'),
         where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+        orderBy('createdAt', 'desc'),
       );
-      
+
       const querySnapshot = await getDocs(q);
       const outfits: Outfit[] = [];
-      
+
       querySnapshot.forEach((doc) => {
         outfits.push({
           id: doc.id,
           ...doc.data(),
         } as Outfit);
       });
-      
+
       return outfits;
     } catch (error) {
       console.error('Error getting user outfits:', error);
@@ -91,19 +94,19 @@ export class OutfitService {
       const q = query(
         collection(db, 'outfits'),
         where('isPublic', '==', true),
-        orderBy('createdAt', 'desc')
+        orderBy('createdAt', 'desc'),
       );
-      
+
       const querySnapshot = await getDocs(q);
       const outfits: Outfit[] = [];
-      
+
       querySnapshot.forEach((doc) => {
         outfits.push({
           id: doc.id,
           ...doc.data(),
         } as Outfit);
       });
-      
+
       return outfits;
     } catch (error) {
       console.error('Error getting public outfits:', error);
@@ -139,8 +142,8 @@ export class OutfitService {
 
   // Update an outfit
   static async updateOutfit(
-    outfitId: string, 
-    updates: Partial<Outfit>
+    outfitId: string,
+    updates: Partial<Outfit>,
   ): Promise<void> {
     try {
       const outfitRef = doc(db, 'outfits', outfitId);

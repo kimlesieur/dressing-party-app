@@ -1,12 +1,12 @@
-import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { PropsWithChildren } from "react";
-import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
-import { queryClient } from "@/config/query";
+import { queryClient } from '@/config/query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { PropsWithChildren } from 'react';
 
 const asyncStoragePersister = createAsyncStoragePersister({
   storage: AsyncStorage,
-  key: "REACT_QUERY_CACHE",
+  key: 'REACT_QUERY_CACHE',
 });
 
 const QueryClientProvider = ({ children }: PropsWithChildren) => {

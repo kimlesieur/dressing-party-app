@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import { AuthService } from '@/services/auth';
 import { UserProfile } from '@/types/firebase';
+import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
+import { useEffect, useRef, useState } from 'react';
 
 export function useAuth() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -12,16 +12,18 @@ export function useAuth() {
 
   useEffect(() => {
     isMountedRef.current = true;
-    
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (!isMountedRef.current) return;
-      
+
       setUser(firebaseUser);
-      
+
       if (firebaseUser) {
         try {
           // Get user profile from Firestore
-          const profile = await AuthService.getCurrentUserProfile(firebaseUser.uid);
+          const profile = await AuthService.getCurrentUserProfile(
+            firebaseUser.uid,
+          );
           if (isMountedRef.current) {
             setUserProfile(profile);
           }
@@ -36,7 +38,7 @@ export function useAuth() {
           setUserProfile(null);
         }
       }
-      
+
       if (isMountedRef.current) {
         setLoading(false);
       }
@@ -57,9 +59,19 @@ export function useAuth() {
     }
   };
 
-  const signUp = async (email: string, password: string, displayName: string, username: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    displayName: string,
+    username: string,
+  ) => {
     try {
-      const result = await AuthService.signUp(email, password, displayName, username);
+      const result = await AuthService.signUp(
+        email,
+        password,
+        displayName,
+        username,
+      );
       return result;
     } catch (error) {
       throw error;

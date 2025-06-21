@@ -25,14 +25,14 @@ export function useGetUserClothing(userId: string) {
       userId,
       (clothing) => {
         queryClient.setQueryData(queryKey, clothing);
-      }
+      },
     );
 
     return () => unsubscribe();
   }, [userId, queryClient, queryKey]);
 
   return useQuery({
-    queryKey: queryKey,
+    queryKey,
     queryFn: () => ClothingService.getUserClothing(userId),
     enabled: !!userId,
     staleTime: Infinity,
@@ -58,33 +58,67 @@ export function useGetClothingItem(id: string) {
 export function useAddClothingItem() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ userId, clothingData, imageFile }: { userId: string; clothingData: Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'>; imageFile: Blob }) => 
-      ClothingService.addClothingItem(userId, clothingData, imageFile),
+    mutationFn: ({
+      userId,
+      clothingData,
+      imageFile,
+    }: {
+      userId: string;
+      clothingData: Omit<
+        ClothingItem,
+        'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'
+      >;
+      imageFile: Blob;
+    }) => ClothingService.addClothingItem(userId, clothingData, imageFile),
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: clothingKeys.list(variables.userId) });
+      queryClient.invalidateQueries({
+        queryKey: clothingKeys.list(variables.userId),
+      });
     },
     //? To invalidate cache
     onMutate: async ({ userId }) => {
       await queryClient.cancelQueries({ queryKey: clothingKeys.list(userId) });
-      const previousClothes = queryClient.getQueryData(clothingKeys.list(userId));
+      const previousClothes = queryClient.getQueryData(
+        clothingKeys.list(userId),
+      );
       return { previousClothes };
     },
     onError: (err, { userId }, context) => {
       if (context?.previousClothes) {
-        queryClient.setQueryData(clothingKeys.list(userId), context.previousClothes);
+        queryClient.setQueryData(
+          clothingKeys.list(userId),
+          context.previousClothes,
+        );
       }
-    }
+    },
   });
 }
 
 export function useUpdateClothingItem() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ itemId, userId, updates, newImageFile }: { itemId: string; userId: string; updates: Partial<Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'>>; newImageFile?: Blob }) =>
+    mutationFn: ({
+      itemId,
+      userId,
+      updates,
+      newImageFile,
+    }: {
+      itemId: string;
+      userId: string;
+      updates: Partial<
+        Omit<
+          ClothingItem,
+          'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'
+        >
+      >;
+      newImageFile?: Blob;
+    }) =>
       ClothingService.updateClothingItem(itemId, userId, updates, newImageFile),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: clothingKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: clothingKeys.detail(variables.itemId) });
+      queryClient.invalidateQueries({
+        queryKey: clothingKeys.detail(variables.itemId),
+      });
     },
   });
 }
@@ -92,10 +126,10 @@ export function useUpdateClothingItem() {
 export function useDeleteClothingItem() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ itemId, imageUrl }: { itemId: string; imageUrl: string }) => 
+    mutationFn: ({ itemId, imageUrl }: { itemId: string; imageUrl: string }) =>
       ClothingService.deleteClothingItem(itemId, imageUrl),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: clothingKeys.lists() });
     },
   });
-} 
+}

@@ -29,18 +29,18 @@ export function useGetOutfit(outfitId: string) {
 }
 
 export function useGetRandomUserOutfits(count: number) {
-    const { data: outfits, ...queryInfo } = useGetUserOutfits();
-  
-    const randomOutfits = useMemo(() => {
-      if (!outfits || outfits.length === 0) {
-        return [];
-      }
-      const shuffled = [...outfits].sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, count);
-    }, [outfits, count]);
-  
-    return {
-      ...queryInfo,
-      data: randomOutfits,
-    };
-} 
+  const { data: outfits, ...queryInfo } = useGetUserOutfits();
+
+  const randomOutfits = useMemo(() => {
+    if (!outfits || outfits.length === 0) {
+      return [];
+    }
+    const shuffled = [...outfits].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }, [outfits, count]);
+
+  return {
+    ...queryInfo,
+    data: randomOutfits,
+  };
+}
