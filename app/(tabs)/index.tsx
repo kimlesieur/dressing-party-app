@@ -1,6 +1,7 @@
 import { HomepageStatistics } from '@/components/HomepageStatistics';
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { useGetRecentItems } from '@/hooks/useGetRecentItems';
+import { useGetRandomUserOutfits } from '@/hooks/useOutfits';
 import { useWeather } from '@/hooks/useWeather';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link } from 'expo-router';
@@ -12,12 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function HomeScreen() {
   const { recentItems } = useGetRecentItems();
   const { weather, isLoading: isLoadingWeather, error: weatherError, refreshWeather } = useWeather();
-
-  const suggestedOutfit = {
-    name: 'Look Bureau Chic',
-    items: ['Blazer noir', 'Jean slim', 'Chemise blanche'],
-    image: 'https://images.pexels.com/photos/1021693/pexels-photo-1021693.jpeg?auto=compress&cs=tinysrgb&w=400'
-  };
+  const { data: randomOutfits, isLoading: isLoadingOutfits } = useGetRandomUserOutfits(3);
 
   // Weather suggestion based on temperature
   const getWeatherSuggestion = (temp: number) => {
@@ -81,18 +77,24 @@ export default function HomeScreen() {
         <View style={styles.card}>
           <View style={styles.sectionHeader}>
             <LucideIcons.Star size={20} color="#8B5CF6" />
-            <Text style={styles.sectionTitle}>Tenue suggérée</Text>
+            <Text style={styles.sectionTitle}>Tenues suggérées</Text>
           </View>
-          <TouchableOpacity style={styles.outfitCard}>
-            <OptimizedImage uri={suggestedOutfit.image} style={styles.outfitImage} />
-            <View style={styles.outfitInfo}>
-              <Text style={styles.outfitName}>{suggestedOutfit.name}</Text>
-              <Text style={styles.outfitItems}>
-                {suggestedOutfit.items.join(' • ')}
-              </Text>
-            </View>
-            <LucideIcons.Heart size={24} color="#EC4899" />
-          </TouchableOpacity>
+          {isLoadingOutfits ? (
+            <ActivityIndicator color="#8B5CF6" />
+          ) : randomOutfits && randomOutfits.length > 0 ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.suggestedOutfitsContainer}>
+              {randomOutfits.map(outfit => (
+                <TouchableOpacity key={outfit.id} style={styles.outfitCard}>
+                  <OptimizedImage uri={outfit.imageUrl || ''} style={styles.outfitImage} />
+                  <View style={styles.outfitInfo}>
+                    <Text style={styles.outfitName}>{outfit.name}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          ) : (
+            <Text style={styles.noOutfitsText}>Aucune tenue suggérée pour le moment. Créez-en une !</Text>
+          )}
         </View>
 
         <HomepageStatistics />
@@ -128,15 +130,17 @@ export default function HomeScreen() {
               </LinearGradient>
             </TouchableOpacity>
           </Link>
-          <TouchableOpacity style={styles.actionButton}>
-            <LinearGradient
-              colors={['#EC4899', '#DB2777']}
-              style={styles.actionGradient}
-            >
-              <LucideIcons.Shirt size={24} color="#FFFFFF" />
-              <Text style={styles.actionText}>Créer une tenue</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+          <Link href="/outfits/create" asChild>
+            <TouchableOpacity style={styles.actionButton}>
+              <LinearGradient
+                colors={['#EC4899', '#DB2777']}
+                style={styles.actionGradient}
+              >
+                <LucideIcons.Shirt size={24} color="#FFFFFF" />
+                <Text style={styles.actionText}>Créer une tenue</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </Link>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -233,6 +237,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
     borderRadius: 12,
     padding: 16,
+    marginRight: 12,
+    width: 280,
   },
   outfitImage: {
     width: 60,
@@ -252,6 +258,15 @@ const styles = StyleSheet.create({
   outfitItems: {
     fontSize: 14,
     color: '#6B7280',
+  },
+  suggestedOutfitsContainer: {
+    marginHorizontal: -20,
+    paddingHorizontal: 20,
+  },
+  noOutfitsText: {
+    textAlign: 'center',
+    color: '#6B7280',
+    paddingVertical: 20,
   },
   statsGrid: {
     flexDirection: 'row',
