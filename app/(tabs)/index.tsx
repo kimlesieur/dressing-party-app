@@ -1,35 +1,30 @@
+import { HomepageStatistics } from '@/components/HomepageStatistics';
 import { OptimizedImage } from '@/components/OptimizedImage';
+import { useGetRecentItems } from '@/hooks/useGetRecentItems';
+import { useWeather } from '@/hooks/useWeather';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
-  const todayWeather = {
-    temperature: 22,
-    condition: 'Ensoleillé',
-    icon: '☀️'
-  };
-
-  const stats = {
-    totalClothes: 52,
-    outfitsCreated: 8,
-    favoriteBrand: 'Zara',
-    dominantColor: 'Bleu'
-  };
-
-  const recentItems = [
-    { id: 1, name: 'Robe d\'été', image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=300' },
-    { id: 2, name: 'Blazer noir', image: 'https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=300' },
-    { id: 3, name: 'Jean slim', image: 'https://images.pexels.com/photos/1598507/pexels-photo-1598507.jpeg?auto=compress&cs=tinysrgb&w=300' },
-  ];
+  const { recentItems } = useGetRecentItems();
+  const { weather, isLoading: isLoadingWeather, error: weatherError, refreshWeather } = useWeather();
 
   const suggestedOutfit = {
     name: 'Look Bureau Chic',
     items: ['Blazer noir', 'Jean slim', 'Chemise blanche'],
     image: 'https://images.pexels.com/photos/1021693/pexels-photo-1021693.jpeg?auto=compress&cs=tinysrgb&w=400'
+  };
+
+  // Weather suggestion based on temperature
+  const getWeatherSuggestion = (temp: number) => {
+    if (temp < 10) return 'Parfait pour une tenue chaude et confortable !';
+    if (temp < 20) return 'Idéal pour une tenue à manches longues !';
+    if (temp < 25) return 'Parfait pour une tenue légère et colorée !';
+    return 'Optez pour des vêtements légers et aérés !';
   };
 
   return (
@@ -50,14 +45,35 @@ export default function HomeScreen() {
             <View style={styles.weatherHeader}>
               <LucideIcons.Cloud size={24} color="#FFFFFF" />
               <Text style={styles.weatherTitle}>Météo du jour</Text>
+              <TouchableOpacity onPress={refreshWeather} style={styles.refreshButton}>
+                <LucideIcons.RefreshCw size={16} color="#FFFFFF" />
+              </TouchableOpacity>
             </View>
-            <View style={styles.weatherContent}>
-              <Text style={styles.weatherTemp}>{todayWeather.temperature}°C</Text>
-              <Text style={styles.weatherCondition}>{todayWeather.condition}</Text>
-            </View>
-            <Text style={styles.weatherSuggestion}>
-              Parfait pour une tenue légère et colorée !
-            </Text>
+            
+            {isLoadingWeather ? (
+              <View style={styles.weatherContent}>
+                <ActivityIndicator color="#FFFFFF" size="large" />
+                <Text style={styles.weatherLoading}>Chargement de la météo...</Text>
+              </View>
+            ) : weatherError ? (
+              <View style={styles.weatherContent}>
+                <LucideIcons.AlertCircle size={24} color="#FFFFFF" />
+                <Text style={styles.weatherError}>Impossible de charger la météo</Text>
+              </View>
+            ) : weather ? (
+              <>
+                <View style={styles.weatherContent}>
+                  <Text style={styles.weatherTemp}>{weather.temperature}°C</Text>
+                  <Text style={styles.weatherCondition}>{weather.condition}</Text>
+                </View>
+                <Text style={styles.weatherSuggestion}>
+                  {getWeatherSuggestion(weather.temperature)}
+                </Text>
+                <Text style={styles.weatherLocation}>
+                  📍 {weather.city}
+                </Text>
+              </>
+            ) : null}
           </LinearGradient>
         </View>
 
@@ -79,31 +95,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Stats */}
-        <View style={styles.card}>
-          <View style={styles.sectionHeader}>
-            <LucideIcons.TrendingUp size={20} color="#8B5CF6" />
-            <Text style={styles.sectionTitle}>Mes statistiques</Text>
-          </View>
-          <View style={styles.statsGrid}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{stats.totalClothes}</Text>
-              <Text style={styles.statLabel}>Vêtements</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{stats.outfitsCreated}</Text>
-              <Text style={styles.statLabel}>Tenues créées</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{stats.favoriteBrand}</Text>
-              <Text style={styles.statLabel}>Marque favorite</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{stats.dominantColor}</Text>
-              <Text style={styles.statLabel}>Couleur dominante</Text>
-            </View>
-          </View>
-        </View>
+        <HomepageStatistics />
 
         {/* Recent Items */}
         <View style={styles.card}>
@@ -113,10 +105,12 @@ export default function HomeScreen() {
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recentItems}>
             {recentItems.map((item) => (
-              <TouchableOpacity key={item.id} style={styles.recentItem}>
-                <OptimizedImage uri={item.image} style={styles.recentItemImage} />
-                <Text style={styles.recentItemName}>{item.name}</Text>
-              </TouchableOpacity>
+              <Link href={`/clothing/${item.id}`} asChild key={item.id}>
+                <TouchableOpacity style={styles.recentItem}>
+                  <OptimizedImage uri={item.image} style={styles.recentItemImage} />
+                  <Text style={styles.recentItemName} numberOfLines={2}>{item.name}</Text>
+                </TouchableOpacity>
+              </Link>
             ))}
           </ScrollView>
         </View>
@@ -192,6 +186,7 @@ const styles = StyleSheet.create({
   weatherHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 12,
   },
   weatherTitle: {
@@ -322,5 +317,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
     marginLeft: 8,
+  },
+  weatherLoading: {
+    fontSize: 14,
+    color: '#E0E7FF',
+    marginLeft: 8,
+  },
+  weatherError: {
+    fontSize: 14,
+    color: '#FEE2E2',
+    marginLeft: 8,
+  },
+  refreshButton: {
+    padding: 4,
+  },
+  weatherLocation: {
+    fontSize: 12,
+    color: '#E0E7FF',
+    marginTop: 4,
   },
 });
