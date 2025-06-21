@@ -67,6 +67,25 @@ export class ClothingService {
     }
   }
 
+  // Get multiple clothing items by their IDs
+  static async getClothingItemsByIds(itemIds: string[]): Promise<ClothingItem[]> {
+    if (itemIds.length === 0) {
+      return [];
+    }
+    try {
+      const q = query(collection(db, 'clothing'), where('__name__', 'in', itemIds));
+      const querySnapshot = await getDocs(q);
+      const clothingItems: ClothingItem[] = [];
+      querySnapshot.forEach((doc) => {
+        clothingItems.push({ id: doc.id, ...doc.data() } as ClothingItem);
+      });
+      return clothingItems;
+    } catch (error) {
+      console.error('Error getting clothing items by IDs:', error);
+      throw error;
+    }
+  }
+
   // Get all clothing items for a user
   static async getUserClothing(userId: string): Promise<ClothingItem[]> {
     try {

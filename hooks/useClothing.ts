@@ -9,6 +9,7 @@ const clothingKeys = {
   list: (userId: string) => [...clothingKeys.lists(), { userId }] as const,
   details: () => [...clothingKeys.all, 'detail'] as const,
   detail: (id: string) => [...clothingKeys.details(), id] as const,
+  byIds: (ids: string[]) => [...clothingKeys.all, 'byIds', ids] as const,
 };
 
 export function useGetUserClothing(userId: string) {
@@ -35,6 +36,14 @@ export function useGetUserClothing(userId: string) {
     queryFn: () => ClothingService.getUserClothing(userId),
     enabled: !!userId,
     staleTime: Infinity,
+  });
+}
+
+export function useGetClothingItemsByIds(itemIds: string[]) {
+  return useQuery({
+    queryKey: clothingKeys.byIds(itemIds),
+    queryFn: () => ClothingService.getClothingItemsByIds(itemIds),
+    enabled: itemIds.length > 0,
   });
 }
 
