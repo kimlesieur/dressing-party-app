@@ -35,7 +35,16 @@ export class ClothingService {
       // Upload image to Firebase Storage
       const imageBlob = await this.compressAndResizeImage(imageUri);
       const imageRef = ref(storage, `clothing/${userId}/${Date.now()}`);
-      const snapshot = await uploadBytes(imageRef, imageBlob);
+
+      const metadata = {
+        customMetadata: {
+          userId,
+          createdAt: new Date().toISOString(),
+          storageClass: 'STANDARD',
+        },
+      };
+
+      const snapshot = await uploadBytes(imageRef, imageBlob, metadata);
       const imageUrl = await getDownloadURL(snapshot.ref);
 
       // Create clothing item document
@@ -195,7 +204,16 @@ export class ClothingService {
         // Upload new image
         const imageBlob = await this.compressAndResizeImage(newImageUri);
         const imageRef = ref(storage, `clothing/${userId}/${Date.now()}`);
-        const snapshot = await uploadBytes(imageRef, imageBlob);
+
+        const metadata = {
+          customMetadata: {
+            userId,
+            createdAt: new Date().toISOString(),
+            storageClass: 'STANDARD',
+          },
+        };
+
+        const snapshot = await uploadBytes(imageRef, imageBlob, metadata);
         const imageUrl = await getDownloadURL(snapshot.ref);
         updateData.imageUrl = imageUrl;
       }
@@ -272,9 +290,7 @@ export class ClothingService {
   }
 
   // Helper function to compress and resize images
-  private static async compressAndResizeImage(
-    imageUri: string,
-  ): Promise<Blob> {
+  private static async compressAndResizeImage(imageUri: string): Promise<Blob> {
     const result = await ImageManipulator.manipulateAsync(
       imageUri,
       [{ resize: { width: 800 } }], // Resize to max 800px width
