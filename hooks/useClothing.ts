@@ -61,15 +61,15 @@ export function useAddClothingItem() {
     mutationFn: ({
       userId,
       clothingData,
-      imageFile,
+      imageUri,
     }: {
       userId: string;
       clothingData: Omit<
         ClothingItem,
         'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'
       >;
-      imageFile: Blob;
-    }) => ClothingService.addClothingItem(userId, clothingData, imageFile),
+      imageUri: string;
+    }) => ClothingService.addClothingItem(userId, clothingData, imageUri),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
         queryKey: clothingKeys.list(variables.userId),
@@ -101,7 +101,7 @@ export function useUpdateClothingItem() {
       itemId,
       userId,
       updates,
-      newImageFile,
+      newImageUri,
     }: {
       itemId: string;
       userId: string;
@@ -111,9 +111,9 @@ export function useUpdateClothingItem() {
           'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'
         >
       >;
-      newImageFile?: Blob;
+      newImageUri?: string;
     }) =>
-      ClothingService.updateClothingItem(itemId, userId, updates, newImageFile),
+      ClothingService.updateClothingItem(itemId, userId, updates, newImageUri),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: clothingKeys.lists() });
       queryClient.invalidateQueries({
