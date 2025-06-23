@@ -21,23 +21,23 @@ const firebaseConfig = {
 };
 
 // Validate that all required environment variables are present
-const requiredEnvVars = [
-  'EXPO_PUBLIC_FIREBASE_API_KEY',
-  'EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN',
-  'EXPO_PUBLIC_FIREBASE_PROJECT_ID',
-  'EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET',
-  'EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
-  'EXPO_PUBLIC_FIREBASE_APP_ID',
-];
+// const requiredEnvVars = [
+//   'EXPO_PUBLIC_FIREBASE_API_KEY',
+//   'EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN',
+//   'EXPO_PUBLIC_FIREBASE_PROJECT_ID',
+//   'EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET',
+//   'EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
+//   'EXPO_PUBLIC_FIREBASE_APP_ID',
+// ];
 
-const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
+// const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
 
-if (missingEnvVars.length > 0) {
-  throw new Error(
-    `Missing required Firebase environment variables: ${missingEnvVars.join(', ')}\n` +
-      'Please check your .env file and ensure all Firebase configuration variables are set.',
-  );
-}
+// if (missingEnvVars.length > 0) {
+//   throw new Error(
+//     `Missing required Firebase environment variables: ${missingEnvVars.join(', ')}\n` +
+//       'Please check your .env file and ensure all Firebase configuration variables are set.',
+//   );
+// }
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

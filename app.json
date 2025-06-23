@@ -30,6 +30,9 @@
         "projectId": "47b78a2e-7655-4a54-a8ab-1d451a75553e"
       }
     },
-    "owner": "kimlesieur"
+    "owner": "kimlesieur",
+    "android": {
+      "package": "com.kimlesieur.dressingparty"
+    }
   }
 }
