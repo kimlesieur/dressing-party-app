@@ -9,7 +9,12 @@
 
 import { Storage } from '@google-cloud/storage';
 import { logger } from 'firebase-functions/v2';
+import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
+
+import * as admin from 'firebase-admin';
+
+admin.initializeApp();
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
@@ -90,6 +95,32 @@ export const manageStorageClasses = onSchedule(
       // It's a good practice to re-throw the error for visibility
       // in Firebase's error reporting.
       throw error;
+    }
+  },
+);
+
+export const setUserRole = onDocumentWritten(
+  {
+    document: 'users/{userId}',
+    region: 'us-west1',
+  },
+  async (event) => {
+    const userId = event.params.userId;
+    const userData = event.data?.after?.data();
+
+    if (!userData || !userData.role) {
+      // Optionally clear claims if user or role is deleted
+      await admin.auth().setCustomUserClaims(userId, {});
+      return;
+    }
+
+    try {
+      await admin.auth().setCustomUserClaims(userId, { role: userData.role });
+      console.log(
+        `Custom claim 'role: ${userData.role}' set for user ${userId}`,
+      );
+    } catch (error) {
+      console.error('Error setting custom claim:', error);
     }
   },
 );
