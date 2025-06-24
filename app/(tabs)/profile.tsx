@@ -289,6 +289,11 @@ export default function ProfileScreen() {
             <Text style={styles.logoutButtonText}>Se déconnecter</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Bolt.new Attribution */}
+        <View style={styles.attributionSection}>
+          <Text style={styles.attributionText}>Built with Bolt.new</Text>
+        </View>
       </ScrollView>
     </ScreenWrapper>
   );
@@ -565,13 +570,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#EF4444',
   },
-  footer: {
+  attributionSection: {
     alignItems: 'center',
     paddingBottom: 40,
+    paddingTop: 20,
   },
-  versionText: {
+  attributionText: {
     fontSize: 12,
     color: '#9CA3AF',
+    fontWeight: '500',
   },
   loadingContainer: {
     flex: 1,
