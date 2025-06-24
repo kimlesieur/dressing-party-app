@@ -103,15 +103,14 @@ export default function EditProfileScreen() {
       // Refresh user profile to get latest data
       await refreshUserProfile();
 
-      Alert.alert('Succès', 'Votre profil a été mis à jour !', [
-        {
-          text: 'OK',
-          onPress: () => {
-            // Navigate back to profile screen
-            router.back();
-          },
-        },
-      ]);
+      // Navigate back immediately after successful save
+      router.back();
+      
+      // Show success message after navigation
+      setTimeout(() => {
+        Alert.alert('Succès', 'Votre profil a été mis à jour !');
+      }, 100);
+
     } catch (error) {
       console.error('Error updating profile:', error);
       Alert.alert(
