@@ -257,13 +257,15 @@ export default function ProfileScreen() {
         {/* Profile Info */}
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
-            <OptimizedImage
-              uri={
-                userProfile.avatar ||
-                'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=400'
-              }
-              style={styles.profileImage}
-            />
+            <View style={styles.profileImageWrapper}>
+              <OptimizedImage
+                uri={
+                  userProfile.avatar ||
+                  'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=400'
+                }
+                style={styles.profileImage}
+              />
+            </View>
             <TouchableOpacity
               style={styles.editImageButton}
               onPress={handleImagePicker}
@@ -404,13 +406,24 @@ const styles = StyleSheet.create({
   profileImageContainer: {
     position: 'relative',
     marginBottom: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileImageWrapper: {
+    width: 106,
+    height: 106,
+    borderRadius: 53,
+    borderWidth: 3,
+    borderColor: '#8B5CF6',
+    backgroundColor: '#fff',
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   profileImage: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    borderWidth: 3,
-    borderColor: '#8B5CF6',
   },
   editImageButton: {
     position: 'absolute',
