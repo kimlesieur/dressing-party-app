@@ -1,126 +1,36 @@
+import { FormInput } from '@/components/FormInput';
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { ScreenWrapper } from '@/components/ScreenWrapper';
-import { useAuth } from '@/hooks/useAuth';
-import { AuthService } from '@/services/auth';
-import * as ImagePicker from 'expo-image-picker';
+import { useProfileForm } from '@/hooks/useProfileForm';
 import { router } from 'expo-router';
-import { Camera, Check, ChevronLeft, Image as ImageIcon, X } from 'lucide-react-native';
-import React, { useState } from 'react';
+import {
+  Camera,
+  Check,
+  ChevronLeft,
+  Image as ImageIcon,
+  X,
+} from 'lucide-react-native';
+import React from 'react';
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 
 export default function EditProfileScreen() {
-  const { userProfile, refreshUserProfile } = useAuth();
-  const [selectedImage, setSelectedImage] = useState<string | null>(
-    userProfile?.avatar || null,
-  );
-  const [profileData, setProfileData] = useState({
-    displayName: userProfile?.displayName || '',
-    username: userProfile?.username || '',
-    bio: userProfile?.bio || '',
-  });
-  const [isLoading, setIsLoading] = useState(false);
-
-  const openCamera = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert(
-        'Permission requise',
-        'Nous avons besoin de votre permission pour accéder à la caméra',
-      );
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-
-    if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
-    }
-  };
-
-  const openImagePicker = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-
-    if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
-    }
-  };
-
-  const handleSave = async () => {
-    if (!profileData.displayName.trim() || !profileData.username.trim()) {
-      Alert.alert(
-        'Informations manquantes',
-        'Veuillez remplir au minimum le nom et le nom d\'utilisateur.',
-      );
-      return;
-    }
-
-    if (!userProfile) {
-      Alert.alert('Erreur', 'Profil utilisateur non trouvé.');
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-
-      // Prepare updates
-      const updates = {
-        displayName: profileData.displayName.trim(),
-        username: profileData.username.trim(),
-        bio: profileData.bio.trim(),
-      };
-
-      // Update profile data first
-      await AuthService.updateUserProfile(userProfile.uid, updates);
-
-      // Upload new avatar if changed
-      if (selectedImage && selectedImage !== userProfile.avatar) {
-        await AuthService.uploadProfilePicture(
-          userProfile.uid,
-          selectedImage,
-          userProfile.avatar,
-        );
-      }
-
-      // Refresh user profile to get latest data
-      await refreshUserProfile();
-
-      // Navigate back immediately after successful save
-      router.back();
-      
-      // Show success message after navigation
-      setTimeout(() => {
-        Alert.alert('Succès', 'Votre profil a été mis à jour !');
-      }, 100);
-
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      Alert.alert(
-        'Erreur',
-        'Une erreur est survenue lors de la mise à jour du profil. Veuillez réessayer.',
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const {
+    form,
+    selectedImage,
+    isLoading,
+    openCamera,
+    openImagePicker,
+    removeImage,
+    handleSubmit,
+    errors,
+  } = useProfileForm();
 
   return (
     <ScreenWrapper style={styles.container}>
@@ -136,9 +46,9 @@ export default function EditProfileScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-
         {/* Avatar Section */}
         <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Photo de profil</Text>
           {selectedImage ? (
             <View style={styles.imageContainer}>
               <OptimizedImage
@@ -147,7 +57,7 @@ export default function EditProfileScreen() {
               />
               <TouchableOpacity
                 style={styles.removeImageButton}
-                onPress={() => setSelectedImage(null)}
+                onPress={removeImage}
               >
                 <X size={20} color="#FFFFFF" />
               </TouchableOpacity>
@@ -159,7 +69,7 @@ export default function EditProfileScreen() {
               </View>
             </View>
           )}
-          
+
           <View style={styles.imageUploadContainer}>
             <TouchableOpacity
               style={styles.imageUploadButton}
@@ -184,51 +94,42 @@ export default function EditProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Informations personnelles</Text>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Nom complet *</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Ex: Marie Dupont"
-              value={profileData.displayName}
-              onChangeText={(text) =>
-                setProfileData((prev) => ({ ...prev, displayName: text }))
-              }
-            />
-          </View>
+          <FormInput
+            name="displayName"
+            control={form.control}
+            label="Nom complet"
+            placeholder="Ex: Marie Dupont"
+            error={errors.displayName?.message}
+            required
+          />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Nom d'utilisateur *</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Ex: marie_style"
-              value={profileData.username}
-              onChangeText={(text) =>
-                setProfileData((prev) => ({ ...prev, username: text }))
-              }
-              autoCapitalize="none"
-            />
-          </View>
+          <FormInput
+            name="username"
+            control={form.control}
+            label="Nom d'utilisateur"
+            placeholder="Ex: marie_style"
+            error={errors.username?.message}
+            autoCapitalize="none"
+            required
+          />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Bio</Text>
-            <TextInput
-              style={[styles.textInput, styles.textArea]}
-              placeholder="Parlez-nous de votre style, vos inspirations..."
-              value={profileData.bio}
-              onChangeText={(text) =>
-                setProfileData((prev) => ({ ...prev, bio: text }))
-              }
-              multiline
-              numberOfLines={4}
-            />
-          </View>
+          <FormInput
+            name="bio"
+            control={form.control}
+            label="Bio"
+            placeholder="Parlez-nous de votre style, vos inspirations..."
+            error={errors.bio?.message}
+            multiline
+            numberOfLines={4}
+            style={styles.textArea}
+          />
         </View>
 
         {/* Save Button */}
         <View style={styles.saveContainer}>
           <TouchableOpacity
             style={[styles.saveButton, isLoading && styles.disabledButton]}
-            onPress={handleSave}
+            onPress={handleSubmit}
             disabled={isLoading}
           >
             {isLoading ? (
@@ -267,21 +168,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#1F2937',
-  },
-  headerSection: {
-    padding: 20,
-    paddingBottom: 10,
-  },
-  pageTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6B7280',
-    fontWeight: '500',
   },
   section: {
     backgroundColor: '#FFFFFF',
@@ -360,24 +246,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#6B7280',
     textAlign: 'center',
-  },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  textInput: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    color: '#1F2937',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
   },
   textArea: {
     height: 100,
