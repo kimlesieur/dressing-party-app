@@ -134,11 +134,6 @@ export default function EditProfileScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.headerSection}>
-          <Text style={styles.pageTitle}>Modifier mon profil</Text>
-          <Text style={styles.subtitle}>Personnalisez votre présence</Text>
-        </View>
 
         {/* Avatar Section */}
         <View style={styles.section}>
