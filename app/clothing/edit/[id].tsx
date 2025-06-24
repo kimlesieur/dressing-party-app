@@ -4,8 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useGetClothingItem, useUpdateClothingItem } from '@/hooks/useClothing';
 import { ClothingItem } from '@/types/firebase';
 import * as ImagePicker from 'expo-image-picker';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Camera, Image as ImageIcon, X } from 'lucide-react-native';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Camera, ChevronLeft, Image as ImageIcon, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -225,11 +225,30 @@ export default function EditClothingScreen() {
 
   return (
     <ScreenWrapper style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          title: 'Modifier le vêtement',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.headerButton}
+            >
+              <ChevronLeft size={24} color="#1F2937" />
+            </TouchableOpacity>
+          ),
+          headerStyle: {
+            backgroundColor: '#F8FAFC',
+          },
+          headerTitleStyle: {
+            fontSize: 18,
+            fontWeight: '600',
+            color: '#1F2937',
+          },
+          headerShadowVisible: true,
+        }}
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Modifier le vêtement</Text>
-        </View>
-
         {/* Image Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Photo *</Text>
@@ -439,8 +458,10 @@ export default function EditClothingScreen() {
 const styles = StyleSheet.create({
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   container: { flex: 1, backgroundColor: '#F8FAFC' },
-  header: { padding: 20 },
-  title: { fontSize: 28, fontWeight: 'bold' },
+  headerButton: {
+    padding: 8,
+    marginLeft: 8,
+  },
   section: { marginBottom: 20, paddingHorizontal: 20 },
   sectionTitle: { fontSize: 18, fontWeight: '600', marginBottom: 15 },
   imageContainer: { position: 'relative', marginBottom: 10 },
