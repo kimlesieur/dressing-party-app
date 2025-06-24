@@ -32,7 +32,13 @@ import {
 } from 'react-native';
 
 export default function ProfileScreen() {
-  const { userProfile, loading, signOut, isAuthenticated, uploadProfilePicture } = useAuth();
+  const {
+    userProfile,
+    loading,
+    signOut,
+    isAuthenticated,
+    uploadProfilePicture,
+  } = useAuth();
   const [isPublicProfile, setIsPublicProfile] = useState(
     userProfile?.isPublic ?? true,
   );
@@ -93,7 +99,7 @@ export default function ProfileScreen() {
           onPress: openImagePicker,
         },
       ],
-      { cancelable: true }
+      { cancelable: true },
     );
   };
 
@@ -120,7 +126,7 @@ export default function ProfileScreen() {
       }
     } catch (error) {
       console.error('Error opening camera:', error);
-      Alert.alert('Erreur', 'Impossible d\'ouvrir la caméra');
+      Alert.alert('Erreur', "Impossible d'ouvrir la caméra");
     }
   };
 
@@ -138,7 +144,7 @@ export default function ProfileScreen() {
       }
     } catch (error) {
       console.error('Error opening image picker:', error);
-      Alert.alert('Erreur', 'Impossible d\'ouvrir la galerie');
+      Alert.alert('Erreur', "Impossible d'ouvrir la galerie");
     }
   };
 
@@ -151,7 +157,7 @@ export default function ProfileScreen() {
       console.error('Error uploading profile picture:', error);
       Alert.alert(
         'Erreur',
-        'Une erreur est survenue lors du téléchargement de l\'image'
+        "Une erreur est survenue lors du téléchargement de l'image",
       );
     } finally {
       setIsUploadingImage(false);
@@ -252,10 +258,13 @@ export default function ProfileScreen() {
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
             <OptimizedImage
-              uri={userProfile.avatar || 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=400'}
+              uri={
+                userProfile.avatar ||
+                'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=400'
+              }
               style={styles.profileImage}
             />
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.editImageButton}
               onPress={handleImagePicker}
               disabled={isUploadingImage}
