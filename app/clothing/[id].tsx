@@ -125,7 +125,7 @@ export default function ClothingDetailScreen() {
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={handleDelete}
-                    style={[styles.headerButton, styles.deleteButton]}
+                    style={[styles.headerButton]}
                     disabled={deleteClothingMutation.isPending}
                   >
                     {deleteClothingMutation.isPending ? (
@@ -225,10 +225,6 @@ const styles = StyleSheet.create({
   headerRightContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  deleteButton: {
-    backgroundColor: '#FEE2E2',
-    borderRadius: 8,
   },
   image: {
     width: '100%',
