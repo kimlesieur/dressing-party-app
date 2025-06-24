@@ -79,9 +79,9 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="Inspirations"
+          name="inspirations"
           options={{
-            title: 'Tenues',
+            title: 'Inspirations',
             tabBarIcon: ({ size, color }) => (
               <Users size={size} color={color} />
             ),
