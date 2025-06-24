@@ -137,7 +137,6 @@ export default function EditProfileScreen() {
 
         {/* Avatar Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Photo de profil</Text>
           {selectedImage ? (
             <View style={styles.imageContainer}>
               <OptimizedImage
