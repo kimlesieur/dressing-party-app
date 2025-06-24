@@ -1,6 +1,7 @@
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useAuth } from '@/hooks/useAuth';
+import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import {
   ChartBar as BarChart3,
@@ -20,6 +21,8 @@ import {
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   ScrollView,
   StyleSheet,
   Switch,
@@ -29,11 +32,12 @@ import {
 } from 'react-native';
 
 export default function ProfileScreen() {
-  const { userProfile, loading, signOut, isAuthenticated } = useAuth();
+  const { userProfile, loading, signOut, isAuthenticated, uploadProfilePicture } = useAuth();
   const [isPublicProfile, setIsPublicProfile] = useState(
     userProfile?.isPublic ?? true,
   );
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Show loading state
   if (loading) {
@@ -70,6 +74,89 @@ export default function ProfileScreen() {
       </ScreenWrapper>
     );
   }
+
+  const handleImagePicker = () => {
+    Alert.alert(
+      'Changer la photo de profil',
+      'Choisissez une option',
+      [
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
+        {
+          text: 'Prendre une photo',
+          onPress: openCamera,
+        },
+        {
+          text: 'Choisir de la galerie',
+          onPress: openImagePicker,
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const openCamera = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission requise',
+          'Nous avons besoin de votre permission pour accéder à la caméra',
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1], // Square aspect ratio for profile pictures
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        await uploadImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error opening camera:', error);
+      Alert.alert('Erreur', 'Impossible d\'ouvrir la caméra');
+    }
+  };
+
+  const openImagePicker = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1], // Square aspect ratio for profile pictures
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        await uploadImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error opening image picker:', error);
+      Alert.alert('Erreur', 'Impossible d\'ouvrir la galerie');
+    }
+  };
+
+  const uploadImage = async (imageUri: string) => {
+    try {
+      setIsUploadingImage(true);
+      await uploadProfilePicture(imageUri);
+      Alert.alert('Succès', 'Photo de profil mise à jour !');
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      Alert.alert(
+        'Erreur',
+        'Une erreur est survenue lors du téléchargement de l\'image'
+      );
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
 
   const stats = [
     { icon: Shirt, label: 'Vêtements', value: 52, color: '#8B5CF6' },
@@ -165,39 +252,29 @@ export default function ProfileScreen() {
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
             <OptimizedImage
-              uri={userProfile.avatar || 'https://via.placeholder.com/150'}
+              uri={userProfile.avatar || 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=400'}
               style={styles.profileImage}
             />
-            <TouchableOpacity style={styles.editImageButton}>
-              <Camera size={16} color="#FFFFFF" />
+            <TouchableOpacity 
+              style={styles.editImageButton}
+              onPress={handleImagePicker}
+              disabled={isUploadingImage}
+            >
+              {isUploadingImage ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Camera size={16} color="#FFFFFF" />
+              )}
             </TouchableOpacity>
           </View>
 
           <Text style={styles.profileName}>{userProfile.displayName}</Text>
-          <Text style={styles.profileUsername}>{userProfile.username}</Text>
+          <Text style={styles.profileUsername}>@{userProfile.username}</Text>
 
           <Text style={styles.profileBio}>
             {userProfile.bio ||
               'Ajouter une bio pour partager ton style avec le monde !'}
           </Text>
-
-          {/* Profile Stats */}
-          {/* <View style={styles.profileStats}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>0</Text>
-              <Text style={styles.statLabel}>Publications</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{userProfile.followers}</Text>
-              <Text style={styles.statLabel}>Abonnés</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{userProfile.following}</Text>
-              <Text style={styles.statLabel}>Abonnements</Text>
-            </View>
-          </View> */}
 
           {/* Action Buttons */}
           <View style={styles.actionButtons}>
@@ -299,25 +376,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-  },
-  settingsButton: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
   profileSection: {
     backgroundColor: '#FFFFFF',
     marginHorizontal: 20,
@@ -379,31 +437,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 20,
-  },
-  profileStats: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  statItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  statNumber: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-    fontWeight: '500',
-  },
-  statDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: '#E5E7EB',
   },
   actionButtons: {
     flexDirection: 'row',

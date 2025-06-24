@@ -86,6 +86,44 @@ export function useAuth() {
     }
   };
 
+  const uploadProfilePicture = async (imageUri: string) => {
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    try {
+      const downloadURL = await AuthService.uploadProfilePicture(
+        user.uid,
+        imageUri,
+        userProfile?.avatar,
+      );
+
+      // Update local state
+      if (userProfile) {
+        setUserProfile({
+          ...userProfile,
+          avatar: downloadURL,
+          updatedAt: new Date(),
+        });
+      }
+
+      return downloadURL;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const refreshUserProfile = async () => {
+    if (!user) return;
+
+    try {
+      const profile = await AuthService.getCurrentUserProfile(user.uid);
+      setUserProfile(profile);
+    } catch (error) {
+      console.error('Error refreshing user profile:', error);
+    }
+  };
+
   return {
     user,
     userProfile,
@@ -93,6 +131,8 @@ export function useAuth() {
     signIn,
     signUp,
     signOut,
+    uploadProfilePicture,
+    refreshUserProfile,
     isAuthenticated: !!user,
   };
 }
