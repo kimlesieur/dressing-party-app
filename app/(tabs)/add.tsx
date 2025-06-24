@@ -114,7 +114,7 @@ export default function AddClothingScreen() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [3, 4],
-      quality: 0.8,
+      quality: 0.6,
     });
 
     if (!result.canceled) {
@@ -127,7 +127,7 @@ export default function AddClothingScreen() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [3, 4],
-      quality: 0.8,
+      quality: 0.6,
     });
 
     if (!result.canceled) {
@@ -153,12 +153,6 @@ export default function AddClothingScreen() {
     }));
   };
 
-  const convertImageToBlob = async (uri: string): Promise<Blob> => {
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    return blob;
-  };
-
   const handleSave = async () => {
     if (!selectedImage || !clothingData.name || !clothingData.type) {
       Alert.alert(
@@ -179,11 +173,12 @@ export default function AddClothingScreen() {
     try {
       setIsLoading(true);
 
-      // Convert image to blob
-      const imageBlob = await convertImageToBlob(selectedImage);
-
-      // Add clothing item - we pass clothingData directly as it already has the correct structure
-      await ClothingService.addClothingItem(user.uid, clothingData, imageBlob);
+      // Add clothing item
+      await ClothingService.addClothingItem(
+        user.uid,
+        clothingData,
+        selectedImage,
+      );
 
       Alert.alert('Succès', 'Votre vêtement a été ajouté à votre dressing !', [
         {

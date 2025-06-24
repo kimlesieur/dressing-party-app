@@ -1,5 +1,6 @@
 import { db, storage } from '@/config/firebase';
 import { ClothingItem } from '@/types/firebase';
+import * as ImageManipulator from 'expo-image-manipulator';
 import {
   addDoc,
   collection,
@@ -28,12 +29,22 @@ export class ClothingService {
       ClothingItem,
       'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'
     >,
-    imageFile: Blob,
+    imageUri: string,
   ): Promise<ClothingItem> {
     try {
       // Upload image to Firebase Storage
+      const imageBlob = await this.compressAndResizeImage(imageUri);
       const imageRef = ref(storage, `clothing/${userId}/${Date.now()}`);
-      const snapshot = await uploadBytes(imageRef, imageFile);
+
+      const metadata = {
+        customMetadata: {
+          userId,
+          createdAt: new Date().toISOString(),
+          storageClass: 'STANDARD',
+        },
+      };
+
+      const snapshot = await uploadBytes(imageRef, imageBlob, metadata);
       const imageUrl = await getDownloadURL(snapshot.ref);
 
       // Create clothing item document
@@ -172,13 +183,14 @@ export class ClothingService {
         'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'
       >
     >,
-    newImageFile?: Blob,
+    newImageUri?: string,
   ): Promise<void> {
     try {
       const itemRef = doc(db, 'clothing', itemId);
       const updateData: any = { ...updates, updatedAt: new Date() };
 
-      if (newImageFile) {
+      if (newImageUri) {
+        // Delete old image if it exists
         const oldDocSnap = await getDoc(itemRef);
         if (oldDocSnap.exists()) {
           const oldData = oldDocSnap.data();
@@ -189,9 +201,19 @@ export class ClothingService {
             );
           }
         }
-
+        // Upload new image
+        const imageBlob = await this.compressAndResizeImage(newImageUri);
         const imageRef = ref(storage, `clothing/${userId}/${Date.now()}`);
-        const snapshot = await uploadBytes(imageRef, newImageFile);
+
+        const metadata = {
+          customMetadata: {
+            userId,
+            createdAt: new Date().toISOString(),
+            storageClass: 'STANDARD',
+          },
+        };
+
+        const snapshot = await uploadBytes(imageRef, imageBlob, metadata);
         const imageUrl = await getDownloadURL(snapshot.ref);
         updateData.imageUrl = imageUrl;
       }
@@ -265,5 +287,21 @@ export class ClothingService {
 
       return true;
     });
+  }
+
+  // Helper function to compress and resize images
+  private static async compressAndResizeImage(imageUri: string): Promise<Blob> {
+    const result = await ImageManipulator.manipulateAsync(
+      imageUri,
+      [{ resize: { width: 800 } }], // Resize to max 800px width
+      {
+        compress: 0.7, // Compress image with 70% quality
+        format: ImageManipulator.SaveFormat.JPEG,
+      },
+    );
+
+    const response = await fetch(result.uri);
+    const blob = await response.blob();
+    return blob;
   }
 }
