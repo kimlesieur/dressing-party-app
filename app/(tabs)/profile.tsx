@@ -2,7 +2,22 @@ import { OptimizedImage } from '@/components/OptimizedImage';
 import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useAuth } from '@/hooks/useAuth';
 import { router } from 'expo-router';
-import { ChartBar as BarChart3, Bell, Calendar, Crown, CreditCard as Edit, Heart, Circle as HelpCircle, LogIn, LogOut, Settings, Share, Shield, Shirt } from 'lucide-react-native';
+import {
+  ChartBar as BarChart3,
+  Bell,
+  Calendar,
+  Camera,
+  Crown,
+  Heart,
+  Circle as HelpCircle,
+  LogIn,
+  LogOut,
+  Pencil,
+  Settings,
+  Share,
+  Shield,
+  Shirt,
+} from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
   ScrollView,
@@ -146,13 +161,6 @@ export default function ProfileScreen() {
   return (
     <ScreenWrapper style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.settingsButton}>
-            <Settings size={24} color="#6B7280" />
-          </TouchableOpacity>
-        </View>
-
         {/* Profile Info */}
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
@@ -161,7 +169,7 @@ export default function ProfileScreen() {
               style={styles.profileImage}
             />
             <TouchableOpacity style={styles.editImageButton}>
-              <Edit size={16} color="#FFFFFF" />
+              <Camera size={16} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
 
@@ -169,11 +177,12 @@ export default function ProfileScreen() {
           <Text style={styles.profileUsername}>{userProfile.username}</Text>
 
           <Text style={styles.profileBio}>
-            {userProfile.bio || 'No bio yet'}
+            {userProfile.bio ||
+              'Ajouter une bio pour partager ton style avec le monde !'}
           </Text>
 
           {/* Profile Stats */}
-          <View style={styles.profileStats}>
+          {/* <View style={styles.profileStats}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>0</Text>
               <Text style={styles.statLabel}>Publications</Text>
@@ -188,13 +197,13 @@ export default function ProfileScreen() {
               <Text style={styles.statNumber}>{userProfile.following}</Text>
               <Text style={styles.statLabel}>Abonnements</Text>
             </View>
-          </View>
+          </View> */}
 
           {/* Action Buttons */}
           <View style={styles.actionButtons}>
             <TouchableOpacity style={styles.primaryButton}>
-              <Edit size={20} color="#FFFFFF" />
-              <Text style={styles.primaryButtonText}>Modifier le profil</Text>
+              <Pencil size={18} color="#FFFFFF" />
+              <Text style={styles.primaryButtonText}>Modifier</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.secondaryButton}>
               <Share size={20} color="#8B5CF6" />
@@ -312,7 +321,7 @@ const styles = StyleSheet.create({
   profileSection: {
     backgroundColor: '#FFFFFF',
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginVertical: 20,
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
@@ -446,6 +455,7 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-around',
     gap: 12,
   },
   statCard: {
@@ -453,7 +463,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
-    width: '48%',
+    width: '47%',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
