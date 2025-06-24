@@ -7,6 +7,7 @@ import { OutfitService } from '@/services/outfits';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
+import React from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -53,12 +54,7 @@ export default function OutfitDetailScreen() {
     mutationFn: (outfitId: string) => OutfitService.deleteOutfit(outfitId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['outfits'] });
-      Alert.alert('Succès', 'La tenue a été supprimée avec succès.', [
-        {
-          text: 'OK',
-          onPress: () => router.push('/(tabs)/inspirations'),
-        },
-      ]);
+      router.push('/(tabs)/inspirations');
     },
     onError: (error) => {
       console.error('Error deleting outfit:', error);
@@ -75,7 +71,7 @@ export default function OutfitDetailScreen() {
 
     Alert.alert(
       'Supprimer la tenue',
-      `Êtes-vous sûr de vouloir supprimer "${outfit.name}" ? Cette action est irréversible.`,
+      `Êtes-vous sûr de vouloir supprimer "${outfit?.name}" ? Cette action est irréversible.`,
       [
         {
           text: 'Annuler',

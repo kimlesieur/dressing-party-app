@@ -56,8 +56,15 @@ export class OutfitService {
         console.log('No such outfit!');
         return null;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error getting outfit:', error);
+      if (
+        error.code === 'permission-denied' ||
+        error.code === 'not-found' ||
+        error.message?.includes('Missing or insufficient permissions')
+      ) {
+        return null;
+      }
       throw error;
     }
   }
