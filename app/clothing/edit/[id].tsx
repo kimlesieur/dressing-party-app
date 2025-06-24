@@ -143,7 +143,7 @@ export default function EditClothingScreen() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [3, 4],
-      quality: 0.8,
+      quality: 0.6,
     });
     if (!result.canceled) setSelectedImage(result.assets[0].uri);
   };
@@ -153,7 +153,7 @@ export default function EditClothingScreen() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [3, 4],
-      quality: 0.8,
+      quality: 0.6,
     });
     if (!result.canceled) setSelectedImage(result.assets[0].uri);
   };
@@ -167,11 +167,6 @@ export default function EditClothingScreen() {
         : [...currentValues, value];
       return { ...prev, [field]: newValues };
     });
-  };
-
-  const convertImageToBlob = async (uri: string): Promise<Blob> => {
-    const response = await fetch(uri);
-    return response.blob();
   };
 
   const handleSave = async () => {
@@ -192,17 +187,12 @@ export default function EditClothingScreen() {
       return;
     }
 
-    let imageBlob: Blob | undefined = undefined;
-    if (selectedImage && !selectedImage.startsWith('http')) {
-      imageBlob = await convertImageToBlob(selectedImage);
-    }
-
     updateClothingMutation.mutate(
       {
         itemId: id,
         userId: user.uid,
         updates: clothingData,
-        newImageFile: imageBlob,
+        newImageUri: selectedImage,
       },
       {
         onSuccess: () => {

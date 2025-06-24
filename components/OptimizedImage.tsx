@@ -1,32 +1,37 @@
 import { Image, ImageProps } from 'expo-image';
-import React from 'react';
+import React, { useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 interface OptimizedImageProps extends Omit<ImageProps, 'source'> {
   uri: string;
-  placeholder?: string;
-  fallback?: string;
 }
 
-export function OptimizedImage({
-  uri,
-  placeholder = 'https://via.placeholder.com/200x200/F3F4F6/9CA3AF?text=Chargement...',
-  style,
-  ...props
-}: OptimizedImageProps) {
+export function OptimizedImage({ uri, style, ...props }: OptimizedImageProps) {
+  const [isLoading, setIsLoading] = useState(true);
+
   return (
-    <Image
-      source={{ uri }}
-      style={style}
-      placeholder={placeholder}
-      placeholderContentFit="cover"
-      transition={200}
-      contentFit="cover"
-      cachePolicy="memory-disk"
-      onError={() => {
-        // You could log errors here or show a toast
-        console.warn(`Failed to load image: ${uri}`);
-      }}
-      {...props}
-    />
+    <View style={style}>
+      <Image
+        source={{ uri }}
+        style={StyleSheet.absoluteFill}
+        cachePolicy="memory-disk"
+        contentFit="cover"
+        onError={() => {
+          // You could log errors here or show a toast
+          console.warn(`Failed to load image: ${uri}`);
+          setIsLoading(false);
+        }}
+        onLoadEnd={() => setIsLoading(false)}
+        transition={200}
+        {...props}
+      />
+      {isLoading && (
+        <ActivityIndicator
+          color="#9CA3AF"
+          size="large"
+          style={StyleSheet.absoluteFill}
+        />
+      )}
+    </View>
   );
 }
