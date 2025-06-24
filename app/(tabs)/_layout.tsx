@@ -4,7 +4,6 @@ import {
   Chrome as Home,
   Plus,
   Shirt,
-  TestTube,
   User,
   Users,
 } from 'lucide-react-native';
@@ -98,10 +97,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="test"
           options={{
-            title: 'Test',
-            tabBarIcon: ({ size, color }) => (
-              <TestTube size={size} color={color} />
-            ),
+            href: null, // This hides the tab from the tab bar
           }}
         />
       </Tabs>
