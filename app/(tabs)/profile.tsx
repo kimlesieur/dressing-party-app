@@ -2,21 +2,7 @@ import { OptimizedImage } from '@/components/OptimizedImage';
 import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useAuth } from '@/hooks/useAuth';
 import { router } from 'expo-router';
-import {
-  ChartBar as BarChart3,
-  Bell,
-  Calendar,
-  Crown,
-  CreditCard as Edit,
-  Heart,
-  CircleHelp as HelpCircle,
-  LogIn,
-  LogOut,
-  Settings,
-  Share,
-  Shield,
-  Shirt,
-} from 'lucide-react-native';
+import { ChartBar as BarChart3, Bell, Calendar, Crown, CreditCard as Edit, Heart, Circle as HelpCircle, LogIn, LogOut, Settings, Share, Shield, Shirt } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
   ScrollView,
