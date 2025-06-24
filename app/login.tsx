@@ -1,7 +1,7 @@
 import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useAuth } from '@/hooks/useAuth';
 import { router } from 'expo-router';
-import { ArrowLeft, Eye, EyeOff, Lock, Mail, User } from 'lucide-react-native';
+import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
   Alert,
@@ -107,12 +107,6 @@ export default function LoginScreen() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => router.back()}
-            >
-              <ArrowLeft size={24} color="#374151" />
-            </TouchableOpacity>
             <Text style={styles.title}>
               {isSignUp ? 'Create Account' : 'Welcome Back'}
             </Text>
@@ -233,15 +227,11 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingTop: 60,
   },
   header: {
     alignItems: 'center',
     marginBottom: 40,
-  },
-  backButton: {
-    alignSelf: 'flex-start',
-    marginBottom: 20,
   },
   title: {
     fontSize: 28,
