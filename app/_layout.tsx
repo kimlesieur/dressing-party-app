@@ -30,6 +30,7 @@ function RootLayout() {
           {/* Protected screens for unauthenticated users only */}
           <Stack.Protected guard={!isAuthenticated}>
             <Stack.Screen name="login" options={{ headerShown: false }} />
+            <Stack.Screen name="signup" options={{ headerShown: false }} />
           </Stack.Protected>
 
           {/* Protected screens for authenticated users only */}
