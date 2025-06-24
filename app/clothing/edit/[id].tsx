@@ -237,15 +237,11 @@ export default function EditClothingScreen() {
               <ChevronLeft size={24} color="#1F2937" />
             </TouchableOpacity>
           ),
-          headerStyle: {
-            backgroundColor: '#F8FAFC',
-          },
           headerTitleStyle: {
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: '600',
             color: '#1F2937',
           },
-          headerShadowVisible: true,
         }}
       />
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -462,7 +458,7 @@ const styles = StyleSheet.create({
     padding: 8,
     marginLeft: 8,
   },
-  section: { marginBottom: 20, paddingHorizontal: 20 },
+  section: { paddingHorizontal: 20 },
   sectionTitle: { fontSize: 18, fontWeight: '600', marginBottom: 15 },
   imageContainer: { position: 'relative', marginBottom: 10 },
   selectedImage: { width: '100%', height: 400, borderRadius: 12 },
