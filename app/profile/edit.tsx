@@ -88,7 +88,7 @@ export default function EditProfileScreen() {
         bio: profileData.bio.trim(),
       };
 
-      // Update profile data
+      // Update profile data first
       await AuthService.updateUserProfile(userProfile.uid, updates);
 
       // Upload new avatar if changed
@@ -106,7 +106,10 @@ export default function EditProfileScreen() {
       Alert.alert('Succès', 'Votre profil a été mis à jour !', [
         {
           text: 'OK',
-          onPress: () => router.back(),
+          onPress: () => {
+            // Navigate back to profile screen
+            router.back();
+          },
         },
       ]);
     } catch (error) {

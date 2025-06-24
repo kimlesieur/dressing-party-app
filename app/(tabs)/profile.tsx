@@ -2,7 +2,7 @@ import { OptimizedImage } from '@/components/OptimizedImage';
 import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useAuth } from '@/hooks/useAuth';
 import * as ImagePicker from 'expo-image-picker';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import {
   ChartBar as BarChart3,
   Bell,
@@ -19,7 +19,7 @@ import {
   Shield,
   Shirt,
 } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -38,6 +38,7 @@ export default function ProfileScreen() {
     signOut,
     isAuthenticated,
     uploadProfilePicture,
+    refreshUserProfile,
   } = useAuth();
   const [isPublicProfile, setIsPublicProfile] = useState(
     userProfile?.isPublic ?? true,
@@ -45,12 +46,22 @@ export default function ProfileScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
+  // Refresh profile data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      if (isAuthenticated) {
+        refreshUserProfile();
+      }
+    }, [isAuthenticated, refreshUserProfile])
+  );
+
   // Show loading state
   if (loading) {
     return (
       <ScreenWrapper style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading...</Text>
+          <ActivityIndicator size="large" color="#8B5CF6" />
+          <Text style={styles.loadingText}>Chargement...</Text>
         </View>
       </ScreenWrapper>
     );
@@ -178,13 +189,13 @@ export default function ProfileScreen() {
         {
           icon: Shirt,
           label: 'Mon dressing',
-          action: () => {},
+          action: () => router.push('/(tabs)/dressing'),
           color: '#8B5CF6',
         },
         {
           icon: Heart,
           label: 'Mes tenues favorites',
-          action: () => {},
+          action: () => router.push('/(tabs)/inspirations'),
           color: '#EC4899',
         },
         {
@@ -642,6 +653,7 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: '#6B7280',
+    marginTop: 12,
   },
   authContainer: {
     flex: 1,
