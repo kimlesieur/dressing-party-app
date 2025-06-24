@@ -1,11 +1,15 @@
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { ScreenWrapper } from '@/components/ScreenWrapper';
+import { useAuth } from '@/hooks/useAuth';
 import { useGetClothingItem } from '@/hooks/useClothing';
 import { useGetOutfit } from '@/hooks/useOutfits';
+import { OutfitService } from '@/services/outfits';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -41,7 +45,51 @@ function OutfitClothingItem({ id }: { id: string }) {
 export default function OutfitDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { data: outfit, isLoading } = useGetOutfit(id || '');
+
+  const deleteOutfitMutation = useMutation({
+    mutationFn: (outfitId: string) => OutfitService.deleteOutfit(outfitId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['outfits'] });
+      Alert.alert('Succès', 'La tenue a été supprimée avec succès.', [
+        {
+          text: 'OK',
+          onPress: () => router.push('/(tabs)/inspirations'),
+        },
+      ]);
+    },
+    onError: (error) => {
+      console.error('Error deleting outfit:', error);
+      Alert.alert(
+        'Erreur',
+        'Une erreur est survenue lors de la suppression. Veuillez réessayer.',
+      );
+    },
+  });
+
+  const handleDelete = () => {
+    if (!outfit || !id) return;
+
+    Alert.alert(
+      'Supprimer la tenue',
+      `Êtes-vous sûr de vouloir supprimer "${outfit.name}" ? Cette action est irréversible.`,
+      [
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: () => {
+            deleteOutfitMutation.mutate(id);
+          },
+        },
+      ],
+    );
+  };
 
   if (isLoading) {
     return (
@@ -59,6 +107,9 @@ export default function OutfitDetailScreen() {
     );
   }
 
+  // Check if current user owns this outfit
+  const isOwner = user?.uid === outfit.userId;
+
   return (
     <ScreenWrapper style={styles.container}>
       <View style={styles.header}>
@@ -71,11 +122,28 @@ export default function OutfitDetailScreen() {
         <Text style={styles.headerTitle} numberOfLines={1}>
           {outfit.name}
         </Text>
-        <Link href={`/outfits/edit/${id}`} asChild>
-          <TouchableOpacity style={styles.editButton}>
-            <LucideIcons.FilePenLine size={22} color="#1F2937" />
-          </TouchableOpacity>
-        </Link>
+        <View style={styles.headerRightContainer}>
+          {isOwner && (
+            <>
+              <Link href={`/outfits/edit/${id}`} asChild>
+                <TouchableOpacity style={styles.editButton}>
+                  <LucideIcons.FilePenLine size={22} color="#1F2937" />
+                </TouchableOpacity>
+              </Link>
+              <TouchableOpacity
+                onPress={handleDelete}
+                style={styles.deleteButton}
+                disabled={deleteOutfitMutation.isPending}
+              >
+                {deleteOutfitMutation.isPending ? (
+                  <ActivityIndicator size="small" color="#EF4444" />
+                ) : (
+                  <LucideIcons.Trash2 size={22} color="#EF4444" />
+                )}
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
       </View>
       <ScrollView>
         <OptimizedImage
@@ -115,7 +183,15 @@ const styles = StyleSheet.create({
   backButton: {
     padding: 4,
   },
+  headerRightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   editButton: {
+    padding: 4,
+    marginRight: 8,
+  },
+  deleteButton: {
     padding: 4,
   },
   headerTitle: {
