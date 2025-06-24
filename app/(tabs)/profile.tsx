@@ -289,7 +289,10 @@ export default function ProfileScreen() {
 
           {/* Action Buttons */}
           <View style={styles.actionButtons}>
-            <TouchableOpacity style={styles.primaryButton}>
+            <TouchableOpacity 
+              style={styles.primaryButton}
+              onPress={() => router.push('/profile/edit')}
+            >
               <Pencil size={18} color="#FFFFFF" />
               <Text style={styles.primaryButtonText}>Modifier</Text>
             </TouchableOpacity>
