@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     padding: 8,
     marginLeft: 8,
   },
-  section: { marginBottom: 20, paddingHorizontal: 20 },
+  section: { margin: 20, paddingHorizontal: 20 },
   sectionTitle: { fontSize: 18, fontWeight: '600', marginBottom: 15 },
   imageContainer: { position: 'relative', marginBottom: 10 },
   selectedImage: { width: '100%', height: 400, borderRadius: 12 },
