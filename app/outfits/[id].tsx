@@ -70,6 +70,8 @@ export default function OutfitDetailScreen() {
   });
 
   const handleDelete = () => {
+    console.log('outfit =>', outfit);
+    console.log('id =>', id);
     if (!outfit || !id) return;
 
     Alert.alert(
