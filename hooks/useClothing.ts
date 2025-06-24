@@ -12,30 +12,39 @@ const clothingKeys = {
   byIds: (ids: string[]) => [...clothingKeys.all, 'byIds', ids] as const,
 };
 
-export function useGetUserClothing(userId: string) {
+/**
+ * Fetches the user's clothing items.
+ * By default, uses on-demand fetching (one-time read, cached by React Query).
+ * Pass { realtime: true } to enable real-time updates (higher cost).
+ *
+ * Example:
+ *   useGetUserClothing(userId) // on-demand, cost-effective
+ *   useGetUserClothing(userId, { realtime: true }) // real-time updates
+ */
+export function useGetUserClothing(
+  userId: string,
+  options?: { realtime?: boolean },
+) {
   const queryClient = useQueryClient();
   const queryKey = clothingKeys.list(userId);
+  const realtime = options?.realtime;
 
   useEffect(() => {
-    if (!userId) {
-      return;
-    }
-
+    if (!userId || !realtime) return;
     const unsubscribe = ClothingService.subscribeToUserClothing(
       userId,
       (clothing) => {
         queryClient.setQueryData(queryKey, clothing);
       },
     );
-
     return () => unsubscribe();
-  }, [userId, queryClient, queryKey]);
+  }, [userId, queryClient, queryKey, realtime]);
 
   return useQuery({
     queryKey,
     queryFn: () => ClothingService.getUserClothing(userId),
     enabled: !!userId,
-    staleTime: Infinity,
+    staleTime: realtime ? 0 : 1000 * 60 * 10, // 10 min cache for on-demand, no cache for realtime
   });
 }
 
