@@ -1,6 +1,8 @@
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { ScreenWrapper } from '@/components/ScreenWrapper';
+import { SubscriptionPaywall } from '@/components/SubscriptionPaywall';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 import * as ImagePicker from 'expo-image-picker';
 import { router, useFocusEffect } from 'expo-router';
 import {
@@ -40,6 +42,13 @@ export default function ProfileScreen() {
     uploadProfilePicture,
     refreshUserProfile,
   } = useAuth();
+  const { 
+    subscription, 
+    showPaywall, 
+    hidePaywall, 
+    isPaywallVisible 
+  } = useSubscription();
+  
   const [isPublicProfile, setIsPublicProfile] = useState(
     userProfile?.isPublic ?? true,
   );
@@ -175,6 +184,15 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleSubscriptionPress = () => {
+    showPaywall();
+  };
+
+  const handleSubscribe = (planId: string) => {
+    console.log('Subscribed to plan:', planId);
+    // In real implementation, this would be handled by RevenueCat
+  };
+
   const stats = [
     { icon: Shirt, label: 'Vêtements', value: 52, color: '#8B5CF6' },
     { icon: Heart, label: 'Tenues créées', value: 18, color: '#EC4899' },
@@ -203,6 +221,19 @@ export default function ProfileScreen() {
           label: 'Mes statistiques',
           action: () => {},
           color: '#10B981',
+        },
+      ],
+    },
+    {
+      title: 'Premium',
+      items: [
+        {
+          icon: Crown,
+          label: subscription.isActive ? 'Gérer l\'abonnement' : 'Passer à Premium',
+          action: handleSubscriptionPress,
+          color: '#F59E0B',
+          badge: subscription.isActive ? 'ACTIF' : 'NOUVEAU',
+          badgeColor: subscription.isActive ? '#10B981' : '#EF4444',
         },
       ],
     },
@@ -293,6 +324,13 @@ export default function ProfileScreen() {
           <Text style={styles.profileName}>{userProfile.displayName}</Text>
           <Text style={styles.profileUsername}>@{userProfile.username}</Text>
 
+          {subscription.isActive && (
+            <View style={styles.premiumBadge}>
+              <Crown size={16} color="#F59E0B" />
+              <Text style={styles.premiumBadgeText}>PREMIUM</Text>
+            </View>
+          )}
+
           <Text style={styles.profileBio}>
             {userProfile.bio ||
               'Ajouter une bio pour partager ton style avec le monde !'}
@@ -359,7 +397,22 @@ export default function ProfileScreen() {
                     >
                       <item.icon size={20} color={item.color} />
                     </View>
-                    <Text style={styles.menuItemText}>{item.label}</Text>
+                    <View style={styles.menuItemContent}>
+                      <Text style={styles.menuItemText}>{item.label}</Text>
+                      {item.badge && (
+                        <View style={[
+                          styles.menuBadge,
+                          { backgroundColor: `${item.badgeColor}15` }
+                        ]}>
+                          <Text style={[
+                            styles.menuBadgeText,
+                            { color: item.badgeColor }
+                          ]}>
+                            {item.badge}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
                   </View>
                   {item.toggle ? (
                     <Switch
@@ -392,6 +445,13 @@ export default function ProfileScreen() {
           <Text style={styles.attributionText}>Built with Bolt.new</Text>
         </View>
       </ScrollView>
+
+      {/* Subscription Paywall */}
+      <SubscriptionPaywall
+        visible={isPaywallVisible}
+        onClose={hidePaywall}
+        onSubscribe={handleSubscribe}
+      />
     </ScreenWrapper>
   );
 }
@@ -465,7 +525,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#8B5CF6',
     fontWeight: '500',
+    marginBottom: 8,
+  },
+  premiumBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
     marginBottom: 12,
+  },
+  premiumBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#92400E',
+    marginLeft: 4,
   },
   profileBio: {
     fontSize: 14,
@@ -594,10 +669,26 @@ const styles = StyleSheet.create({
     padding: 8,
     marginRight: 12,
   },
+  menuItemContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   menuItemText: {
     fontSize: 16,
     color: '#1F2937',
     fontWeight: '500',
+  },
+  menuBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginLeft: 8,
+  },
+  menuBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
   },
   menuArrow: {
     marginLeft: 8,
