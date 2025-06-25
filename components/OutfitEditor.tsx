@@ -149,7 +149,11 @@ export function OutfitEditor({ outfitId }: OutfitEditorProps) {
   if (isLoadingOutfit) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator style={{ marginTop: 50 }} size="large" color="#8B5CF6" />
+        <ActivityIndicator
+          style={{ marginTop: 50 }}
+          size="large"
+          color="#8B5CF6"
+        />
       </View>
     );
   }
@@ -199,7 +203,7 @@ export function OutfitEditor({ outfitId }: OutfitEditorProps) {
 
       <View style={styles.clothingSection}>
         <Text style={styles.sectionTitle}>Votre dressing</Text>
-        
+
         {/* Filter buttons */}
         <ScrollView
           horizontal
@@ -234,7 +238,7 @@ export function OutfitEditor({ outfitId }: OutfitEditorProps) {
             <ActivityIndicator size="large" color="#8B5CF6" />
           </View>
         ) : filteredClothingItems && filteredClothingItems.length > 0 ? (
-          <ScrollView style={styles.clothingScrollView} showsVerticalScrollIndicator={false}>
+          <View style={styles.clothingScrollView}>
             <View style={styles.clothingGrid}>
               {filteredClothingItems.map((item) => (
                 <TouchableOpacity
@@ -257,21 +261,19 @@ export function OutfitEditor({ outfitId }: OutfitEditorProps) {
                 </TouchableOpacity>
               ))}
             </View>
-          </ScrollView>
+          </View>
         ) : (
           <View style={styles.emptyState}>
             <LucideIcons.Shirt size={48} color="#CBD5E1" />
             <Text style={styles.emptyStateText}>
-              {activeFilter === 'all' 
+              {activeFilter === 'all'
                 ? 'Aucun vêtement dans votre dressing'
-                : `Aucun ${CLOTHING_TYPES.find(t => t.id === activeFilter)?.name.toLowerCase()} trouvé`
-              }
+                : `Aucun ${CLOTHING_TYPES.find((t) => t.id === activeFilter)?.name.toLowerCase()} trouvé`}
             </Text>
             <Text style={styles.emptyStateSubtext}>
               {activeFilter === 'all'
                 ? 'Ajoutez des vêtements à votre dressing pour créer des tenues'
-                : 'Essayez un autre filtre ou ajoutez des vêtements de ce type'
-              }
+                : 'Essayez un autre filtre ou ajoutez des vêtements de ce type'}
             </Text>
           </View>
         )}
@@ -451,8 +453,9 @@ const styles = StyleSheet.create({
   clothingGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingBottom: 20,
+    gap: 8,
   },
   clothingItem: {
     width: '31%',
