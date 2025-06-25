@@ -10,7 +10,8 @@ declare global {
       EXPO_PUBLIC_FIREBASE_APP_ID: string;
       EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID?: string;
       EXPO_PUBLIC_WEATHER_API_KEY: string;
-      EXPO_PUBLIC_REVENUECAT_API_KEY: string;
+      EXPO_PUBLIC_REVENUECAT_API_KEY_IOS: string;
+      EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID: string;
     }
   }
 }

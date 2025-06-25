@@ -44,6 +44,7 @@ EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
 EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
 EXPO_PUBLIC_FIREBASE_APP_ID=your-app-id
 EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID=your-measurement-id
+EXPO_PUBLIC_REVENUECAT_API_KEY=api-key
 ```
 
 ## Installation
@@ -74,6 +75,7 @@ The app uses the following environment variables (all prefixed with `EXPO_PUBLIC
 - `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` - Firebase messaging sender ID
 - `EXPO_PUBLIC_FIREBASE_APP_ID` - Firebase app ID
 - `EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID` - Firebase measurement ID (optional)
+- `EXPO_PUBLIC_REVENUECAT_API_KEY`- Revenue Cat API key
 
 ## Project Structure
 
