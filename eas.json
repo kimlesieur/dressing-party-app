@@ -50,6 +50,14 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "6747742968",
+        "language": "fr-FR",
+        "bundleIdentifier": "com.kapps.dressingparty",
+        "companyName": "Kapps",
+        "appleId": "lesieurkim@gmail.com"
+      }
+    }
   }
 }
