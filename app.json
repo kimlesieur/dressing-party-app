@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.kapps.dressingparty",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "Cette application utilise la caméra pour prendre des photos de vos vêtements et les télécharger dans l'application."
       }
     },
     "web": {
