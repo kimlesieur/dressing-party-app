@@ -2072,6 +2072,11 @@
   dependencies:
     nanoid "^3.3.11"
 
+"@revenuecat/purchases-typescript-internal@13.37.0":
+  version "13.37.0"
+  resolved "https://registry.npmjs.org/@revenuecat/purchases-typescript-internal/-/purchases-typescript-internal-13.37.0.tgz"
+  integrity sha512-2s10V0HA8ZaSVKZDKfZIO9E4dCTr8mCd2SLiNKEZfnaA/lASpixX5sJLOi8T/vCl4p4gQ5A3IzPHlQ6ySgg4Bg==
+
 "@rtsao/scc@^1.1.0":
   version "1.1.0"
   resolved "https://registry.npmjs.org/@rtsao/scc/-/scc-1.1.0.tgz"
@@ -2342,6 +2347,11 @@
   dependencies:
     "@typescript-eslint/types" "8.34.1"
     eslint-visitor-keys "^4.2.1"
+
+"@unrs/resolver-binding-darwin-arm64@1.9.0":
+  version "1.9.0"
+  resolved "https://registry.npmjs.org/@unrs/resolver-binding-darwin-arm64/-/resolver-binding-darwin-arm64-1.9.0.tgz"
+  integrity sha512-nJ9z47kfFnCxN1z/oYZS7HSNsFh43y2asePzTEZpEvK7kGyuShSl3RRXnm/1QaqFL+iP+BjMwuB+DYUymOkA5A==
 
 "@urql/core@^5.0.6", "@urql/core@^5.1.1":
   version "5.1.1"
@@ -4350,6 +4360,11 @@ fs.realpath@^1.0.0:
   resolved "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
   integrity sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==
 
+fsevents@^2.3.2:
+  version "2.3.3"
+  resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz"
+  integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
+
 function-bind@^1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz"
@@ -5237,6 +5252,11 @@ lighthouse-logger@^1.0.0:
   dependencies:
     debug "^2.6.9"
     marky "^1.2.2"
+
+lightningcss-darwin-arm64@1.27.0:
+  version "1.27.0"
+  resolved "https://registry.npmjs.org/lightningcss-darwin-arm64/-/lightningcss-darwin-arm64-1.27.0.tgz"
+  integrity sha512-Gl/lqIXY+d+ySmMbgDf0pgaWSqrWYxVHoc88q+Vhf2YNzZ8DwoRzGt5NZDVqqIW5ScpSnmmjcgXP87Dn2ylSSQ==
 
 lightningcss@~1.27.0:
   version "1.27.0"
@@ -6266,6 +6286,21 @@ react-native-is-edge-to-edge@^1.1.6, react-native-is-edge-to-edge@^1.1.7, react-
   version "1.1.7"
   resolved "https://registry.npmjs.org/react-native-is-edge-to-edge/-/react-native-is-edge-to-edge-1.1.7.tgz"
   integrity sha512-EH6i7E8epJGIcu7KpfXYXiV2JFIYITtq+rVS8uEb+92naMRBdxhTuS8Wn2Q7j9sqyO0B+Xbaaf9VdipIAmGW4w==
+
+react-native-purchases-ui@^8.11.6:
+  version "8.11.6"
+  resolved "https://registry.npmjs.org/react-native-purchases-ui/-/react-native-purchases-ui-8.11.6.tgz"
+  integrity sha512-osBC2xWNBqR4yjXfzuBsZq7YXFKnCTJSvvLJMLINxtoT/skQo9ZldPWWijObO5xHoNRuKcenYNFbCyr3ijXnBQ==
+  dependencies:
+    "@revenuecat/purchases-typescript-internal" "13.37.0"
+    react-native-purchases "8.11.6"
+
+react-native-purchases@8.11.6:
+  version "8.11.6"
+  resolved "https://registry.npmjs.org/react-native-purchases/-/react-native-purchases-8.11.6.tgz"
+  integrity sha512-nPl6l1eLdASmzzWyk4bV0lkbW2wTwMIPbS7in0jf4a1Gec/pEm6DzLFUJpbwAVOeJCRZi7wSeTBuci5LdOwe7Q==
+  dependencies:
+    "@revenuecat/purchases-typescript-internal" "13.37.0"
 
 react-native-reanimated@~3.17.4:
   version "3.17.5"
