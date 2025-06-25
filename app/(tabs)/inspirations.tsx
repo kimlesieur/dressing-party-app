@@ -8,6 +8,7 @@ import React from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -54,6 +55,14 @@ export default function InspirationsScreen() {
           contentContainerStyle={styles.list}
           onRefresh={refetch}
           refreshing={isLoading}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={refetch}
+              colors={['#8B5CF6']}
+              tintColor="#8B5CF6"
+            />
+          }
         />
       ) : (
         <View style={styles.centerContainer}>
