@@ -405,14 +405,17 @@ const styles = StyleSheet.create({
   },
   filtersContainer: {
     marginBottom: 20,
+    height: 36, // Fixed height for the scroll container
   },
   filtersContent: {
     paddingRight: 20,
+    alignItems: 'center', // Center align the buttons vertically
   },
   filterButton: {
+    height: 32, // Fixed height for filter buttons
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
+    paddingVertical: 0, // Remove vertical padding since we have fixed height
+    borderRadius: 16, // Adjusted for the smaller height
     backgroundColor: '#FFFFFF',
     marginRight: 12,
     borderWidth: 1,
@@ -425,6 +428,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 2,
+    justifyContent: 'center', // Center the text vertically
+    alignItems: 'center', // Center the text horizontally
   },
   activeFilter: {
     backgroundColor: '#8B5CF6',
@@ -434,6 +439,7 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontWeight: '500',
     fontSize: 14,
+    lineHeight: 16, // Ensure consistent line height
   },
   activeFilterText: {
     color: '#FFFFFF',
