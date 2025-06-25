@@ -30,6 +30,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import PurchasesUI from 'react-native-purchases-ui';
 
 export default function ProfileScreen() {
   const {
@@ -52,7 +53,7 @@ export default function ProfileScreen() {
       if (isAuthenticated) {
         refreshUserProfile();
       }
-    }, [isAuthenticated, refreshUserProfile])
+    }, [isAuthenticated, refreshUserProfile]),
   );
 
   // Show loading state
@@ -262,6 +263,14 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleShowPaywall = async () => {
+    try {
+      await PurchasesUI.presentPaywall();
+    } catch (e: any) {
+      Alert.alert('Erreur', "Impossible d'afficher le paywall", e);
+    }
+  };
+
   return (
     <ScreenWrapper style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -300,7 +309,7 @@ export default function ProfileScreen() {
 
           {/* Action Buttons */}
           <View style={styles.actionButtons}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.primaryButton}
               onPress={() => router.push('/profile/edit')}
             >
@@ -310,6 +319,13 @@ export default function ProfileScreen() {
             <TouchableOpacity style={styles.secondaryButton}>
               <Share size={20} color="#8B5CF6" />
               <Text style={styles.secondaryButtonText}>Partager</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.paywallButton}
+              onPress={handleShowPaywall}
+            >
+              <Crown size={20} color="#F59E0B" />
+              <Text style={styles.paywallButtonText}>Voir le Paywall</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -510,6 +526,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#8B5CF6',
+  },
+  paywallButton: {
+    flex: 1,
+    backgroundColor: '#F59E0B',
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    gap: 8,
+    marginLeft: 8,
+  },
+  paywallButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   statsContainer: {
     paddingHorizontal: 20,

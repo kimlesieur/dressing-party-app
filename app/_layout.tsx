@@ -1,15 +1,29 @@
 import QueryClientProvider from '@/config/query/QueryClientProvider';
-import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { useAuth } from '@/hooks/useAuth';
+import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { ActivityIndicator, View, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
+import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 function RootLayout() {
   useFrameworkReady();
   const { isAuthenticated, loading } = useAuth();
+
+  useEffect(() => {
+    Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
+    if (Platform.OS === 'ios') {
+      Purchases.configure({
+        apiKey: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_IOS,
+      });
+    } else if (Platform.OS === 'android') {
+      Purchases.configure({
+        apiKey: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID,
+      });
+    }
+  }, []);
 
   // Show loading screen while checking authentication status
   if (loading) {
@@ -36,11 +50,26 @@ function RootLayout() {
           {/* Protected screens for authenticated users only */}
           <Stack.Protected guard={isAuthenticated}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="clothing/[id]" options={{ headerShown: false }} />
-            <Stack.Screen name="clothing/edit/[id]" options={{ headerShown: false }} />
-            <Stack.Screen name="outfits/[id]" options={{ headerShown: false }} />
-            <Stack.Screen name="outfits/create" options={{ headerShown: false }} />
-            <Stack.Screen name="outfits/edit/[id]" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="clothing/[id]"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="clothing/edit/[id]"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="outfits/[id]"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="outfits/create"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="outfits/edit/[id]"
+              options={{ headerShown: false }}
+            />
           </Stack.Protected>
 
           {/* Global screens accessible to all */}
