@@ -1,6 +1,7 @@
 import QueryClientProvider from '@/config/query/QueryClientProvider';
 import { useAuth } from '@/hooks/useAuth';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
+import Constants from 'expo-constants';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
@@ -16,11 +17,11 @@ function RootLayout() {
     Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
     if (Platform.OS === 'ios') {
       Purchases.configure({
-        apiKey: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_IOS,
+        apiKey: Constants.expoConfig?.extra?.revenuecat?.apiKeyIOS,
       });
     } else if (Platform.OS === 'android') {
       Purchases.configure({
-        apiKey: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID,
+        apiKey: Constants.expoConfig?.extra?.revenuecat?.apiKeyAndroid,
       });
     }
   }, []);

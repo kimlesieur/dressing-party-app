@@ -55,6 +55,13 @@ export default ({ config }) => ({
                 appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
                 measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
             },
+            revenuecat: {
+                apiKeyIOS: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_IOS,
+                apiKeyAndroid: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID,
+            },
+            weather: {
+                apiKey: process.env.EXPO_PUBLIC_WEATHER_API_KEY,
+            },
         },
         owner: 'kimlesieur',
         android: {

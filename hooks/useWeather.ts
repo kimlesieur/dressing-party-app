@@ -1,6 +1,7 @@
 import * as Location from 'expo-location';
 import { useCallback, useEffect, useState } from 'react';
 import { useCache } from './useCache';
+import Constants from 'expo-constants';
 
 interface WeatherData {
   temperature: number;
@@ -64,7 +65,7 @@ export const useWeather = () => {
   const fetchWeatherByCoords = useCallback(
     async (coords: Coordinates) => {
       try {
-        const apiKey = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
+        const apiKey = Constants.expoConfig?.extra?.weather?.apiKey;
         if (!apiKey) {
           throw new Error('Weather API key not found');
         }
@@ -101,7 +102,7 @@ export const useWeather = () => {
   const fetchWeatherByCity = useCallback(
     async (city: string = 'Paris') => {
       try {
-        const apiKey = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
+        const apiKey = Constants.expoConfig?.extra?.weather?.apiKey;
         if (!apiKey) {
           throw new Error('Weather API key not found');
         }
