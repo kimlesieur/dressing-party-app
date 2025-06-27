@@ -5,7 +5,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { router, useFocusEffect } from 'expo-router';
 import {
   ChartBar as BarChart3,
-  Bell,
   Calendar,
   Camera,
   Crown,
@@ -44,7 +43,6 @@ export default function ProfileScreen() {
   const [isPublicProfile, setIsPublicProfile] = useState(
     userProfile?.isPublic ?? true,
   );
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Refresh profile data when screen comes into focus
@@ -210,15 +208,15 @@ export default function ProfileScreen() {
     {
       title: 'Paramètres',
       items: [
-        {
-          icon: Bell,
-          label: 'Notifications',
-          action: () => {},
-          color: '#F59E0B',
-          toggle: true,
-          value: notificationsEnabled,
-          onToggle: setNotificationsEnabled,
-        },
+        // {
+        //   icon: Bell,
+        //   label: 'Notifications',
+        //   action: () => {},
+        //   color: '#F59E0B',
+        //   toggle: true,
+        //   value: notificationsEnabled,
+        //   onToggle: setNotificationsEnabled,
+        // },
         {
           icon: Shield,
           label: 'Profil public',
@@ -241,8 +239,8 @@ export default function ProfileScreen() {
       items: [
         {
           icon: HelpCircle,
-          label: 'Aide et support',
-          action: () => {},
+          label: 'Aide & Confidentialité',
+          action: () => router.push('/profile/aide-support'),
           color: '#8B5CF6',
         },
         {
@@ -321,7 +319,7 @@ export default function ProfileScreen() {
               onPress={handleShowPaywall}
             >
               <Crown size={20} color="#FFFFFF" />
-              <Text style={styles.paywallButtonText}>Voir le Paywall</Text>
+              <Text style={styles.paywallButtonText}>Premium</Text>
             </TouchableOpacity>
           </View>
         </View>
