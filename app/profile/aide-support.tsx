@@ -3,11 +3,12 @@ import { useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import React from 'react';
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 export default function AideSupportScreen() {
@@ -29,7 +30,7 @@ export default function AideSupportScreen() {
         {/* Confidentialité Section */}
         <Text style={styles.sectionTitle}>Confidentialité</Text>
         <View style={styles.menuCard}>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/profile/privacy')}>
             <Text style={styles.menuItemText}>
               Politique de Confidentialité
             </Text>
@@ -49,7 +50,12 @@ export default function AideSupportScreen() {
             <Text style={styles.menuItemText}>FAQ</Text>
             <Text style={styles.menuArrow}>›</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => {
+              Linking.openURL('mailto:contact@kapps.fr?subject=Demande%20de%20support');
+            }}
+          >
             <Text style={styles.menuItemText}>Contacter le support</Text>
             <Text style={styles.menuArrow}>›</Text>
           </TouchableOpacity>

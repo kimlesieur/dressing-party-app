@@ -76,6 +76,10 @@ function RootLayout() {
               options={{ headerShown: false }}
             />
             <Stack.Screen name="profile/cgu" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="profile/privacy"
+              options={{ headerShown: false }}
+            />
           </Stack.Protected>
 
           {/* Global screens accessible to all */}
