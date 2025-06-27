@@ -22,6 +22,8 @@ import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Switch,
@@ -29,7 +31,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import PurchasesUI from 'react-native-purchases-ui';
+// import PurchasesUI from 'react-native-purchases-ui';
+
+// Only import purchases-js on web to avoid bundling issues
+let purchasesJs: typeof import('@revenuecat/purchases-js') | null = null;
+if (Platform.OS === 'web') {
+  try {
+    purchasesJs = require('@revenuecat/purchases-js');
+  } catch {}
+}
 
 export default function ProfileScreen() {
   const {
@@ -44,6 +54,7 @@ export default function ProfileScreen() {
     userProfile?.isPublic ?? true,
   );
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [showWebPaywall, setShowWebPaywall] = useState(false);
 
   // Refresh profile data when screen comes into focus
   useFocusEffect(
@@ -262,10 +273,18 @@ export default function ProfileScreen() {
   };
 
   const handleShowPaywall = async () => {
-    try {
-      await PurchasesUI.presentPaywall();
-    } catch (e: any) {
-      Alert.alert('Erreur', "Impossible d'afficher le paywall", e);
+    if (Platform.OS === 'web') {
+      setShowWebPaywall(true);
+      // If you want to use the SDK, do it like this:
+      // const purchasesJs = await import('@revenuecat/purchases-js');
+      // ...use purchasesJs here...
+    } else {
+      // try {
+      //   await PurchasesUI.presentPaywall();
+      // } catch (e: any) {
+      //   Alert.alert('Erreur', "Impossible d'afficher le paywall", e);
+      // }
+      Alert.alert('Erreur', "Impossible d'afficher le paywall");
     }
   };
 
@@ -402,6 +421,50 @@ export default function ProfileScreen() {
           <Text style={styles.attributionText}>Built with Bolt.new</Text>
         </View>
       </ScrollView>
+      <Modal
+        visible={showWebPaywall}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowWebPaywall(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: 'white',
+              padding: 32,
+              borderRadius: 16,
+              alignItems: 'center',
+            }}
+          >
+            <Text
+              style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 16 }}
+            >
+              Abonnement Premium
+            </Text>
+            <Text style={{ fontSize: 16, marginBottom: 24 }}>
+              La gestion des abonnements sur le web arrive bientôt !
+            </Text>
+            <TouchableOpacity
+              onPress={() => setShowWebPaywall(false)}
+              style={{
+                backgroundColor: '#8B5CF6',
+                borderRadius: 8,
+                paddingVertical: 12,
+                paddingHorizontal: 24,
+              }}
+            >
+              <Text style={{ color: 'white', fontWeight: '600' }}>Fermer</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScreenWrapper>
   );
 }

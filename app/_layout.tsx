@@ -6,7 +6,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
-import Purchases, { LOG_LEVEL } from 'react-native-purchases';
+import Purchases from 'react-native-purchases';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 function RootLayout() {
@@ -14,7 +14,6 @@ function RootLayout() {
   const { isAuthenticated, loading } = useAuth();
 
   useEffect(() => {
-    Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
     if (Platform.OS === 'ios') {
       Purchases.configure({
         apiKey: Constants.expoConfig?.extra?.revenuecat?.apiKeyIOS,
