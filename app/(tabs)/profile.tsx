@@ -316,15 +316,11 @@ export default function ProfileScreen() {
               <Pencil size={18} color="#FFFFFF" />
               <Text style={styles.primaryButtonText}>Modifier</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.secondaryButton}>
-              <Share size={20} color="#8B5CF6" />
-              <Text style={styles.secondaryButtonText}>Partager</Text>
-            </TouchableOpacity>
             <TouchableOpacity
               style={styles.paywallButton}
               onPress={handleShowPaywall}
             >
-              <Crown size={20} color="#F59E0B" />
+              <Crown size={20} color="#FFFFFF" />
               <Text style={styles.paywallButtonText}>Voir le Paywall</Text>
             </TouchableOpacity>
           </View>
