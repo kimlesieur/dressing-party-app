@@ -41,3 +41,5 @@ yarn-error.*
 ios/
 # Android
 android/
+# Local Netlify folder
+.netlify

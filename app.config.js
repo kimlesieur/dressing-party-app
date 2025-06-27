@@ -24,7 +24,7 @@ export default ({ config }) => ({
         },
         web: {
             bundler: 'metro',
-            output: 'single',
+            output: 'static',
             favicon: './assets/images/favicon.png',
         },
         plugins: [
