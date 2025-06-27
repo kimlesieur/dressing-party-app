@@ -32,7 +32,6 @@ export default function CGUScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.title}>Conditions d&apos;Utilisation du Service</Text>
         <Text style={styles.body}>
           Ces Conditions d&apos;Utilisation (« Conditions ») régissent votre accès et votre utilisation du site web, de l&apos;application et des widgets de Dress&apos;n Party (« Dress&apos;n Party » ou le « Service »). Veuillez lire attentivement ces Conditions et nous contacter si vous avez des questions. En accédant ou en utilisant Dress&apos;n Party, vous acceptez d&apos;être lié par ces Conditions et notre Politique de Confidentialité. Si vous n&apos;acceptez pas ces conditions, ou toute autre condition supplémentaire mentionnée ici, vous ne devez pas accéder à Dress&apos;n Party. Comme nous pouvons modifier n&apos;importe quelle condition à tout moment, vous devriez visiter cette page périodiquement pour consulter toutes les conditions actuelles. Ce Service vous est fourni par Kapps, Inc. (« Kapps », « nous », « notre » ou « nos »).
         </Text>

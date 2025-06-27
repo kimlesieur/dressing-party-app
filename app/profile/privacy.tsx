@@ -30,7 +30,6 @@ export default function PrivacyScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.title}>Politique de Confidentialité</Text>
         <Text style={styles.body}>
           Cette politique de confidentialité décrit comment Kapps (« nous », «
           notre » ou « nos ») collecte, utilise, partage et protège vos

@@ -74,14 +74,11 @@ function RootLayout() {
               name="profile/aide-support"
               options={{ headerShown: false }}
             />
-            <Stack.Screen name="profile/cgu" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="profile/privacy"
-              options={{ headerShown: false }}
-            />
           </Stack.Protected>
 
           {/* Global screens accessible to all */}
+          <Stack.Screen name="profile/cgu" options={{ headerShown: false }} />
+          <Stack.Screen name="profile/privacy" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
         <StatusBar style="auto" />
