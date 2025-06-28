@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
-import { Chrome as HomeIcon, Shirt, Users, User } from 'lucide-react-native';
+import { Chrome as HomeIcon, Shirt, Users, User, Plus } from 'lucide-react-native';
 
 const navItems = [
   { label: 'Accueil', route: '/', icon: HomeIcon },
@@ -23,6 +23,15 @@ export default function Sidebar() {
           resizeMode="contain"
         />
       </View>
+      <Pressable
+        onPress={() => router.push('/add')}
+        style={styles.addButton}
+      >
+        <View style={styles.addButtonContent}>
+          <Plus size={20} color="#fff" style={styles.addButtonIcon} />
+          <Text style={styles.addButtonText}>Ajouter un vêtement</Text>
+        </View>
+      </Pressable>
       <View style={styles.nav}>
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -55,7 +64,7 @@ export default function Sidebar() {
 
 const styles = StyleSheet.create({
   sidebar: {
-    width: 240,
+    width: 300,
     backgroundColor: '#fff',
     borderRightWidth: 1,
     borderRightColor: '#F3F4F6',
@@ -72,6 +81,26 @@ const styles = StyleSheet.create({
   logoImage: {
     width: 160,
     height: 160,
+  },
+  addButton: {
+    backgroundColor: '#8B5CF6',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 24,
+    alignItems: 'center',
+  },
+  addButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  addButtonIcon: {
+    marginRight: 10,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   nav: {
     flex: 1,
