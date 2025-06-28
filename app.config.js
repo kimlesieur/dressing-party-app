@@ -3,7 +3,7 @@ export default ({ config }) => ({
     ...config,
     expo: {
         ...config.expo,
-        name: 'Dressing Party',
+        name: 'Dress\'n Party',
         slug: 'dressing-party',
         version: '1.0.0',
         orientation: 'portrait',
@@ -12,6 +12,7 @@ export default ({ config }) => ({
         userInterfaceStyle: 'automatic',
         newArchEnabled: true,
         ios: {
+            
             supportsTablet: true,
             bundleIdentifier: 'com.kapps.dressingparty',
             infoPlist: {
@@ -37,6 +38,15 @@ export default ({ config }) => ({
                     launchMode: 'most-recent',
                 },
             ],
+            [
+                "expo-splash-screen",
+                {
+                  image: "./assets/images/logo-transparent.png",
+                  imageWidth: 252,
+                  resizeMode: "contain",
+                  backgroundColor: "# FFEFE8",
+                },
+              ],
         ],
         experiments: {
             typedRoutes: true,

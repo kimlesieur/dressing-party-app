@@ -1,4 +1,4 @@
-# Dressing Party
+# Dress'n Party
 
 A React Native Expo app for managing your digital wardrobe, creating outfits, and sharing style inspiration.
 
