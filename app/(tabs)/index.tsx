@@ -16,6 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useIsDesktop } from '@/utils/isDesktop';
 
 export default function HomeScreen() {
   const { recentItems } = useGetRecentItems();
@@ -27,6 +28,7 @@ export default function HomeScreen() {
   } = useWeather();
   const { data: randomOutfits, isLoading: isLoadingOutfits } =
     useGetRandomUserOutfits(3);
+  const isDesktop = useIsDesktop();
 
   // Weather suggestion based on temperature
   const getWeatherSuggestion = (temp: number) => {
@@ -159,31 +161,33 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
 
-        {/* Quick Actions */}
-        <View style={styles.quickActions}>
-          <Link href="/add" asChild>
-            <TouchableOpacity style={styles.actionButton}>
-              <LinearGradient
-                colors={['#8B5CF6', '#7C3AED']}
-                style={styles.actionGradient}
-              >
-                <LucideIcons.Plus size={24} color="#FFFFFF" />
-                <Text style={styles.actionText}>Ajouter un vêtement</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </Link>
-          <Link href="/outfits/create" asChild>
-            <TouchableOpacity style={styles.actionButton}>
-              <LinearGradient
-                colors={['#EC4899', '#DB2777']}
-                style={styles.actionGradient}
-              >
-                <LucideIcons.Shirt size={24} color="#FFFFFF" />
-                <Text style={styles.actionText}>Créer une tenue</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </Link>
-        </View>
+        {/* Quick Actions (only on mobile) */}
+        {!isDesktop && (
+          <View style={styles.quickActions}>
+            <Link href="/add" asChild>
+              <TouchableOpacity style={styles.actionButton}>
+                <LinearGradient
+                  colors={['#8B5CF6', '#7C3AED']}
+                  style={styles.actionGradient}
+                >
+                  <LucideIcons.Plus size={24} color="#FFFFFF" />
+                  <Text style={styles.actionText}>Ajouter un vêtement</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Link>
+            <Link href="/outfits/create" asChild>
+              <TouchableOpacity style={styles.actionButton}>
+                <LinearGradient
+                  colors={['#EC4899', '#DB2777']}
+                  style={styles.actionGradient}
+                >
+                  <LucideIcons.Shirt size={24} color="#FFFFFF" />
+                  <Text style={styles.actionText}>Créer une tenue</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Link>
+          </View>
+        )}
       </ScrollView>
     </ScreenWrapper>
   );

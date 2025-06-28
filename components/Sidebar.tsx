@@ -23,6 +23,7 @@ export default function Sidebar() {
           resizeMode="contain"
         />
       </View>
+      <View style={styles.addButtonContainer}>
       <Pressable
         onPress={() => router.push('/add')}
         style={styles.addButton}
@@ -32,6 +33,16 @@ export default function Sidebar() {
           <Text style={styles.addButtonText}>Ajouter un vêtement</Text>
         </View>
       </Pressable>
+      <Pressable
+        onPress={() => router.push('/outfits/create')}
+        style={[styles.addButton, styles.addButtonOutfit]}
+      >
+        <View style={styles.addButtonContent}>
+          <Plus size={20} color="#fff" style={styles.addButtonIcon} />
+          <Text style={styles.addButtonText}>Créer une tenue</Text>
+        </View>
+      </Pressable>
+      </View>
       <View style={styles.nav}>
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -53,10 +64,6 @@ export default function Sidebar() {
             </Pressable>
           );
         })}
-      </View>
-      <View style={styles.profile}>
-        <Text style={styles.profileText}>Utilisateur</Text>
-        <Text style={styles.profileLink}>Voir le profil</Text>
       </View>
     </View>
   );
@@ -82,13 +89,20 @@ const styles = StyleSheet.create({
     width: 160,
     height: 160,
   },
+  addButtonContainer: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginBottom: 48,
+  },
   addButton: {
     backgroundColor: '#8B5CF6',
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    marginBottom: 24,
-    alignItems: 'center',
+  },
+  addButtonOutfit: {
+    backgroundColor: '#E03181',
   },
   addButtonContent: {
     flexDirection: 'row',
@@ -107,11 +121,12 @@ const styles = StyleSheet.create({
   },
   navItem: {
     paddingVertical: 16,
-    paddingHorizontal: 8,
+    paddingHorizontal: 16,
+    paddingLeft: 32,
     borderRadius: 8,
   },
   navItemSelected: {
-    backgroundColor: '#8B5CF6',
+    backgroundColor: '#ab8df4',
   },
   iconTextRow: {
     flexDirection: 'row',

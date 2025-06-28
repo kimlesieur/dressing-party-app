@@ -8,22 +8,21 @@ import {
   Users,
 } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Platform, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Sidebar from '@/components/Sidebar';
+import { useIsDesktop } from '@/utils/isDesktop';
 
 export default function TabLayout() {
   const router = useRouter();
   const [isMenuVisible, setMenuVisible] = useState(false);
-  const { width } = useWindowDimensions();
-
-  const isDesktop = Platform.OS === 'web' && width >= 1024;
+  const isDesktop = useIsDesktop();
 
   if (isDesktop) {
     // Desktop layout: sidebar + main content
     return (
-      <View style={{ flexDirection: 'row', minHeight: '100%' }}>
+      <View style={styles.desktopLayout}>
         <Sidebar />
-        <View style={{ flex: 1, marginLeft: 240, padding: 32 }}>
+        <View style={styles.desktopContent}>
           <Tabs
             screenOptions={{
               headerShown: false,
@@ -198,5 +197,14 @@ const styles = StyleSheet.create({
   addButtonFocused: {
     backgroundColor: '#7C3AED',
     transform: [{ scale: 1.1 }],
+  },
+  desktopLayout: {
+    flexDirection: 'row',
+    minHeight: '100%',
+  },
+  desktopContent: {
+    flex: 1,
+    margin: 40,
+    padding: 32,
   },
 });
