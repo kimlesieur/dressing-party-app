@@ -42,7 +42,7 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.greeting}>Bonjour ! 👋</Text>
-          <Text style={styles.subtitle}>Prête pour une journée stylée ?</Text>
+          <Text style={styles.subtitle}>Prêt pour une journée stylée ?</Text>
         </View>
 
         {/* Weather Card */}

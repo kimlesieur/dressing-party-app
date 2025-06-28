@@ -83,10 +83,9 @@ export default function ProfileScreen() {
       <ScreenWrapper style={styles.container}>
         <View style={styles.authContainer}>
           <View style={styles.authContent}>
-            <Text style={styles.authTitle}>Welcome to Dressing Party</Text>
+            <Text style={styles.authTitle}>Bienvenue sur Dress'n Party !</Text>
             <Text style={styles.authSubtitle}>
-              Sign in to access your profile, manage your wardrobe, and share
-              your style with the community.
+              Connectez-vous pour accéder à votre profil, gérer votre garde-robe et partager votre style avec la communauté.
             </Text>
 
             <TouchableOpacity
@@ -94,7 +93,7 @@ export default function ProfileScreen() {
               onPress={() => router.push('/login')}
             >
               <LogIn size={20} color="#FFFFFF" />
-              <Text style={styles.loginButtonText}>Sign In / Sign Up</Text>
+              <Text style={styles.loginButtonText}>Se connecter / S'inscrire</Text>
             </TouchableOpacity>
           </View>
         </View>

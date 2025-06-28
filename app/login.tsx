@@ -81,8 +81,7 @@ export default function LoginScreen() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Sign in to your account</Text>
+            <Text style={styles.title}>Bienvenue sur Dress'n Party !</Text>
           </View>
 
           <View style={styles.form}>
@@ -103,7 +102,7 @@ export default function LoginScreen() {
               <Lock size={20} color="#9CA3AF" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Password"
+                placeholder="Mot de passe"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -131,15 +130,15 @@ export default function LoginScreen() {
               disabled={loading}
             >
               <Text style={styles.submitButtonText}>
-                {loading ? 'Please wait...' : 'Sign In'}
+                {loading ? 'Patientez...' : 'Se connecter'}
               </Text>
             </TouchableOpacity>
 
             <View style={styles.switchContainer}>
-              <Text style={styles.switchText}>Don't have an account?</Text>
+              <Text style={styles.switchText}>Pas encore de compte ?</Text>
               <Link href="/signup" asChild>
                 <TouchableOpacity>
-                  <Text style={styles.switchButton}>Sign Up</Text>
+                  <Text style={styles.switchButton}>S'inscrire</Text>
                 </TouchableOpacity>
               </Link>
             </View>
@@ -172,6 +171,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1F2937',
     marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
