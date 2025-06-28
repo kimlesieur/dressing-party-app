@@ -8,12 +8,80 @@ import {
   Users,
 } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import Sidebar from '@/components/Sidebar';
 
 export default function TabLayout() {
   const router = useRouter();
   const [isMenuVisible, setMenuVisible] = useState(false);
+  const { width } = useWindowDimensions();
 
+  const isDesktop = Platform.OS === 'web' && width >= 1024;
+
+  if (isDesktop) {
+    // Desktop layout: sidebar + main content
+    return (
+      <View style={{ flexDirection: 'row', minHeight: '100%' }}>
+        <Sidebar />
+        <View style={{ flex: 1, marginLeft: 240, padding: 32 }}>
+          <Tabs
+            screenOptions={{
+              headerShown: false,
+              tabBarStyle: { display: 'none' }, // Hide tab bar on desktop
+            }}
+          >
+            <Tabs.Screen
+              name="index"
+              options={{
+                title: 'Accueil',
+                tabBarIcon: ({ size, color }) => <Home size={size} color={color} />,
+              }}
+            />
+            <Tabs.Screen
+              name="dressing"
+              options={{
+                title: 'Dressing',
+                tabBarIcon: ({ size, color }) => (
+                  <Shirt size={size} color={color} />
+                ),
+              }}
+            />
+            <Tabs.Screen
+              name="add"
+              options={{
+                title: '',
+                tabBarButton: (props) => null, // Hide add button on desktop
+              }}
+            />
+            <Tabs.Screen
+              name="inspirations"
+              options={{
+                title: 'Tenues',
+                tabBarIcon: ({ size, color }) => (
+                  <Users size={size} color={color} />
+                ),
+              }}
+            />
+            <Tabs.Screen
+              name="profile"
+              options={{
+                title: 'Profil',
+                tabBarIcon: ({ size, color }) => <User size={size} color={color} />,
+              }}
+            />
+            <Tabs.Screen
+              name="test"
+              options={{
+                href: null, // This hides the tab from the tab bar
+              }}
+            />
+          </Tabs>
+        </View>
+      </View>
+    );
+  }
+
+  // Mobile layout: tab bar at the bottom
   return (
     <View style={{ flex: 1 }}>
       <Tabs
