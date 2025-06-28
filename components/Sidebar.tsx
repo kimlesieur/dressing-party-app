@@ -1,17 +1,18 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, usePathname } from 'expo-router';
 import { Chrome as HomeIcon, Shirt, Users, User } from 'lucide-react-native';
 
 const navItems = [
   { label: 'Accueil', route: '/', icon: HomeIcon },
-  { label: 'Dressing', route: '/(tabs)/dressing', icon: Shirt },
-  { label: 'Tenues', route: '/(tabs)/inspirations', icon: Users },
+  { label: 'Dressing', route: '/dressing', icon: Shirt },
+  { label: 'Tenues', route: '/inspirations', icon: Users },
   { label: 'Profil', route: '/profile', icon: User },
 ];
 
 export default function Sidebar() {
   const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <View style={styles.sidebar}>
@@ -25,11 +26,20 @@ export default function Sidebar() {
       <View style={styles.nav}>
         {navItems.map((item) => {
           const Icon = item.icon;
+          const isSelected =
+            pathname === item.route ||
+            pathname.startsWith(item.route + '/');
           return (
-            <Pressable key={item.route} onPress={() => router.push(item.route as any)} style={styles.navItem}>
+            <Pressable
+              key={item.route}
+              onPress={() => router.push(item.route as any)}
+              style={[styles.navItem, isSelected && styles.navItemSelected]}
+            >
               <View style={styles.iconTextRow}>
-                <Icon size={20} color="#8B5CF6" style={styles.icon} />
-                <Text style={styles.navText}>{item.label}</Text>
+                <Icon size={20} color={isSelected ? '#fff' : '#8B5CF6'} style={styles.icon} />
+                <Text style={[styles.navText, isSelected && styles.navTextSelected]}>
+                  {item.label}
+                </Text>
               </View>
             </Pressable>
           );
@@ -68,6 +78,11 @@ const styles = StyleSheet.create({
   },
   navItem: {
     paddingVertical: 16,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+  },
+  navItemSelected: {
+    backgroundColor: '#8B5CF6',
   },
   iconTextRow: {
     flexDirection: 'row',
@@ -79,6 +94,9 @@ const styles = StyleSheet.create({
   navText: {
     fontSize: 18,
     color: '#111827',
+  },
+  navTextSelected: {
+    color: '#fff',
   },
   profile: {
     marginTop: 40,
