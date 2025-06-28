@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Chrome as HomeIcon, Shirt, Users, User } from 'lucide-react-native';
 
@@ -15,7 +15,13 @@ export default function Sidebar() {
 
   return (
     <View style={styles.sidebar}>
-      <Text style={styles.logo}>MonDressing</Text>
+      <View style={styles.logoContainer}>
+        <Image
+          source={require('../assets/images/logo-transparent.png')}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
+      </View>
       <View style={styles.nav}>
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -49,11 +55,13 @@ const styles = StyleSheet.create({
     height: '100%',
     minHeight: 0,
   },
-  logo: {
-    fontWeight: 'bold',
-    fontSize: 22,
-    color: '#6366F1',
+  logoContainer: {
+    alignItems: 'center',
     marginBottom: 40,
+  },
+  logoImage: {
+    width: 160,
+    height: 160,
   },
   nav: {
     flex: 1,
@@ -69,7 +77,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   navText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#111827',
   },
   profile: {
