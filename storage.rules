@@ -12,9 +12,9 @@ service firebase.storage {
       allow read, write: if isAuthenticated();
     }
 
-    // Allow authenticated users to read and write all files in the /avatar/ path
-    match /avatar/{allAvatar=**} {
-      allow read, write: if isAuthenticated();
+    // Allow users to read/write their own avatars
+    match /avatars/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
     // OPTIONAL: Deny all other access by default

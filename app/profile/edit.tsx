@@ -18,7 +18,9 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
+const AppIcon = require('../../assets/images/icon.png');
 
 export default function EditProfileScreen() {
   const {
@@ -65,7 +67,11 @@ export default function EditProfileScreen() {
           ) : (
             <View style={styles.imageContainer}>
               <View style={styles.placeholderImage}>
-                <Text style={styles.placeholderText}>Aucune photo</Text>
+                <Image
+                  source={AppIcon}
+                  style={{ width: 80, height: 80, borderRadius: 40 }}
+                  resizeMode="cover"
+                />
               </View>
             </View>
           )}

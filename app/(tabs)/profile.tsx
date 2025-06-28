@@ -22,6 +22,7 @@ import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Image,
   Modal,
   Platform,
   ScrollView,
@@ -31,6 +32,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+const AppIcon = require('../../assets/images/icon.png');
 // import PurchasesUI from 'react-native-purchases-ui';
 
 // Only import purchases-js on web to avoid bundling issues
@@ -294,13 +296,18 @@ export default function ProfileScreen() {
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
             <View style={styles.profileImageWrapper}>
-              <OptimizedImage
-                uri={
-                  userProfile.avatar ||
-                  'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=400'
-                }
-                style={styles.profileImage}
-              />
+              {userProfile.avatar ? (
+                <OptimizedImage
+                  uri={userProfile.avatar}
+                  style={styles.profileImage}
+                />
+              ) : (
+                <Image
+                  source={AppIcon}
+                  style={styles.profileImage}
+                  resizeMode="cover"
+                />
+              )}
             </View>
             <TouchableOpacity
               style={styles.editImageButton}
