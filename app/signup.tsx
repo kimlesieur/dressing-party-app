@@ -90,8 +90,8 @@ export default function SignupScreen() {
             >
               <ArrowLeft size={24} color="#374151" />
             </TouchableOpacity>
-            <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Join our fashion community</Text>
+            <Text style={styles.title}>Créer un compte</Text>
+            <Text style={styles.subtitle}>Rejoignez notre communauté de mode</Text>
           </View>
 
           <View style={styles.form}>
@@ -99,7 +99,7 @@ export default function SignupScreen() {
               <User size={20} color="#9CA3AF" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Full Name"
+                placeholder="Nom complet"
                 value={displayName}
                 onChangeText={setDisplayName}
                 autoCapitalize="words"
@@ -110,7 +110,7 @@ export default function SignupScreen() {
               <User size={20} color="#9CA3AF" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Username"
+                placeholder="Nom d'utilisateur"
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize="none"
@@ -121,7 +121,7 @@ export default function SignupScreen() {
               <Mail size={20} color="#9CA3AF" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Email"
+                placeholder="Adresse email"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -134,7 +134,7 @@ export default function SignupScreen() {
               <Lock size={20} color="#9CA3AF" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Password"
+                placeholder="Mot de passe"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -162,15 +162,15 @@ export default function SignupScreen() {
               disabled={loading}
             >
               <Text style={styles.submitButtonText}>
-                {loading ? 'Please wait...' : 'Create Account'}
+                {loading ? 'Patientez...' : 'Créer un compte'}
               </Text>
             </TouchableOpacity>
 
             <View style={styles.switchContainer}>
-              <Text style={styles.switchText}>Already have an account?</Text>
+              <Text style={styles.switchText}>Déjà un compte ?</Text>
               <Link href="/login" asChild>
                 <TouchableOpacity>
-                  <Text style={styles.switchButton}>Sign In</Text>
+                  <Text style={styles.switchButton}>Se connecter</Text>
                 </TouchableOpacity>
               </Link>
             </View>
@@ -215,6 +215,9 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
+    maxWidth: 800,
+    width: '100%',
+    alignSelf: 'center',
   },
   inputContainer: {
     flexDirection: 'row',
