@@ -1,4 +1,4 @@
-# Dressing Party
+# Dress'n Party
 
 A React Native Expo app for managing your digital wardrobe, creating outfits, and sharing style inspiration.
 
@@ -44,6 +44,7 @@ EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
 EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
 EXPO_PUBLIC_FIREBASE_APP_ID=your-app-id
 EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID=your-measurement-id
+EXPO_PUBLIC_REVENUECAT_API_KEY=api-key
 ```
 
 ## Installation
@@ -74,6 +75,7 @@ The app uses the following environment variables (all prefixed with `EXPO_PUBLIC
 - `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` - Firebase messaging sender ID
 - `EXPO_PUBLIC_FIREBASE_APP_ID` - Firebase app ID
 - `EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID` - Firebase measurement ID (optional)
+- `EXPO_PUBLIC_REVENUECAT_API_KEY`- Revenue Cat API key
 
 ## Project Structure
 
@@ -122,3 +124,66 @@ This app can be deployed using:
 - Native builds for iOS and Android
 
 Make sure to configure your Firebase project for production and set the appropriate environment variables before deploying.
+
+## Deploying to Netlify (Static Export)
+
+You can deploy the web version of this Expo app to Netlify using static export. Follow these steps:
+
+### 1. Build the Web App
+
+Export a static production build:
+
+```sh
+npx expo export -p web
+```
+
+This will generate a `dist` directory with your static web files.
+
+When using a static rendering export, you can test the website using :
+
+```sh
+npx serve dist
+```
+
+### 2. (Optional, but recommended) Configure SPA Redirects
+
+If your app uses the default SPA output (`expo.web.output: 'single'`), create a file at `public/_redirects` with the following content:
+
+```
+/*    /index.html   200
+```
+
+If you add or change this file, re-run the export command above to copy it into the `dist` directory.
+
+### 3. Deploy to Netlify
+
+#### a) Manual Deploy (using Netlify CLI)
+
+1. Install Netlify CLI (if not already):
+   ```sh
+   npm install -g netlify-cli
+   ```
+2. Deploy preview:
+   ```sh
+   netlify deploy --dir dist
+   ```
+3. Deploy to production:
+   ```sh
+   netlify deploy --prod --dir dist
+   ```
+
+#### b) Continuous Deployment (Recommended)
+
+1. Push your code to a Git repository (e.g., GitHub).
+2. Go to [Netlify](https://app.netlify.com/) and create a new site from Git.
+3. Set the build command to:
+   ```sh
+   npx expo export -p web
+   ```
+   and the publish directory to:
+   ```
+   dist
+   ```
+4. Netlify will build and deploy your site automatically on every push.
+
+For more details, see the [Expo official guide](https://docs.expo.dev/guides/publishing-websites/).
