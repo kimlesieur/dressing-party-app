@@ -52,7 +52,7 @@ export default function HomeScreen() {
             <View style={styles.logoContainer}>
               <Image
                 source={require('../../assets/images/black_circle_360x360.png')}
-                style={styles.logo}
+                
                 resizeMode="contain"
               />
             </View>
