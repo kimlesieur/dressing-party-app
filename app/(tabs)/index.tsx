@@ -237,8 +237,8 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   logo: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
   },
   card: {
     backgroundColor: '#FFFFFF',
