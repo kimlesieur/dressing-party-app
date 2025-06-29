@@ -239,7 +239,7 @@ export function OutfitEditor({ outfitId }: OutfitEditorProps) {
               <ActivityIndicator size="large" color="#8B5CF6" />
             </View>
           ) : filteredClothingItems && filteredClothingItems.length > 0 ? (
-            <View style={styles.clothingScrollView}>
+            <View>
               <View style={styles.clothingGrid}>
                 {filteredClothingItems.map((item) => (
                   <TouchableOpacity
@@ -447,9 +447,6 @@ const styles = StyleSheet.create({
   activeFilterText: {
     color: '#FFFFFF',
     fontWeight: '600',
-  },
-  clothingScrollView: {
-    flex: 1,
   },
   clothingGrid: {
     flexDirection: 'row',
