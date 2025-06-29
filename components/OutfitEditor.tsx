@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   canvasSection: {
     padding: 20,
     backgroundColor: '#FFFFFF',
-    marginBottom: 16,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -398,26 +398,27 @@ const styles = StyleSheet.create({
   clothingSection: {
     flex: 1,
     paddingHorizontal: 20,
+    paddingTop: 8,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: '#1F2937',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   filtersContainer: {
-    marginBottom: 20,
-    height: 36, // Fixed height for the scroll container
+    marginBottom: 16,
+    height: 36,
   },
   filtersContent: {
     paddingRight: 20,
-    alignItems: 'center', // Center align the buttons vertically
+    alignItems: 'center',
   },
   filterButton: {
-    height: 32, // Fixed height for filter buttons
+    height: 32,
     paddingHorizontal: 16,
-    paddingVertical: 0, // Remove vertical padding since we have fixed height
-    borderRadius: 16, // Adjusted for the smaller height
+    paddingVertical: 0,
+    borderRadius: 16,
     backgroundColor: '#FFFFFF',
     marginRight: 12,
     borderWidth: 1,
@@ -430,8 +431,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 2,
-    justifyContent: 'center', // Center the text vertically
-    alignItems: 'center', // Center the text horizontally
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   activeFilter: {
     backgroundColor: '#8B5CF6',
@@ -441,7 +442,7 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontWeight: '500',
     fontSize: 14,
-    lineHeight: 16, // Ensure consistent line height
+    lineHeight: 16,
   },
   activeFilterText: {
     color: '#FFFFFF',
