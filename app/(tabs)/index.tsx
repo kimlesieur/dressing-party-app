@@ -234,6 +234,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   logoContainer: {
+    height: "100%",
     marginLeft: 16,
   },
   logo: {
