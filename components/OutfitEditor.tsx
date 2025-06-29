@@ -7,6 +7,7 @@ import {
 import { useGetOutfit } from '@/hooks/useOutfits';
 import { OutfitService } from '@/services/outfits';
 import { ClothingItem, Outfit } from '@/types/firebase';
+import { useIsDesktop } from '@/utils/isDesktop';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
@@ -22,13 +23,15 @@ import {
   View,
 } from 'react-native';
 
+// Updated clothing types to match your database structure
 const CLOTHING_TYPES = [
-  'Tous',
-  'Haut',
-  'Bas',
-  'Chaussures',
-  'Accessoire',
-  'Robe',
+  { id: 'all', name: 'Tous' },
+  { id: 'tops', name: 'Hauts' },
+  { id: 'bottoms', name: 'Bas' },
+  { id: 'dresses', name: 'Robes' },
+  { id: 'shoes', name: 'Chaussures' },
+  { id: 'accessories', name: 'Accessoires' },
+  { id: 'outerwear', name: 'Manteaux/Vestes' },
 ];
 
 interface OutfitEditorProps {
@@ -38,6 +41,7 @@ interface OutfitEditorProps {
 export function OutfitEditor({ outfitId }: OutfitEditorProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const isDesktop = useIsDesktop();
   const { data: clothingItems, isLoading: isLoadingClothing } =
     useGetUserClothing(user?.uid || '');
 
@@ -49,7 +53,7 @@ export function OutfitEditor({ outfitId }: OutfitEditorProps) {
   const [selectedItems, setSelectedItems] = useState<ClothingItem[]>([]);
   const [outfitName, setOutfitName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [activeFilter, setActiveFilter] = useState('Tous');
+  const [activeFilter, setActiveFilter] = useState('all');
 
   const { data: initialSelectedItems } = useGetClothingItemsByIds(
     existingOutfit?.clothingItems || [],
@@ -72,8 +76,9 @@ export function OutfitEditor({ outfitId }: OutfitEditorProps) {
     }
   };
 
+  // Fixed filter logic to match your database structure
   const filteredClothingItems = clothingItems?.filter((item) => {
-    if (activeFilter === 'Tous') return true;
+    if (activeFilter === 'all') return true;
     return item.type === activeFilter;
   });
 
@@ -144,116 +149,427 @@ export function OutfitEditor({ outfitId }: OutfitEditorProps) {
   };
 
   if (isLoadingOutfit) {
-    return <ActivityIndicator style={{ marginTop: 50 }} size="large" />;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator
+          style={{ marginTop: 50 }}
+          size="large"
+          color="#8B5CF6"
+        />
+      </View>
+    );
   }
 
-  return (
-    <>
-      <View style={styles.canvasSection}>
-        <TextInput
-          style={styles.outfitNameInput}
-          placeholder="Nom de la tenue (ex: Look de bureau)"
-          value={outfitName}
-          onChangeText={setOutfitName}
-        />
-        <View style={styles.canvas}>
-          {selectedItems.length === 0 ? (
-            <Text style={styles.canvasPlaceholder}>
-              Vos vêtements sélectionnés apparaîtront ici.
-            </Text>
-          ) : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {selectedItems.map((item) => (
-                <View key={item.id} style={styles.selectedItem}>
-                  <OptimizedImage
-                    uri={item.imageUrl}
-                    style={styles.selectedItemImage}
-                  />
-                  <TouchableOpacity
-                    onPress={() => handleSelectItem(item)}
-                    style={styles.removeItemButton}
-                  >
-                    <LucideIcons.X size={12} color="#FFFFFF" />
-                  </TouchableOpacity>
+  if (isDesktop) {
+    return (
+      <View style={styles.desktopContainer}>
+        {/* Left Panel - Outfit Canvas */}
+        <View style={styles.leftPanel}>
+          <View style={styles.canvasSection}>
+            <Text style={styles.canvasTitle}>Votre tenue</Text>
+            <TextInput
+              style={styles.outfitNameInput}
+              placeholder="Nom de la tenue (ex: Look de bureau)"
+              value={outfitName}
+              onChangeText={setOutfitName}
+            />
+            
+            <View style={styles.desktopCanvas}>
+              {selectedItems.length === 0 ? (
+                <View style={styles.canvasPlaceholder}>
+                  <LucideIcons.Shirt size={64} color="#CBD5E1" />
+                  <Text style={styles.canvasPlaceholderText}>
+                    Sélectionnez des vêtements pour créer votre tenue
+                  </Text>
+                  <Text style={styles.canvasPlaceholderSubtext}>
+                    Cliquez sur les vêtements à droite pour les ajouter
+                  </Text>
                 </View>
+              ) : (
+                <View style={styles.selectedItemsGrid}>
+                  {selectedItems.map((item) => (
+                    <View key={item.id} style={styles.selectedItemCard}>
+                      <OptimizedImage
+                        uri={item.imageUrl}
+                        style={styles.selectedItemImage}
+                      />
+                      <TouchableOpacity
+                        onPress={() => handleSelectItem(item)}
+                        style={styles.removeItemButton}
+                      >
+                        <LucideIcons.X size={16} color="#FFFFFF" />
+                      </TouchableOpacity>
+                      <Text style={styles.selectedItemName} numberOfLines={2}>
+                        {item.name}
+                      </Text>
+                      <Text style={styles.selectedItemBrand} numberOfLines={1}>
+                        {item.brand}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+
+            {/* Save Button */}
+            <TouchableOpacity
+              onPress={handleSaveOutfit}
+              style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <>
+                  <LucideIcons.Check size={20} color="#FFFFFF" />
+                  <Text style={styles.saveButtonText}>
+                    {outfitId ? 'Modifier la tenue' : 'Créer la tenue'}
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Right Panel - Clothing Selection */}
+        <View style={styles.rightPanel}>
+          <View style={styles.clothingSection}>
+            <Text style={styles.sectionTitle}>Votre dressing</Text>
+
+            {/* Filter buttons */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.filtersContainer}
+              contentContainerStyle={styles.filtersContent}
+            >
+              {CLOTHING_TYPES.map((type) => (
+                <TouchableOpacity
+                  key={type.id}
+                  style={[
+                    styles.filterButton,
+                    activeFilter === type.id && styles.activeFilter,
+                  ]}
+                  onPress={() => setActiveFilter(type.id)}
+                >
+                  <Text
+                    style={[
+                      styles.filterText,
+                      activeFilter === type.id && styles.activeFilterText,
+                    ]}
+                  >
+                    {type.name}
+                  </Text>
+                </TouchableOpacity>
               ))}
             </ScrollView>
-          )}
+
+            {/* Clothing grid */}
+            {isLoadingClothing ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#8B5CF6" />
+              </View>
+            ) : filteredClothingItems && filteredClothingItems.length > 0 ? (
+              <ScrollView style={styles.clothingScrollView}>
+                <View style={styles.desktopClothingGrid}>
+                  {filteredClothingItems.map((item) => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={styles.clothingItem}
+                      onPress={() => handleSelectItem(item)}
+                    >
+                      <OptimizedImage
+                        uri={item.imageUrl}
+                        style={styles.clothingItemImage}
+                      />
+                      {selectedItems.find((i) => i.id === item.id) && (
+                        <View style={styles.clothingItemSelectedOverlay}>
+                          <LucideIcons.Check size={24} color="#FFFFFF" />
+                        </View>
+                      )}
+                      <Text style={styles.clothingItemName} numberOfLines={2}>
+                        {item.name}
+                      </Text>
+                      <Text style={styles.clothingItemBrand} numberOfLines={1}>
+                        {item.brand}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
+            ) : (
+              <View style={styles.emptyState}>
+                <LucideIcons.Shirt size={48} color="#CBD5E1" />
+                <Text style={styles.emptyStateText}>
+                  {activeFilter === 'all'
+                    ? 'Aucun vêtement dans votre dressing'
+                    : `Aucun ${CLOTHING_TYPES.find((t) => t.id === activeFilter)?.name.toLowerCase()} trouvé`}
+                </Text>
+                <Text style={styles.emptyStateSubtext}>
+                  {activeFilter === 'all'
+                    ? 'Ajoutez des vêtements à votre dressing pour créer des tenues'
+                    : 'Essayez un autre filtre ou ajoutez des vêtements de ce type'}
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
       </View>
+    );
+  }
 
-      <View style={styles.clothingSection}>
-        <Text style={styles.sectionTitle}>Votre dressing</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.filtersContainer}
-        >
-          {CLOTHING_TYPES.map((type) => (
-            <TouchableOpacity
-              key={type}
-              style={[
-                styles.filterButton,
-                activeFilter === type && styles.activeFilter,
-              ]}
-              onPress={() => setActiveFilter(type)}
-            >
-              <Text
-                style={[
-                  styles.filterText,
-                  activeFilter === type && styles.activeFilterText,
-                ]}
-              >
-                {type}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-        {isLoadingClothing ? (
-          <ActivityIndicator size="large" color="#8B5CF6" />
-        ) : (
-          <View style={styles.clothingGrid}>
-            {filteredClothingItems?.map((item) => (
+  // Mobile layout (existing code)
+  return (
+    <View style={styles.mobileContainer}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.canvasSection}>
+          <TextInput
+            style={styles.outfitNameInput}
+            placeholder="Nom de la tenue (ex: Look de bureau)"
+            value={outfitName}
+            onChangeText={setOutfitName}
+          />
+          <View style={styles.canvas}>
+            {selectedItems.length === 0 ? (
+              <View style={styles.canvasPlaceholder}>
+                <LucideIcons.Shirt size={48} color="#CBD5E1" />
+                <Text style={styles.canvasPlaceholderText}>
+                  Vos vêtements sélectionnés apparaîtront ici.
+                </Text>
+              </View>
+            ) : (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View style={styles.selectedItemsContainer}>
+                  {selectedItems.map((item) => (
+                    <View key={item.id} style={styles.selectedItem}>
+                      <OptimizedImage
+                        uri={item.imageUrl}
+                        style={styles.selectedItemImage}
+                      />
+                      <TouchableOpacity
+                        onPress={() => handleSelectItem(item)}
+                        style={styles.removeItemButton}
+                      >
+                        <LucideIcons.X size={12} color="#FFFFFF" />
+                      </TouchableOpacity>
+                      <Text style={styles.selectedItemName} numberOfLines={1}>
+                        {item.name}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
+            )}
+          </View>
+        </View>
+
+        <View style={styles.clothingSection}>
+          <Text style={styles.sectionTitle}>Votre dressing</Text>
+
+          {/* Filter buttons */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filtersContainer}
+            contentContainerStyle={styles.filtersContent}
+          >
+            {CLOTHING_TYPES.map((type) => (
               <TouchableOpacity
-                key={item.id}
-                style={styles.clothingItem}
-                onPress={() => handleSelectItem(item)}
+                key={type.id}
+                style={[
+                  styles.filterButton,
+                  activeFilter === type.id && styles.activeFilter,
+                ]}
+                onPress={() => setActiveFilter(type.id)}
               >
-                <OptimizedImage
-                  uri={item.imageUrl}
-                  style={styles.clothingItemImage}
-                />
-                {selectedItems.find((i) => i.id === item.id) && (
-                  <View style={styles.clothingItemSelectedOverlay}>
-                    <LucideIcons.Check size={24} color="#FFFFFF" />
-                  </View>
-                )}
+                <Text
+                  style={[
+                    styles.filterText,
+                    activeFilter === type.id && styles.activeFilterText,
+                  ]}
+                >
+                  {type.name}
+                </Text>
               </TouchableOpacity>
             ))}
-          </View>
-        )}
+          </ScrollView>
+
+          {/* Clothing grid */}
+          {isLoadingClothing ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#8B5CF6" />
+            </View>
+          ) : filteredClothingItems && filteredClothingItems.length > 0 ? (
+            <View>
+              <View style={styles.clothingGrid}>
+                {filteredClothingItems.map((item) => (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.clothingItem}
+                    onPress={() => handleSelectItem(item)}
+                  >
+                    <OptimizedImage
+                      uri={item.imageUrl}
+                      style={styles.clothingItemImage}
+                    />
+                    {selectedItems.find((i) => i.id === item.id) && (
+                      <View style={styles.clothingItemSelectedOverlay}>
+                        <LucideIcons.Check size={24} color="#FFFFFF" />
+                      </View>
+                    )}
+                    <Text style={styles.clothingItemName} numberOfLines={2}>
+                      {item.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          ) : (
+            <View style={styles.emptyState}>
+              <LucideIcons.Shirt size={48} color="#CBD5E1" />
+              <Text style={styles.emptyStateText}>
+                {activeFilter === 'all'
+                  ? 'Aucun vêtement dans votre dressing'
+                  : `Aucun ${CLOTHING_TYPES.find((t) => t.id === activeFilter)?.name.toLowerCase()} trouvé`}
+              </Text>
+              <Text style={styles.emptyStateSubtext}>
+                {activeFilter === 'all'
+                  ? 'Ajoutez des vêtements à votre dressing pour créer des tenues'
+                  : 'Essayez un autre filtre ou ajoutez des vêtements de ce type'}
+              </Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+      <View style={styles.saveContainer}>
+        <TouchableOpacity
+          onPress={handleSaveOutfit}
+          style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
+          disabled={isSaving}
+        >
+          {isSaving ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <>
+              <LucideIcons.Check size={20} color="#FFFFFF" />
+              <Text style={styles.saveButtonText}>
+                {outfitId ? 'Modifier la tenue' : 'Créer la tenue'}
+              </Text>
+            </>
+          )}
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        onPress={handleSaveOutfit}
-        style={styles.saveButton}
-        disabled={isSaving}
-      >
-        {isSaving ? (
-          <ActivityIndicator color="#FFFFFF" />
-        ) : (
-          <Text style={styles.saveButtonText}>Sauvegarder</Text>
-        )}
-      </TouchableOpacity>
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  // Desktop Layout
+  desktopContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: '#F8FAFC',
+    minHeight: '100vh',
+  },
+  leftPanel: {
+    width: '40%',
+    backgroundColor: '#FFFFFF',
+    borderRightWidth: 1,
+    borderRightColor: '#E5E7EB',
+    padding: 32,
+  },
+  rightPanel: {
+    flex: 1,
+    padding: 32,
+  },
+  canvasTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 24,
+  },
+  desktopCanvas: {
+    minHeight: 400,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 32,
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+    borderStyle: 'dashed',
+  },
+  selectedItemsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+    justifyContent: 'center',
+  },
+  selectedItemCard: {
+    width: 120,
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    position: 'relative',
+  },
+  selectedItemImage: {
+    width: 96,
+    height: 96,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  selectedItemName: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#1F2937',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  selectedItemBrand: {
+    fontSize: 10,
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  desktopClothingGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+    paddingBottom: 20,
+  },
+  clothingScrollView: {
+    maxHeight: 600,
+  },
+
+  // Mobile Layout (existing styles)
+  mobileContainer: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   canvasSection: {
-    padding: 16,
+    padding: 20,
+    backgroundColor: '#FFFFFF',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   outfitNameInput: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F9FAFB',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 12,
@@ -261,106 +577,217 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderWidth: 1,
     borderColor: '#E5E7EB',
+    color: '#1F2937',
   },
   canvas: {
-    minHeight: 120,
-    backgroundColor: '#FFFFFF',
+    minHeight: 140,
+    backgroundColor: '#F9FAFB',
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10,
-    borderWidth: 1,
+    padding: 16,
+    borderWidth: 2,
     borderColor: '#E5E7EB',
+    borderStyle: 'dashed',
   },
   canvasPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  canvasPlaceholderText: {
     color: '#9CA3AF',
     textAlign: 'center',
+    marginTop: 8,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  canvasPlaceholderSubtext: {
+    color: '#9CA3AF',
+    textAlign: 'center',
+    marginTop: 4,
+    fontSize: 12,
+  },
+  selectedItemsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
   },
   selectedItem: {
-    marginHorizontal: 5,
-  },
-  selectedItemImage: {
+    marginHorizontal: 8,
+    alignItems: 'center',
     width: 80,
-    height: 80,
-    borderRadius: 8,
   },
   removeItemButton: {
     position: 'absolute',
     top: -5,
-    right: -5,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    right: 5,
+    backgroundColor: '#EF4444',
     borderRadius: 12,
-    padding: 2,
+    padding: 4,
+    shadowColor: '#EF4444',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+    zIndex: 10,
   },
   clothingSection: {
-    paddingHorizontal: 16,
     flex: 1,
+    paddingHorizontal: 20,
   },
-  filtersContainer: {
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1F2937',
     marginBottom: 16,
   },
+  filtersContainer: {
+    marginBottom: 20,
+    height: 36,
+  },
+  filtersContent: {
+    paddingRight: 20,
+    alignItems: 'center',
+  },
   filterButton: {
+    height: 32,
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingVertical: 0,
+    borderRadius: 16,
     backgroundColor: '#FFFFFF',
-    marginRight: 10,
+    marginRight: 12,
     borderWidth: 1,
     borderColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   activeFilter: {
     backgroundColor: '#8B5CF6',
     borderColor: '#8B5CF6',
   },
   filterText: {
-    color: '#374151',
+    color: '#6B7280',
     fontWeight: '500',
+    fontSize: 14,
+    lineHeight: 16,
   },
   activeFilterText: {
     color: '#FFFFFF',
-  },
-  sectionTitle: {
-    fontSize: 18,
     fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 16,
   },
   clothingGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    justifyContent: 'center',
+    paddingBottom: 20,
+    gap: 8,
   },
   clothingItem: {
-    width: '30%',
-    aspectRatio: 1,
-    position: 'relative',
+    width: '31%',
+    marginBottom: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   clothingItemImage: {
     width: '100%',
-    height: '100%',
+    aspectRatio: 1,
     borderRadius: 8,
+    marginBottom: 8,
+  },
+  clothingItemName: {
+    fontSize: 12,
+    color: '#374151',
+    fontWeight: '500',
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+  clothingItemBrand: {
+    fontSize: 10,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginTop: 2,
   },
   clothingItemSelectedOverlay: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(139, 92, 246, 0.6)',
+    top: 8,
+    left: 8,
+    right: 8,
+    bottom: 32,
+    backgroundColor: 'rgba(139, 92, 246, 0.8)',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: '#6B7280',
+    fontWeight: '600',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    marginTop: 8,
+    textAlign: 'center',
+    lineHeight: 20,
+    maxWidth: 250,
+  },
+  saveContainer: {
+    padding: 20,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
   saveButton: {
     backgroundColor: '#8B5CF6',
+    borderRadius: 16,
     padding: 16,
-    borderRadius: 20,
-    margin: 16,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#8B5CF6',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  saveButtonDisabled: {
+    backgroundColor: '#E5E7EB',
   },
   saveButtonText: {
     color: '#FFFFFF',
     fontWeight: '600',
     fontSize: 16,
+    marginLeft: 8,
   },
 });

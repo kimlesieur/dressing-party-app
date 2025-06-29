@@ -1,7 +1,7 @@
 import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useAuth } from '@/hooks/useAuth';
 import { Link, router } from 'expo-router';
-import { Eye, EyeOff, Lock, Mail } from 'lucide-react-native';
+import { ArrowLeft, Eye, EyeOff, Lock, Mail, User } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
   Alert,
@@ -25,18 +25,20 @@ const validatePassword = (password: string) => {
   return password && password.length >= 6;
 };
 
-export default function LoginScreen() {
+export default function SignupScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [username, setUsername] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { signIn } = useAuth();
+  const { signUp } = useAuth();
 
   const handleSubmit = async () => {
     const trimmedEmail = email.trim();
 
-    if (!trimmedEmail || !password) {
+    if (!trimmedEmail || !password || !displayName || !username) {
       Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
@@ -54,17 +56,18 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      await signIn(trimmedEmail, password);
+      await signUp(trimmedEmail, password, displayName, username);
+      Alert.alert('Success', 'Account created successfully!');
       router.replace('/(tabs)');
     } catch (error: any) {
       let errorMessage = 'An error occurred';
 
-      if (error.code === 'auth/user-not-found') {
-        errorMessage = 'No account found with this email';
-      } else if (error.code === 'auth/wrong-password') {
-        errorMessage = 'Incorrect password';
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'This email is already registered';
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = 'Invalid email address';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Password is too weak';
       }
 
       Alert.alert('Error', errorMessage);
@@ -81,15 +84,44 @@ export default function LoginScreen() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <Text style={styles.title}>Bienvenue sur Dress'n Party !</Text>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <ArrowLeft size={24} color="#374151" />
+            </TouchableOpacity>
+            <Text style={styles.title}>Créer un compte</Text>
+            <Text style={styles.subtitle}>Rejoignez notre communauté de mode</Text>
           </View>
 
           <View style={styles.form}>
             <View style={styles.inputContainer}>
+              <User size={20} color="#9CA3AF" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Nom complet"
+                value={displayName}
+                onChangeText={setDisplayName}
+                autoCapitalize="words"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <User size={20} color="#9CA3AF" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Nom d'utilisateur"
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
               <Mail size={20} color="#9CA3AF" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Email"
+                placeholder="Adresse email"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -130,15 +162,15 @@ export default function LoginScreen() {
               disabled={loading}
             >
               <Text style={styles.submitButtonText}>
-                {loading ? 'Patientez...' : 'Se connecter'}
+                {loading ? 'Patientez...' : 'Créer un compte'}
               </Text>
             </TouchableOpacity>
 
             <View style={styles.switchContainer}>
-              <Text style={styles.switchText}>Pas encore de compte ?</Text>
-              <Link href="/signup" asChild>
+              <Text style={styles.switchText}>Déjà un compte ?</Text>
+              <Link href="/login" asChild>
                 <TouchableOpacity>
-                  <Text style={styles.switchButton}>S'inscrire</Text>
+                  <Text style={styles.switchButton}>Se connecter</Text>
                 </TouchableOpacity>
               </Link>
             </View>
@@ -160,18 +192,21 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingTop: 20,
   },
   header: {
     alignItems: 'center',
     marginBottom: 40,
+  },
+  backButton: {
+    alignSelf: 'flex-start',
+    marginBottom: 20,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1F2937',
     marginBottom: 8,
-    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,

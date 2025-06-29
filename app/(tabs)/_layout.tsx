@@ -4,17 +4,83 @@ import {
   Chrome as Home,
   Plus,
   Shirt,
-  TestTube,
   User,
   Users,
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import Sidebar from '@/components/Sidebar';
+import { useIsDesktop } from '@/utils/isDesktop';
 
 export default function TabLayout() {
   const router = useRouter();
   const [isMenuVisible, setMenuVisible] = useState(false);
+  const isDesktop = useIsDesktop();
 
+  if (isDesktop) {
+    // Desktop layout: sidebar + main content
+    return (
+      <View style={styles.desktopLayout}>
+        <Sidebar />
+        <View style={styles.desktopContent}>
+          <Tabs
+            screenOptions={{
+              headerShown: false,
+              tabBarStyle: { display: 'none' }, // Hide tab bar on desktop
+            }}
+          >
+            <Tabs.Screen
+              name="index"
+              options={{
+                title: 'Accueil',
+                tabBarIcon: ({ size, color }) => <Home size={size} color={color} />,
+              }}
+            />
+            <Tabs.Screen
+              name="dressing"
+              options={{
+                title: 'Dressing',
+                tabBarIcon: ({ size, color }) => (
+                  <Shirt size={size} color={color} />
+                ),
+              }}
+            />
+            <Tabs.Screen
+              name="add"
+              options={{
+                title: '',
+                tabBarButton: (props) => null, // Hide add button on desktop
+              }}
+            />
+            <Tabs.Screen
+              name="inspirations"
+              options={{
+                title: 'Tenues',
+                tabBarIcon: ({ size, color }) => (
+                  <Users size={size} color={color} />
+                ),
+              }}
+            />
+            <Tabs.Screen
+              name="profile"
+              options={{
+                title: 'Profil',
+                tabBarIcon: ({ size, color }) => <User size={size} color={color} />,
+              }}
+            />
+            <Tabs.Screen
+              name="test"
+              options={{
+                href: null, // This hides the tab from the tab bar
+              }}
+            />
+          </Tabs>
+        </View>
+      </View>
+    );
+  }
+
+  // Mobile layout: tab bar at the bottom
   return (
     <View style={{ flex: 1 }}>
       <Tabs
@@ -82,7 +148,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="inspirations"
           options={{
-            title: 'Inspirations',
+            title: 'Tenues',
             tabBarIcon: ({ size, color }) => (
               <Users size={size} color={color} />
             ),
@@ -98,10 +164,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="test"
           options={{
-            title: 'Test',
-            tabBarIcon: ({ size, color }) => (
-              <TestTube size={size} color={color} />
-            ),
+            href: null, // This hides the tab from the tab bar
           }}
         />
       </Tabs>
@@ -134,5 +197,14 @@ const styles = StyleSheet.create({
   addButtonFocused: {
     backgroundColor: '#7C3AED',
     transform: [{ scale: 1.1 }],
+  },
+  desktopLayout: {
+    flexDirection: 'row',
+    minHeight: '100%',
+  },
+  desktopContent: {
+    flex: 1,
+    margin: 40,
+    padding: 32,
   },
 });

@@ -1,5 +1,6 @@
-import { auth, db } from '@/config/firebase';
+import { auth, db, storage } from '@/config/firebase';
 import { UserProfile } from '@/types/firebase';
+import * as ImageManipulator from 'expo-image-manipulator';
 import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
@@ -7,6 +8,12 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from 'firebase/storage';
 
 export class AuthService {
   // Sign up with email and password
@@ -111,5 +118,68 @@ export class AuthService {
       console.error('Error updating user profile:', error);
       throw error;
     }
+  }
+
+  // Upload profile picture
+  static async uploadProfilePicture(
+    userId: string,
+    imageUri: string,
+    currentAvatarUrl?: string,
+  ): Promise<string> {
+    try {
+      // Compress and resize image
+      const compressedImage = await this.compressAndResizeImage(imageUri);
+
+      // Create storage reference
+      const imageRef = ref(storage, `avatars/${userId}/${Date.now()}`);
+
+      // Upload metadata
+      const metadata = {
+        customMetadata: {
+          userId,
+          createdAt: new Date().toISOString(),
+          storageClass: 'STANDARD',
+        },
+      };
+
+      // Upload image
+      const snapshot = await uploadBytes(imageRef, compressedImage, metadata);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      // Delete old avatar if it exists
+      if (currentAvatarUrl) {
+        try {
+          const oldImageRef = ref(storage, currentAvatarUrl);
+          await deleteObject(oldImageRef);
+        } catch (error) {
+          console.warn('Failed to delete old avatar:', error);
+          // Don't throw error if old image deletion fails
+        }
+      }
+
+      // Update user profile with new avatar URL
+      await this.updateUserProfile(userId, { avatar: downloadURL });
+
+      return downloadURL;
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      throw error;
+    }
+  }
+
+  // Helper function to compress and resize images
+  private static async compressAndResizeImage(imageUri: string): Promise<Blob> {
+    const result = await ImageManipulator.manipulateAsync(
+      imageUri,
+      [{ resize: { width: 400 } }], // Resize to 400px width for profile pictures
+      {
+        compress: 0.8, // Compress image with 80% quality
+        format: ImageManipulator.SaveFormat.JPEG,
+      },
+    );
+
+    const response = await fetch(result.uri);
+    const blob = await response.blob();
+    return blob;
   }
 }

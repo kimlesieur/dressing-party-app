@@ -194,7 +194,7 @@ export default function DressingScreen() {
           contentContainerStyle={[
             animatedContentContainerStyle,
             {
-              paddingTop: 230,
+              paddingTop: 200,
             },
           ]}
         >

@@ -1,24 +1,30 @@
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useAuth } from '@/hooks/useAuth';
-import { router } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import { router, useFocusEffect } from 'expo-router';
 import {
   ChartBar as BarChart3,
-  Bell,
   Calendar,
+  Camera,
   Crown,
-  CreditCard as Edit,
   Heart,
-  CircleHelp as HelpCircle,
+  Circle as HelpCircle,
   LogIn,
   LogOut,
+  Pencil,
   Settings,
   Share,
   Shield,
   Shirt,
 } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Switch,
@@ -26,20 +32,48 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+const AppIcon = require('../../assets/images/icon.png');
+// import PurchasesUI from 'react-native-purchases-ui';
+
+// Only import purchases-js on web to avoid bundling issues
+let purchasesJs: typeof import('@revenuecat/purchases-js') | null = null;
+if (Platform.OS === 'web') {
+  try {
+    purchasesJs = require('@revenuecat/purchases-js');
+  } catch {}
+}
 
 export default function ProfileScreen() {
-  const { userProfile, loading, signOut, isAuthenticated } = useAuth();
+  const {
+    userProfile,
+    loading,
+    signOut,
+    isAuthenticated,
+    uploadProfilePicture,
+    refreshUserProfile,
+  } = useAuth();
   const [isPublicProfile, setIsPublicProfile] = useState(
     userProfile?.isPublic ?? true,
   );
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [showWebPaywall, setShowWebPaywall] = useState(false);
+
+  // Refresh profile data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      if (isAuthenticated) {
+        refreshUserProfile();
+      }
+    }, [isAuthenticated, refreshUserProfile]),
+  );
 
   // Show loading state
   if (loading) {
     return (
       <ScreenWrapper style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading...</Text>
+          <ActivityIndicator size="large" color="#8B5CF6" />
+          <Text style={styles.loadingText}>Chargement...</Text>
         </View>
       </ScreenWrapper>
     );
@@ -51,10 +85,9 @@ export default function ProfileScreen() {
       <ScreenWrapper style={styles.container}>
         <View style={styles.authContainer}>
           <View style={styles.authContent}>
-            <Text style={styles.authTitle}>Welcome to Dressing Party</Text>
+            <Text style={styles.authTitle}>Bienvenue sur Dress'n Party !</Text>
             <Text style={styles.authSubtitle}>
-              Sign in to access your profile, manage your wardrobe, and share
-              your style with the community.
+              Connectez-vous pour accéder à votre profil, gérer votre garde-robe et partager votre style avec la communauté.
             </Text>
 
             <TouchableOpacity
@@ -62,13 +95,96 @@ export default function ProfileScreen() {
               onPress={() => router.push('/login')}
             >
               <LogIn size={20} color="#FFFFFF" />
-              <Text style={styles.loginButtonText}>Sign In / Sign Up</Text>
+              <Text style={styles.loginButtonText}>Se connecter / S'inscrire</Text>
             </TouchableOpacity>
           </View>
         </View>
       </ScreenWrapper>
     );
   }
+
+  const handleImagePicker = () => {
+    Alert.alert(
+      'Changer la photo de profil',
+      'Choisissez une option',
+      [
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
+        {
+          text: 'Prendre une photo',
+          onPress: openCamera,
+        },
+        {
+          text: 'Choisir de la galerie',
+          onPress: openImagePicker,
+        },
+      ],
+      { cancelable: true },
+    );
+  };
+
+  const openCamera = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission requise',
+          'Nous avons besoin de votre permission pour accéder à la caméra',
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1], // Square aspect ratio for profile pictures
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        await uploadImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error opening camera:', error);
+      Alert.alert('Erreur', "Impossible d'ouvrir la caméra");
+    }
+  };
+
+  const openImagePicker = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1], // Square aspect ratio for profile pictures
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        await uploadImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error opening image picker:', error);
+      Alert.alert('Erreur', "Impossible d'ouvrir la galerie");
+    }
+  };
+
+  const uploadImage = async (imageUri: string) => {
+    try {
+      setIsUploadingImage(true);
+      await uploadProfilePicture(imageUri);
+      Alert.alert('Succès', 'Photo de profil mise à jour !');
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      Alert.alert(
+        'Erreur',
+        "Une erreur est survenue lors du téléchargement de l'image",
+      );
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
 
   const stats = [
     { icon: Shirt, label: 'Vêtements', value: 52, color: '#8B5CF6' },
@@ -84,13 +200,13 @@ export default function ProfileScreen() {
         {
           icon: Shirt,
           label: 'Mon dressing',
-          action: () => {},
+          action: () => router.push('/(tabs)/dressing'),
           color: '#8B5CF6',
         },
         {
           icon: Heart,
           label: 'Mes tenues favorites',
-          action: () => {},
+          action: () => router.push('/(tabs)/inspirations'),
           color: '#EC4899',
         },
         {
@@ -104,15 +220,15 @@ export default function ProfileScreen() {
     {
       title: 'Paramètres',
       items: [
-        {
-          icon: Bell,
-          label: 'Notifications',
-          action: () => {},
-          color: '#F59E0B',
-          toggle: true,
-          value: notificationsEnabled,
-          onToggle: setNotificationsEnabled,
-        },
+        // {
+        //   icon: Bell,
+        //   label: 'Notifications',
+        //   action: () => {},
+        //   color: '#F59E0B',
+        //   toggle: true,
+        //   value: notificationsEnabled,
+        //   onToggle: setNotificationsEnabled,
+        // },
         {
           icon: Shield,
           label: 'Profil public',
@@ -135,8 +251,8 @@ export default function ProfileScreen() {
       items: [
         {
           icon: HelpCircle,
-          label: 'Aide et support',
-          action: () => {},
+          label: 'Aide & Confidentialité',
+          action: () => router.push('/profile/aide-support'),
           color: '#8B5CF6',
         },
         {
@@ -157,62 +273,78 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleShowPaywall = async () => {
+    if (Platform.OS === 'web') {
+      setShowWebPaywall(true);
+      // If you want to use the SDK, do it like this:
+      // const purchasesJs = await import('@revenuecat/purchases-js');
+      // ...use purchasesJs here...
+    } else {
+      // try {
+      //   await PurchasesUI.presentPaywall();
+      // } catch (e: any) {
+      //   Alert.alert('Erreur', "Impossible d'afficher le paywall", e);
+      // }
+      Alert.alert('Erreur', "Impossible d'afficher le paywall");
+    }
+  };
+
   return (
     <ScreenWrapper style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.settingsButton}>
-            <Settings size={24} color="#6B7280" />
-          </TouchableOpacity>
-        </View>
-
         {/* Profile Info */}
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
-            <OptimizedImage
-              uri={userProfile.avatar || 'https://via.placeholder.com/150'}
-              style={styles.profileImage}
-            />
-            <TouchableOpacity style={styles.editImageButton}>
-              <Edit size={16} color="#FFFFFF" />
+            <View style={styles.profileImageWrapper}>
+              {userProfile.avatar ? (
+                <OptimizedImage
+                  uri={userProfile.avatar}
+                  style={styles.profileImage}
+                />
+              ) : (
+                <Image
+                  source={AppIcon}
+                  style={styles.profileImage}
+                  resizeMode="cover"
+                />
+              )}
+            </View>
+            <TouchableOpacity
+              style={styles.editImageButton}
+              onPress={handleImagePicker}
+              disabled={isUploadingImage}
+            >
+              {isUploadingImage ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Camera size={16} color="#FFFFFF" />
+              )}
             </TouchableOpacity>
           </View>
 
           <Text style={styles.profileName}>{userProfile.displayName}</Text>
-          <Text style={styles.profileUsername}>{userProfile.username}</Text>
+          <Text style={styles.profileUsername}>@{userProfile.username}</Text>
 
           <Text style={styles.profileBio}>
-            {userProfile.bio || 'No bio yet'}
+            {userProfile.bio ||
+              'Ajouter une bio pour partager ton style avec le monde !'}
           </Text>
-
-          {/* Profile Stats */}
-          <View style={styles.profileStats}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>0</Text>
-              <Text style={styles.statLabel}>Publications</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{userProfile.followers}</Text>
-              <Text style={styles.statLabel}>Abonnés</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{userProfile.following}</Text>
-              <Text style={styles.statLabel}>Abonnements</Text>
-            </View>
-          </View>
 
           {/* Action Buttons */}
           <View style={styles.actionButtons}>
-            <TouchableOpacity style={styles.primaryButton}>
-              <Edit size={20} color="#FFFFFF" />
-              <Text style={styles.primaryButtonText}>Modifier le profil</Text>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => router.push('/profile/edit')}
+            >
+              <Pencil size={18} color="#FFFFFF" />
+              <Text style={styles.primaryButtonText}>Modifier</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.secondaryButton}>
-              <Share size={20} color="#8B5CF6" />
-              <Text style={styles.secondaryButtonText}>Partager</Text>
+            <TouchableOpacity
+              style={styles.paywallButton}
+              onPress={handleShowPaywall}
+            >
+              <Crown size={20} color="#FFFFFF" />
+              <Text style={styles.paywallButtonText}>Premium</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -290,6 +422,50 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <Modal
+        visible={showWebPaywall}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowWebPaywall(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: 'white',
+              padding: 32,
+              borderRadius: 16,
+              alignItems: 'center',
+            }}
+          >
+            <Text
+              style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 16 }}
+            >
+              Abonnement Premium
+            </Text>
+            <Text style={{ fontSize: 16, marginBottom: 24 }}>
+              La gestion des abonnements sur le web arrive bientôt !
+            </Text>
+            <TouchableOpacity
+              onPress={() => setShowWebPaywall(false)}
+              style={{
+                backgroundColor: '#8B5CF6',
+                borderRadius: 8,
+                paddingVertical: 12,
+                paddingHorizontal: 24,
+              }}
+            >
+              <Text style={{ color: 'white', fontWeight: '600' }}>Fermer</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScreenWrapper>
   );
 }
@@ -299,29 +475,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-  },
-  settingsButton: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
   profileSection: {
     backgroundColor: '#FFFFFF',
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginVertical: 20,
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
@@ -337,13 +494,24 @@ const styles = StyleSheet.create({
   profileImageContainer: {
     position: 'relative',
     marginBottom: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileImageWrapper: {
+    width: 106,
+    height: 106,
+    borderRadius: 53,
+    borderWidth: 3,
+    borderColor: '#8B5CF6',
+    backgroundColor: '#fff',
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   profileImage: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    borderWidth: 3,
-    borderColor: '#8B5CF6',
   },
   editImageButton: {
     position: 'absolute',
@@ -379,31 +547,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 20,
-  },
-  profileStats: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  statItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  statNumber: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-    fontWeight: '500',
-  },
-  statDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: '#E5E7EB',
   },
   actionButtons: {
     flexDirection: 'row',
@@ -442,6 +585,22 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#8B5CF6',
   },
+  paywallButton: {
+    flex: 1,
+    backgroundColor: '#F59E0B',
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    gap: 8,
+    marginLeft: 8,
+  },
+  paywallButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
   statsContainer: {
     paddingHorizontal: 20,
     marginBottom: 20,
@@ -455,6 +614,7 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-around',
     gap: 12,
   },
   statCard: {
@@ -462,7 +622,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
-    width: '48%',
+    width: '47%',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -565,13 +725,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#EF4444',
   },
-  footer: {
+  attributionSection: {
     alignItems: 'center',
     paddingBottom: 40,
+    paddingTop: 20,
   },
-  versionText: {
+  attributionText: {
     fontSize: 12,
     color: '#9CA3AF',
+    fontWeight: '500',
   },
   loadingContainer: {
     flex: 1,
@@ -581,6 +743,7 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: '#6B7280',
+    marginTop: 12,
   },
   authContainer: {
     flex: 1,
