@@ -159,126 +159,127 @@ export function OutfitEditor({ outfitId }: OutfitEditorProps) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.canvasSection}>
-        <TextInput
-          style={styles.outfitNameInput}
-          placeholder="Nom de la tenue (ex: Look de bureau)"
-          value={outfitName}
-          onChangeText={setOutfitName}
-        />
-        <View style={styles.canvas}>
-          {selectedItems.length === 0 ? (
-            <View style={styles.canvasPlaceholder}>
-              <LucideIcons.Shirt size={48} color="#CBD5E1" />
-              <Text style={styles.canvasPlaceholderText}>
-                Vos vêtements sélectionnés apparaîtront ici.
-              </Text>
+    <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.canvasSection}>
+          <TextInput
+            style={styles.outfitNameInput}
+            placeholder="Nom de la tenue (ex: Look de bureau)"
+            value={outfitName}
+            onChangeText={setOutfitName}
+          />
+          <View style={styles.canvas}>
+            {selectedItems.length === 0 ? (
+              <View style={styles.canvasPlaceholder}>
+                <LucideIcons.Shirt size={48} color="#CBD5E1" />
+                <Text style={styles.canvasPlaceholderText}>
+                  Vos vêtements sélectionnés apparaîtront ici.
+                </Text>
+              </View>
+            ) : (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View style={styles.selectedItemsContainer}>
+                  {selectedItems.map((item) => (
+                    <View key={item.id} style={styles.selectedItem}>
+                      <OptimizedImage
+                        uri={item.imageUrl}
+                        style={styles.selectedItemImage}
+                      />
+                      <TouchableOpacity
+                        onPress={() => handleSelectItem(item)}
+                        style={styles.removeItemButton}
+                      >
+                        <LucideIcons.X size={12} color="#FFFFFF" />
+                      </TouchableOpacity>
+                      <Text style={styles.selectedItemName} numberOfLines={1}>
+                        {item.name}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
+            )}
+          </View>
+        </View>
+
+        <View style={styles.clothingSection}>
+          <Text style={styles.sectionTitle}>Votre dressing</Text>
+
+          {/* Filter buttons */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filtersContainer}
+            contentContainerStyle={styles.filtersContent}
+          >
+            {CLOTHING_TYPES.map((type) => (
+              <TouchableOpacity
+                key={type.id}
+                style={[
+                  styles.filterButton,
+                  activeFilter === type.id && styles.activeFilter,
+                ]}
+                onPress={() => setActiveFilter(type.id)}
+              >
+                <Text
+                  style={[
+                    styles.filterText,
+                    activeFilter === type.id && styles.activeFilterText,
+                  ]}
+                >
+                  {type.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          {/* Clothing grid */}
+          {isLoadingClothing ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#8B5CF6" />
             </View>
-          ) : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.selectedItemsContainer}>
-                {selectedItems.map((item) => (
-                  <View key={item.id} style={styles.selectedItem}>
+          ) : filteredClothingItems && filteredClothingItems.length > 0 ? (
+            <View style={styles.clothingScrollView}>
+              <View style={styles.clothingGrid}>
+                {filteredClothingItems.map((item) => (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.clothingItem}
+                    onPress={() => handleSelectItem(item)}
+                  >
                     <OptimizedImage
                       uri={item.imageUrl}
-                      style={styles.selectedItemImage}
+                      style={styles.clothingItemImage}
                     />
-                    <TouchableOpacity
-                      onPress={() => handleSelectItem(item)}
-                      style={styles.removeItemButton}
-                    >
-                      <LucideIcons.X size={12} color="#FFFFFF" />
-                    </TouchableOpacity>
-                    <Text style={styles.selectedItemName} numberOfLines={1}>
+                    {selectedItems.find((i) => i.id === item.id) && (
+                      <View style={styles.clothingItemSelectedOverlay}>
+                        <LucideIcons.Check size={24} color="#FFFFFF" />
+                      </View>
+                    )}
+                    <Text style={styles.clothingItemName} numberOfLines={2}>
                       {item.name}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 ))}
               </View>
-            </ScrollView>
+            </View>
+          ) : (
+            <View style={styles.emptyState}>
+              <LucideIcons.Shirt size={48} color="#CBD5E1" />
+              <Text style={styles.emptyStateText}>
+                {activeFilter === 'all'
+                  ? 'Aucun vêtement dans votre dressing'
+                  : `Aucun ${CLOTHING_TYPES.find((t) => t.id === activeFilter)?.name.toLowerCase()} trouvé`}
+              </Text>
+              <Text style={styles.emptyStateSubtext}>
+                {activeFilter === 'all'
+                  ? 'Ajoutez des vêtements à votre dressing pour créer des tenues'
+                  : 'Essayez un autre filtre ou ajoutez des vêtements de ce type'}
+              </Text>
+            </View>
           )}
         </View>
-      </View>
-
-      <View style={styles.clothingSection}>
-        <Text style={styles.sectionTitle}>Votre dressing</Text>
-
-        {/* Filter buttons */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.filtersContainer}
-          contentContainerStyle={styles.filtersContent}
-        >
-          {CLOTHING_TYPES.map((type) => (
-            <TouchableOpacity
-              key={type.id}
-              style={[
-                styles.filterButton,
-                activeFilter === type.id && styles.activeFilter,
-              ]}
-              onPress={() => setActiveFilter(type.id)}
-            >
-              <Text
-                style={[
-                  styles.filterText,
-                  activeFilter === type.id && styles.activeFilterText,
-                ]}
-              >
-                {type.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {/* Clothing grid */}
-        {isLoadingClothing ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#8B5CF6" />
-          </View>
-        ) : filteredClothingItems && filteredClothingItems.length > 0 ? (
-          <View style={styles.clothingScrollView}>
-            <View style={styles.clothingGrid}>
-              {filteredClothingItems.map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={styles.clothingItem}
-                  onPress={() => handleSelectItem(item)}
-                >
-                  <OptimizedImage
-                    uri={item.imageUrl}
-                    style={styles.clothingItemImage}
-                  />
-                  {selectedItems.find((i) => i.id === item.id) && (
-                    <View style={styles.clothingItemSelectedOverlay}>
-                      <LucideIcons.Check size={24} color="#FFFFFF" />
-                    </View>
-                  )}
-                  <Text style={styles.clothingItemName} numberOfLines={2}>
-                    {item.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        ) : (
-          <View style={styles.emptyState}>
-            <LucideIcons.Shirt size={48} color="#CBD5E1" />
-            <Text style={styles.emptyStateText}>
-              {activeFilter === 'all'
-                ? 'Aucun vêtement dans votre dressing'
-                : `Aucun ${CLOTHING_TYPES.find((t) => t.id === activeFilter)?.name.toLowerCase()} trouvé`}
-            </Text>
-            <Text style={styles.emptyStateSubtext}>
-              {activeFilter === 'all'
-                ? 'Ajoutez des vêtements à votre dressing pour créer des tenues'
-                : 'Essayez un autre filtre ou ajoutez des vêtements de ce type'}
-            </Text>
-          </View>
-        )}
-      </View>
-
+      </ScrollView>
       <View style={styles.saveContainer}>
         <TouchableOpacity
           onPress={handleSaveOutfit}
