@@ -542,7 +542,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   clothingScrollView: {
-    flex: 1,
     maxHeight: 600,
   },
 
