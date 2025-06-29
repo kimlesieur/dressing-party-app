@@ -52,7 +52,7 @@ export default function HomeScreen() {
             <View style={styles.logoContainer}>
               <Image
                 source={require('../../assets/images/black_circle_360x360.png')}
-                
+                style={styles.logo}
                 resizeMode="contain"
               />
             </View>
@@ -234,13 +234,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   logoContainer: {
-     width: 50,
-    height: 50,
     marginLeft: 16,
   },
   logo: {
-    width: 50,
-    height: 50,
+    width: 60,
+    height: 60,
   },
   card: {
     backgroundColor: '#FFFFFF',
