@@ -7,7 +7,6 @@ import {
 import { useGetOutfit } from '@/hooks/useOutfits';
 import { OutfitService } from '@/services/outfits';
 import { ClothingItem, Outfit } from '@/types/firebase';
-import { useIsDesktop } from '@/utils/isDesktop';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
@@ -41,7 +40,6 @@ interface OutfitEditorProps {
 export function OutfitEditor({ outfitId }: OutfitEditorProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const isDesktop = useIsDesktop();
   const { data: clothingItems, isLoading: isLoadingClothing } =
     useGetUserClothing(user?.uid || '');
 
@@ -160,155 +158,6 @@ export function OutfitEditor({ outfitId }: OutfitEditorProps) {
     );
   }
 
-  if (isDesktop) {
-    // Desktop Layout - Two Column Design
-    return (
-      <View style={styles.desktopContainer}>
-        {/* Left Column - Outfit Canvas & Details */}
-        <View style={styles.leftColumn}>
-          <View style={styles.desktopCanvasSection}>
-            <Text style={styles.desktopSectionTitle}>Votre Tenue</Text>
-            <TextInput
-              style={styles.desktopOutfitNameInput}
-              placeholder="Nom de la tenue (ex: Look de bureau)"
-              value={outfitName}
-              onChangeText={setOutfitName}
-            />
-            
-            <View style={styles.desktopCanvas}>
-              {selectedItems.length === 0 ? (
-                <View style={styles.desktopCanvasPlaceholder}>
-                  <LucideIcons.Shirt size={64} color="#CBD5E1" />
-                  <Text style={styles.desktopCanvasPlaceholderText}>
-                    Sélectionnez des vêtements pour créer votre tenue
-                  </Text>
-                  <Text style={styles.desktopCanvasPlaceholderSubtext}>
-                    Cliquez sur les vêtements de droite pour les ajouter
-                  </Text>
-                </View>
-              ) : (
-                <View style={styles.desktopSelectedItemsGrid}>
-                  {selectedItems.map((item) => (
-                    <View key={item.id} style={styles.desktopSelectedItem}>
-                      <OptimizedImage
-                        uri={item.imageUrl}
-                        style={styles.desktopSelectedItemImage}
-                      />
-                      <TouchableOpacity
-                        onPress={() => handleSelectItem(item)}
-                        style={styles.desktopRemoveItemButton}
-                      >
-                        <LucideIcons.X size={16} color="#FFFFFF" />
-                      </TouchableOpacity>
-                      <Text style={styles.desktopSelectedItemName} numberOfLines={2}>
-                        {item.name}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            {/* Save Button */}
-            <TouchableOpacity
-              onPress={handleSaveOutfit}
-              style={[styles.desktopSaveButton, isSaving && styles.saveButtonDisabled]}
-              disabled={isSaving}
-            >
-              {isSaving ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
-                <>
-                  <LucideIcons.Check size={20} color="#FFFFFF" />
-                  <Text style={styles.desktopSaveButtonText}>
-                    {outfitId ? 'Modifier la tenue' : 'Créer la tenue'}
-                  </Text>
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Right Column - Clothing Selection */}
-        <View style={styles.rightColumn}>
-          <View style={styles.desktopClothingSection}>
-            <Text style={styles.desktopSectionTitle}>Votre Dressing</Text>
-            
-            {/* Filter buttons */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.desktopFiltersContainer}
-              contentContainerStyle={styles.desktopFiltersContent}
-            >
-              {CLOTHING_TYPES.map((type) => (
-                <TouchableOpacity
-                  key={type.id}
-                  style={[
-                    styles.desktopFilterButton,
-                    activeFilter === type.id && styles.desktopActiveFilter,
-                  ]}
-                  onPress={() => setActiveFilter(type.id)}
-                >
-                  <Text
-                    style={[
-                      styles.desktopFilterText,
-                      activeFilter === type.id && styles.desktopActiveFilterText,
-                    ]}
-                  >
-                    {type.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            {/* Clothing grid */}
-            {isLoadingClothing ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#8B5CF6" />
-              </View>
-            ) : filteredClothingItems && filteredClothingItems.length > 0 ? (
-              <ScrollView style={styles.desktopClothingScrollView}>
-                <View style={styles.desktopClothingGrid}>
-                  {filteredClothingItems.map((item) => (
-                    <TouchableOpacity
-                      key={item.id}
-                      style={styles.desktopClothingItem}
-                      onPress={() => handleSelectItem(item)}
-                    >
-                      <OptimizedImage
-                        uri={item.imageUrl}
-                        style={styles.desktopClothingItemImage}
-                      />
-                      {selectedItems.find((i) => i.id === item.id) && (
-                        <View style={styles.desktopClothingItemSelectedOverlay}>
-                          <LucideIcons.Check size={24} color="#FFFFFF" />
-                        </View>
-                      )}
-                      <Text style={styles.desktopClothingItemName} numberOfLines={2}>
-                        {item.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </ScrollView>
-            ) : (
-              <View style={styles.desktopEmptyState}>
-                <LucideIcons.Shirt size={48} color="#CBD5E1" />
-                <Text style={styles.desktopEmptyStateText}>
-                  {activeFilter === 'all'
-                    ? 'Aucun vêtement dans votre dressing'
-                    : `Aucun ${CLOTHING_TYPES.find((t) => t.id === activeFilter)?.name.toLowerCase()} trouvé`}
-                </Text>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
-    );
-  }
-
-  // Mobile Layout (unchanged)
   return (
     <View style={styles.container}>
       <View style={styles.canvasSection}>
@@ -462,247 +311,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-  // Desktop Styles
-  desktopContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#F8FAFC',
-    gap: 32,
-  },
-  leftColumn: {
-    flex: 1,
-    maxWidth: 500,
-  },
-  rightColumn: {
-    flex: 1.5,
-  },
-  desktopCanvasSection: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 32,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
-    height: 'fit-content',
-  },
-  desktopClothingSection: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 32,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
-    height: '100%',
-  },
-  desktopSectionTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: 24,
-  },
-  desktopOutfitNameInput: {
-    backgroundColor: '#F9FAFB',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderRadius: 16,
-    fontSize: 18,
-    marginBottom: 24,
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    color: '#1F2937',
-    fontWeight: '500',
-  },
-  desktopCanvas: {
-    minHeight: 400,
-    backgroundColor: '#F9FAFB',
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    borderStyle: 'dashed',
-    marginBottom: 32,
-  },
-  desktopCanvasPlaceholder: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  desktopCanvasPlaceholderText: {
-    color: '#6B7280',
-    textAlign: 'center',
-    marginTop: 16,
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  desktopCanvasPlaceholderSubtext: {
-    color: '#9CA3AF',
-    textAlign: 'center',
-    marginTop: 8,
-    fontSize: 14,
-  },
-  desktopSelectedItemsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 16,
-    width: '100%',
-  },
-  desktopSelectedItem: {
-    alignItems: 'center',
-    width: 120,
-    position: 'relative',
-  },
-  desktopSelectedItemImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-    marginBottom: 8,
-  },
-  desktopSelectedItemName: {
-    fontSize: 14,
-    color: '#6B7280',
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  desktopRemoveItemButton: {
-    position: 'absolute',
-    top: -8,
-    right: 10,
-    backgroundColor: '#EF4444',
-    borderRadius: 16,
-    padding: 6,
-    shadowColor: '#EF4444',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  desktopSaveButton: {
-    backgroundColor: '#8B5CF6',
-    borderRadius: 16,
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#8B5CF6',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  desktopSaveButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 18,
-    marginLeft: 12,
-  },
-  desktopFiltersContainer: {
-    marginBottom: 24,
-    height: 44,
-  },
-  desktopFiltersContent: {
-    paddingRight: 20,
-    alignItems: 'center',
-  },
-  desktopFilterButton: {
-    height: 40,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    backgroundColor: '#F3F4F6',
-    marginRight: 12,
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  desktopActiveFilter: {
-    backgroundColor: '#8B5CF6',
-    borderColor: '#8B5CF6',
-  },
-  desktopFilterText: {
-    color: '#6B7280',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  desktopActiveFilterText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
-  desktopClothingScrollView: {
-    flex: 1,
-  },
-  desktopClothingGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 16,
-    paddingBottom: 20,
-  },
-  desktopClothingItem: {
-    width: 140,
-    backgroundColor: '#F9FAFB',
-    borderRadius: 16,
-    padding: 12,
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    position: 'relative',
-  },
-  desktopClothingItemImage: {
-    width: '100%',
-    aspectRatio: 1,
-    borderRadius: 12,
-    marginBottom: 8,
-  },
-  desktopClothingItemName: {
-    fontSize: 14,
-    color: '#374151',
-    fontWeight: '600',
-    textAlign: 'center',
-    lineHeight: 18,
-  },
-  desktopClothingItemSelectedOverlay: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    right: 12,
-    bottom: 32,
-    backgroundColor: 'rgba(139, 92, 246, 0.9)',
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  desktopEmptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  desktopEmptyStateText: {
-    fontSize: 18,
-    color: '#6B7280',
-    fontWeight: '600',
-    marginTop: 16,
-    textAlign: 'center',
-  },
-
-  // Mobile Styles (unchanged)
   canvasSection: {
     padding: 20,
     backgroundColor: '#FFFFFF',
@@ -799,17 +407,17 @@ const styles = StyleSheet.create({
   },
   filtersContainer: {
     marginBottom: 20,
-    height: 36,
+    height: 36, // Fixed height for the scroll container
   },
   filtersContent: {
     paddingRight: 20,
-    alignItems: 'center',
+    alignItems: 'center', // Center align the buttons vertically
   },
   filterButton: {
-    height: 32,
+    height: 32, // Fixed height for filter buttons
     paddingHorizontal: 16,
-    paddingVertical: 0,
-    borderRadius: 16,
+    paddingVertical: 0, // Remove vertical padding since we have fixed height
+    borderRadius: 16, // Adjusted for the smaller height
     backgroundColor: '#FFFFFF',
     marginRight: 12,
     borderWidth: 1,
@@ -822,8 +430,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'center', // Center the text vertically
+    alignItems: 'center', // Center the text horizontally
   },
   activeFilter: {
     backgroundColor: '#8B5CF6',
@@ -833,7 +441,7 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontWeight: '500',
     fontSize: 14,
-    lineHeight: 16,
+    lineHeight: 16, // Ensure consistent line height
   },
   activeFilterText: {
     color: '#FFFFFF',
