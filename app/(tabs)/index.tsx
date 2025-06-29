@@ -10,6 +10,7 @@ import * as LucideIcons from 'lucide-react-native';
 import React from 'react';
 import {
   ActivityIndicator,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -41,10 +42,21 @@ export default function HomeScreen() {
   return (
     <ScreenWrapper style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
+        {/* Header with Logo */}
         <View style={styles.header}>
-          <Text style={styles.greeting}>Bonjour ! 👋</Text>
-          <Text style={styles.subtitle}>Prêt pour une journée stylée ?</Text>
+          <View style={styles.headerContent}>
+            <View style={styles.greetingSection}>
+              <Text style={styles.greeting}>Bonjour ! 👋</Text>
+              <Text style={styles.subtitle}>Prêt pour une journée stylée ?</Text>
+            </View>
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('../../assets/images/black_circle_360x360.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </View>
+          </View>
         </View>
 
         {/* Weather Card */}
@@ -202,6 +214,14 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 10,
   },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  greetingSection: {
+    flex: 1,
+  },
   greeting: {
     fontSize: 28,
     fontWeight: '700',
@@ -212,6 +232,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#6B7280',
     fontWeight: '500',
+  },
+  logoContainer: {
+    marginLeft: 16,
+  },
+  logo: {
+    width: 60,
+    height: 60,
   },
   card: {
     backgroundColor: '#FFFFFF',
