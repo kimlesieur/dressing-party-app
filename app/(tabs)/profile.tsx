@@ -421,11 +421,6 @@ export default function ProfileScreen() {
             <Text style={styles.logoutButtonText}>Se déconnecter</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Bolt.new Attribution */}
-        <View style={styles.attributionSection}>
-          <Text style={styles.attributionText}>Built with Bolt.new</Text>
-        </View>
       </ScrollView>
       <Modal
         visible={showWebPaywall}
