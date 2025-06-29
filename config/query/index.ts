@@ -1,19 +1,30 @@
 import {
+  QueryCache,
   QueryClient,
   UseMutationOptions,
   UseQueryOptions,
 } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 
+const queryCache = new QueryCache({
+  onError: (error, query) => {
+    console.log('[Query] onError =>', error, query);
+  },
+  onSuccess: (data, query) => {
+    console.log('[Query] onSuccess =>', data, query);
+  },
+});
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 10 * 60 * 1000, // 10 minutes
+      staleTime: 0, // 0 minutes
       gcTime: 15 * 60 * 1000, // 15 minutes
-      retry: 1,
+      retry: 2,
       refetchOnWindowFocus: false,
     },
   },
+  queryCache,
 });
 
 export type ExtractFnReturnType<FnType extends (...args: any) => any> = Awaited<

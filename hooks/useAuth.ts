@@ -2,7 +2,7 @@ import { auth } from '@/config/firebase';
 import { AuthService } from '@/services/auth';
 import { UserProfile } from '@/types/firebase';
 import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export function useAuth() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -113,16 +113,17 @@ export function useAuth() {
     }
   };
 
-  const refreshUserProfile = async () => {
-    if (!user) return;
-
-    try {
-      const profile = await AuthService.getCurrentUserProfile(user.uid);
-      setUserProfile(profile);
-    } catch (error) {
-      console.error('Error refreshing user profile:', error);
+  const refreshUserProfile = useCallback(() => {
+    if (user) {
+      AuthService.getCurrentUserProfile(user.uid)
+        .then((profile) => {
+          setUserProfile(profile);
+        })
+        .catch((error) => {
+          console.error('Error refreshing user profile:', error);
+        });
     }
-  };
+  }, [user]);
 
   return {
     user,
