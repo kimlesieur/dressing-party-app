@@ -31,7 +31,7 @@ export default function DressingScreen() {
     isLoading,
     isError,
     error,
-  } = useGetUserClothing(user?.uid || '');
+  } = useGetUserClothing(user?.uid || '', { realtime: true });
 
   const lastContentOffset = useSharedValue(0);
   const isScrollingDown = useSharedValue(false);

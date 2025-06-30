@@ -1,10 +1,11 @@
+import { ConfirmModal } from '@/components/ConfirmModal';
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { useAuth } from '@/hooks/useAuth';
 import { useDeleteClothingItem, useGetClothingItem } from '@/hooks/useClothing';
 import { Feather } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Trash2 } from 'lucide-react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -27,52 +28,35 @@ export default function ClothingDetailScreen() {
   } = useGetClothingItem(id ?? '');
 
   const deleteClothingMutation = useDeleteClothingItem();
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const handleDelete = () => {
-    if (!clothingItem) return;
+    console.log('handleDelete', clothingItem);
+    setShowConfirmModal(true);
+  };
 
-    Alert.alert(
-      'Supprimer le vêtement',
-      `Êtes-vous sûr de vouloir supprimer "${clothingItem.name}" ? Cette action est irréversible.`,
-      [
-        {
-          text: 'Annuler',
-          style: 'cancel',
+  const handleConfirmDelete = () => {
+    if (!clothingItem) return;
+    deleteClothingMutation.mutate(
+      {
+        itemId: clothingItem.id,
+        imageUrl: clothingItem.imageUrl,
+      },
+      {
+        onSuccess: () => {
+          setShowConfirmModal(false);
+          Alert.alert('Succès', 'Le vêtement a été supprimé avec succès.');
+          router.back();
         },
-        {
-          text: 'Supprimer',
-          style: 'destructive',
-          onPress: () => {
-            deleteClothingMutation.mutate(
-              {
-                itemId: clothingItem.id,
-                imageUrl: clothingItem.imageUrl,
-              },
-              {
-                onSuccess: () => {
-                  Alert.alert(
-                    'Succès',
-                    'Le vêtement a été supprimé avec succès.',
-                    [
-                      {
-                        text: 'OK',
-                        onPress: () => router.push('/(tabs)/dressing'),
-                      },
-                    ],
-                  );
-                },
-                onError: (error) => {
-                  console.error('Error deleting clothing item:', error);
-                  Alert.alert(
-                    'Erreur',
-                    'Une erreur est survenue lors de la suppression. Veuillez réessayer.',
-                  );
-                },
-              },
-            );
-          },
+        onError: (error) => {
+          setShowConfirmModal(false);
+          console.error('Error deleting clothing item:', error);
+          Alert.alert(
+            'Erreur',
+            'Une erreur est survenue lors de la suppression. Veuillez réessayer.',
+          );
         },
-      ],
+      },
     );
   };
 
@@ -207,6 +191,16 @@ export default function ClothingDetailScreen() {
           )}
         </View>
       </ScrollView>
+      <ConfirmModal
+        visible={showConfirmModal}
+        title="Supprimer le vêtement"
+        message={`Êtes-vous sûr de vouloir supprimer "${clothingItem.name}" ? Cette action est irréversible.`}
+        onCancel={() => setShowConfirmModal(false)}
+        onConfirm={handleConfirmDelete}
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        loading={deleteClothingMutation.isPending}
+      />
     </View>
   );
 }
