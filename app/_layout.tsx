@@ -1,3 +1,4 @@
+import CustomToast from '@/components/CustomToast';
 import QueryClientProvider from '@/config/query/QueryClientProvider';
 import { useAuth } from '@/hooks/useAuth';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
@@ -8,7 +9,6 @@ import React, { useEffect } from 'react';
 import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 import Purchases from 'react-native-purchases';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
 
 function RootLayout() {
   useFrameworkReady();
@@ -34,7 +34,7 @@ function RootLayout() {
           <ActivityIndicator size="large" color="#8B5CF6" />
         </View>
         <StatusBar style="auto" />
-        <Toast />
+        <CustomToast.Component />
       </SafeAreaProvider>
     );
   }
@@ -88,7 +88,7 @@ function RootLayout() {
         </Stack>
         <StatusBar style="auto" />
       </QueryClientProvider>
-      <Toast />
+      <CustomToast.Component />
     </SafeAreaProvider>
   );
 }

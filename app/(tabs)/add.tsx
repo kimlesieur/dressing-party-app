@@ -1,3 +1,4 @@
+import CustomToast from '@/components/CustomToast';
 import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useAuth } from '@/hooks/useAuth';
 import { ClothingService } from '@/services/clothing';
@@ -180,28 +181,34 @@ export default function AddClothingScreen() {
         selectedImage,
       );
 
-      Alert.alert('Succès', 'Votre vêtement a été ajouté à votre dressing !', [
-        {
-          text: 'OK',
-          onPress: () => {
-            // Reset form
-            setSelectedImage(null);
-            setClothingData({
-              name: '',
-              type: '',
-              subCategory: '',
-              seasons: [],
-              colors: [],
-              brand: '',
-              notes: '',
-            });
-            // Navigate back to dressing
-            router.push('/(tabs)/dressing');
-          },
-        },
-      ]);
+      CustomToast.show({
+        type: 'success',
+        text1: 'Votre vêtement a été ajouté à votre dressing !',
+        text2: '',
+      });
+      // Reset form
+      setSelectedImage(null);
+      setClothingData({
+        name: '',
+        type: '',
+        subCategory: '',
+        seasons: [],
+        colors: [],
+        brand: '',
+        notes: '',
+      });
+      // Navigate back to dressing
+      router.push('/(tabs)/dressing');
     } catch (error) {
       console.error('Error adding clothing item:', error);
+      CustomToast.show({
+        type: 'error',
+        text1: 'Erreur',
+        text2:
+          error instanceof Error
+            ? error.message
+            : "Une erreur est survenue lors de l'ajout du vêtement. Veuillez réessayer.",
+      });
       Alert.alert(
         'Erreur',
         "Une erreur est survenue lors de l'ajout du vêtement. Veuillez réessayer.",
