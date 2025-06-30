@@ -14,6 +14,7 @@ export function useAuth() {
     isMountedRef.current = true;
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log('[Auth] onAuthStateChanged =>', firebaseUser);
       if (!isMountedRef.current) return;
 
       setUser(firebaseUser);
@@ -25,12 +26,24 @@ export function useAuth() {
             firebaseUser.uid,
           );
           if (isMountedRef.current) {
-            setUserProfile(profile);
+            if (profile) {
+              setUserProfile(profile);
+            } else {
+              // Profile missing, sign out
+              await AuthService.signOut();
+              setUserProfile(null);
+              setUser(null);
+              return;
+            }
           }
         } catch (error) {
           console.error('Error fetching user profile:', error);
           if (isMountedRef.current) {
+            // On error, sign out
+            await AuthService.signOut();
             setUserProfile(null);
+            setUser(null);
+            return;
           }
         }
       } else {
@@ -117,10 +130,21 @@ export function useAuth() {
     if (user) {
       AuthService.getCurrentUserProfile(user.uid)
         .then((profile) => {
-          setUserProfile(profile);
+          if (profile) {
+            setUserProfile(profile);
+          } else {
+            // Profile missing, sign out
+            AuthService.signOut();
+            setUserProfile(null);
+            setUser(null);
+          }
         })
         .catch((error) => {
           console.error('Error refreshing user profile:', error);
+          // On error, sign out
+          AuthService.signOut();
+          setUserProfile(null);
+          setUser(null);
         });
     }
   }, [user]);
