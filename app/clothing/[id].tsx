@@ -25,7 +25,7 @@ export default function ClothingDetailScreen() {
     isError,
     error,
   } = useGetClothingItem(id ?? '');
-  
+
   const deleteClothingMutation = useDeleteClothingItem();
 
   const handleDelete = () => {
@@ -50,12 +50,16 @@ export default function ClothingDetailScreen() {
               },
               {
                 onSuccess: () => {
-                  Alert.alert('Succès', 'Le vêtement a été supprimé avec succès.', [
-                    {
-                      text: 'OK',
-                      onPress: () => router.push('/(tabs)/dressing'),
-                    },
-                  ]);
+                  Alert.alert(
+                    'Succès',
+                    'Le vêtement a été supprimé avec succès.',
+                    [
+                      {
+                        text: 'OK',
+                        onPress: () => router.push('/(tabs)/dressing'),
+                      },
+                    ],
+                  );
                 },
                 onError: (error) => {
                   console.error('Error deleting clothing item:', error);
@@ -156,7 +160,7 @@ export default function ClothingDetailScreen() {
           {clothingItem.brand && (
             <Text style={styles.brand}>{clothingItem.brand}</Text>
           )}
-          
+
           {clothingItem.colors.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Couleurs</Text>
@@ -169,7 +173,7 @@ export default function ClothingDetailScreen() {
               </View>
             </View>
           )}
-          
+
           {clothingItem.seasons.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Saisons</Text>
@@ -182,19 +186,19 @@ export default function ClothingDetailScreen() {
               </View>
             </View>
           )}
-          
+
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Type</Text>
             <Text style={styles.value}>{clothingItem.type}</Text>
           </View>
-          
+
           {clothingItem.subCategory && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Sous-catégorie</Text>
               <Text style={styles.value}>{clothingItem.subCategory}</Text>
             </View>
           )}
-          
+
           {clothingItem.notes && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Notes</Text>

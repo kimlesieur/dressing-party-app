@@ -36,10 +36,10 @@ const AppIcon = require('../../assets/images/icon.png');
 // import PurchasesUI from 'react-native-purchases-ui';
 
 // Only import purchases-js on web to avoid bundling issues
-let purchasesJs: typeof import('@revenuecat/purchases-js') | null = null;
+let _purchasesJs: typeof import('@revenuecat/purchases-js') | null = null;
 if (Platform.OS === 'web') {
   try {
-    purchasesJs = require('@revenuecat/purchases-js');
+    _purchasesJs = require('@revenuecat/purchases-js');
   } catch {}
 }
 
@@ -85,9 +85,12 @@ export default function ProfileScreen() {
       <ScreenWrapper style={styles.container}>
         <View style={styles.authContainer}>
           <View style={styles.authContent}>
-            <Text style={styles.authTitle}>Bienvenue sur Dress'n Party !</Text>
+            <Text style={styles.authTitle}>
+              Bienvenue sur Dress&apos;n Party !
+            </Text>
             <Text style={styles.authSubtitle}>
-              Connectez-vous pour accéder à votre profil, gérer votre garde-robe et partager votre style avec la communauté.
+              Connectez-vous pour accéder à votre profil, gérer votre garde-robe
+              et partager votre style avec la communauté.
             </Text>
 
             <TouchableOpacity
@@ -95,7 +98,9 @@ export default function ProfileScreen() {
               onPress={() => router.push('/login')}
             >
               <LogIn size={20} color="#FFFFFF" />
-              <Text style={styles.loginButtonText}>Se connecter / S'inscrire</Text>
+              <Text style={styles.loginButtonText}>
+                Se connecter / S&apos;inscrire
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

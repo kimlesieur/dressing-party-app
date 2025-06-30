@@ -47,7 +47,9 @@ export default function HomeScreen() {
           <View style={styles.headerContent}>
             <View style={styles.greetingSection}>
               <Text style={styles.greeting}>Bonjour ! 👋</Text>
-              <Text style={styles.subtitle}>Prêt pour une journée stylée ?</Text>
+              <Text style={styles.subtitle}>
+                Prêt pour une journée stylée ?
+              </Text>
             </View>
             <View style={styles.logoContainer}>
               <Image

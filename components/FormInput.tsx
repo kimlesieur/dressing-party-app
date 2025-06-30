@@ -36,11 +36,7 @@ export function FormInput<T extends FieldValues>({
         control={control}
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
-            style={[
-              styles.textInput,
-              error && styles.textInputError,
-              style,
-            ]}
+            style={[styles.textInput, error && styles.textInputError, style]}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}

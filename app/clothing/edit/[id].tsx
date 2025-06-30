@@ -5,7 +5,12 @@ import { useGetClothingItem, useUpdateClothingItem } from '@/hooks/useClothing';
 import { ClothingItem } from '@/types/firebase';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { Camera, ChevronLeft, Image as ImageIcon, X } from 'lucide-react-native';
+import {
+  Camera,
+  ChevronLeft,
+  Image as ImageIcon,
+  X,
+} from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -22,7 +27,6 @@ type ClothingFormData = Omit<
   ClothingItem,
   'id' | 'userId' | 'createdAt' | 'updatedAt' | 'imageUrl'
 >;
-
 
 export default function EditClothingScreen() {
   const { user } = useAuth();
