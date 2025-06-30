@@ -486,7 +486,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     backgroundColor: '#F8FAFC',
-    minHeight: '100vh',
   },
   leftPanel: {
     width: '40%',
