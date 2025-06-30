@@ -8,6 +8,7 @@ import React, { useEffect } from 'react';
 import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 import Purchases from 'react-native-purchases';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 
 function RootLayout() {
   useFrameworkReady();
@@ -33,6 +34,7 @@ function RootLayout() {
           <ActivityIndicator size="large" color="#8B5CF6" />
         </View>
         <StatusBar style="auto" />
+        <Toast />
       </SafeAreaProvider>
     );
   }
@@ -78,11 +80,15 @@ function RootLayout() {
 
           {/* Global screens accessible to all */}
           <Stack.Screen name="profile/cgu" options={{ headerShown: false }} />
-          <Stack.Screen name="profile/privacy" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="profile/privacy"
+            options={{ headerShown: false }}
+          />
           <Stack.Screen name="+not-found" />
         </Stack>
         <StatusBar style="auto" />
       </QueryClientProvider>
+      <Toast />
     </SafeAreaProvider>
   );
 }
