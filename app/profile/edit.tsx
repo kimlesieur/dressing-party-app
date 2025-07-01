@@ -89,9 +89,7 @@ export default function EditProfileScreen() {
               onPress={openImagePicker}
             >
               <ImageIcon size={32} color="#8B5CF6" />
-              <Text style={styles.imageUploadText}>
-                Choisir de la galerie
-              </Text>
+              <Text style={styles.imageUploadText}>Choisir de la galerie</Text>
             </TouchableOpacity>
           </View>
         </View>

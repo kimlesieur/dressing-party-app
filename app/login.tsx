@@ -81,7 +81,7 @@ export default function LoginScreen() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <Text style={styles.title}>Bienvenue sur Dress'n Party !</Text>
+            <Text style={styles.title}>Bienvenue sur Dress&apos;n Party !</Text>
           </View>
 
           <View style={styles.form}>
@@ -138,7 +138,7 @@ export default function LoginScreen() {
               <Text style={styles.switchText}>Pas encore de compte ?</Text>
               <Link href="/signup" asChild>
                 <TouchableOpacity>
-                  <Text style={styles.switchButton}>S'inscrire</Text>
+                  <Text style={styles.switchButton}>S&apos;inscrire</Text>
                 </TouchableOpacity>
               </Link>
             </View>

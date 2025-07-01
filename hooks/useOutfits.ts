@@ -13,10 +13,30 @@ const outfitKeys = {
 
 export function useGetUserOutfits() {
   const { user } = useAuth();
+  const queryKey = outfitKeys.list(user?.uid || '');
   return useQuery({
-    queryKey: outfitKeys.list(user?.uid || ''),
-    queryFn: () => OutfitService.getUserOutfits(user?.uid || ''),
+    queryKey,
+    queryFn: () =>
+      new Promise<any[]>((resolve) => {
+        let resolved = false;
+        const unsubscribe = OutfitService.subscribeToUserOutfits(
+          user?.uid || '',
+          (outfits) => {
+            if (!resolved) {
+              resolve(outfits);
+              resolved = true;
+            } else {
+              // Manually update the query data for real-time updates
+
+              const { queryClient } = require('@/config/query');
+              queryClient.setQueryData(queryKey, outfits);
+            }
+          },
+        );
+        return () => unsubscribe();
+      }),
     enabled: !!user,
+    staleTime: 0,
   });
 }
 

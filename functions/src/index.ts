@@ -9,7 +9,10 @@
 
 import { Storage } from '@google-cloud/storage';
 import { logger } from 'firebase-functions/v2';
-import { onDocumentWritten } from 'firebase-functions/v2/firestore';
+import {
+  onDocumentDeleted,
+  onDocumentWritten,
+} from 'firebase-functions/v2/firestore';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 
 import * as admin from 'firebase-admin';
@@ -122,5 +125,32 @@ export const setUserRole = onDocumentWritten(
     } catch (error) {
       console.error('Error setting custom claim:', error);
     }
+  },
+);
+
+export const cascadeDeleteOutfitsOnClothingDelete = onDocumentDeleted(
+  {
+    document: 'clothing/{clothingId}',
+    region: 'us-west1',
+  },
+  async (event) => {
+    const clothingId = event.params.clothingId;
+    const db = admin.firestore();
+
+    // Query all outfits where clothingItems array contains the deleted clothingId
+    const outfitsSnap = await db
+      .collection('outfits')
+      .where('clothingItems', 'array-contains', clothingId)
+      .get();
+
+    const batch = db.batch();
+    outfitsSnap.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+    console.log(
+      `Cascade deleted ${outfitsSnap.size} outfits containing clothing item ${clothingId}`,
+    );
   },
 );

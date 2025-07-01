@@ -19,7 +19,7 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 0, // 0 minutes
-      gcTime: 15 * 60 * 1000, // 15 minutes
+      gcTime: 5000, // 5 seconds
       retry: 2,
       refetchOnWindowFocus: false,
     },

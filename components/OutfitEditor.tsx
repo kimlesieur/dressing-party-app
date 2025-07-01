@@ -1,3 +1,4 @@
+import CustomToast from '@/components/CustomToast';
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -91,11 +92,19 @@ export function OutfitEditor({ outfitId }: OutfitEditorProps) {
     ) => OutfitService.createOutfit(user?.uid || '', newOutfit),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['outfits'] });
-      Alert.alert('Succès', 'Tenue créée avec succès !');
+      CustomToast.show({
+        type: 'success',
+        text1: 'Tenue créée avec succès !',
+        text2: '',
+      });
       router.back();
     },
     onError: () =>
-      Alert.alert('Erreur', 'Une erreur est survenue lors de la création.'),
+      CustomToast.show({
+        type: 'error',
+        text1: 'Erreur lors de la création de la tenue.',
+        text2: '',
+      }),
     onSettled: () => setIsSaving(false),
   });
 
@@ -110,11 +119,19 @@ export function OutfitEditor({ outfitId }: OutfitEditorProps) {
       queryClient.invalidateQueries({
         queryKey: ['outfits', 'detail', variables.outfitId],
       });
-      Alert.alert('Succès', 'Tenue modifiée avec succès !');
+      CustomToast.show({
+        type: 'success',
+        text1: 'Tenue modifiée avec succès !',
+        text2: '',
+      });
       router.back();
     },
     onError: () =>
-      Alert.alert('Erreur', 'Une erreur est survenue lors de la modification.'),
+      CustomToast.show({
+        type: 'error',
+        text1: 'Erreur lors de la modification de la tenue.',
+        text2: '',
+      }),
     onSettled: () => setIsSaving(false),
   });
 
@@ -173,7 +190,7 @@ export function OutfitEditor({ outfitId }: OutfitEditorProps) {
               value={outfitName}
               onChangeText={setOutfitName}
             />
-            
+
             <View style={styles.desktopCanvas}>
               {selectedItems.length === 0 ? (
                 <View style={styles.canvasPlaceholder}>
@@ -469,7 +486,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     backgroundColor: '#F8FAFC',
-    minHeight: '100vh',
   },
   leftPanel: {
     width: '40%',

@@ -1,7 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
-import { Chrome as HomeIcon, Shirt, Users, User, Plus } from 'lucide-react-native';
+import {
+  Chrome as HomeIcon,
+  Shirt,
+  Users,
+  User,
+  Plus,
+} from 'lucide-react-native';
 
 const navItems = [
   { label: 'Accueil', route: '/', icon: HomeIcon },
@@ -24,40 +30,42 @@ export default function Sidebar() {
         />
       </View>
       <View style={styles.addButtonContainer}>
-      <Pressable
-        onPress={() => router.push('/add')}
-        style={styles.addButton}
-      >
-        <View style={styles.addButtonContent}>
-          <Plus size={20} color="#fff" style={styles.addButtonIcon} />
-          <Text style={styles.addButtonText}>Ajouter un vêtement</Text>
-        </View>
-      </Pressable>
-      <Pressable
-        onPress={() => router.push('/outfits/create')}
-        style={[styles.addButton, styles.addButtonOutfit]}
-      >
-        <View style={styles.addButtonContent}>
-          <Plus size={20} color="#fff" style={styles.addButtonIcon} />
-          <Text style={styles.addButtonText}>Créer une tenue</Text>
-        </View>
-      </Pressable>
+        <Pressable onPress={() => router.push('/add')} style={styles.addButton}>
+          <View style={styles.addButtonContent}>
+            <Plus size={20} color="#fff" style={styles.addButtonIcon} />
+            <Text style={styles.addButtonText}>Ajouter un vêtement</Text>
+          </View>
+        </Pressable>
+        <Pressable
+          onPress={() => router.push('/outfits/create')}
+          style={[styles.addButton, styles.addButtonOutfit]}
+        >
+          <View style={styles.addButtonContent}>
+            <Plus size={20} color="#fff" style={styles.addButtonIcon} />
+            <Text style={styles.addButtonText}>Créer une tenue</Text>
+          </View>
+        </Pressable>
       </View>
       <View style={styles.nav}>
         {navItems.map((item) => {
           const Icon = item.icon;
           const isSelected =
-            pathname === item.route ||
-            pathname.startsWith(item.route + '/');
+            pathname === item.route || pathname.startsWith(item.route + '/');
           return (
             <Pressable
               key={item.route}
-              onPress={() => router.push(item.route as any)}
+              onPress={() => router.push(item.route)}
               style={[styles.navItem, isSelected && styles.navItemSelected]}
             >
               <View style={styles.iconTextRow}>
-                <Icon size={20} color={isSelected ? '#fff' : '#8B5CF6'} style={styles.icon} />
-                <Text style={[styles.navText, isSelected && styles.navTextSelected]}>
+                <Icon
+                  size={20}
+                  color={isSelected ? '#fff' : '#8B5CF6'}
+                  style={styles.icon}
+                />
+                <Text
+                  style={[styles.navText, isSelected && styles.navTextSelected]}
+                >
                   {item.label}
                 </Text>
               </View>

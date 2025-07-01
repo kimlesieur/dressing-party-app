@@ -1,7 +1,6 @@
 import { ClothingService } from '@/services/clothing';
 import { ClothingItem } from '@/types/firebase';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
 
 const clothingKeys = {
   all: ['clothing'] as const,
@@ -14,37 +13,39 @@ const clothingKeys = {
 
 /**
  * Fetches the user's clothing items.
- * By default, uses on-demand fetching (one-time read, cached by React Query).
- * Pass { realtime: true } to enable real-time updates (higher cost).
+ * Uses on-demand fetching (one-time read, cached by React Query).
  *
  * Example:
- *   useGetUserClothing(userId) // on-demand, cost-effective
- *   useGetUserClothing(userId, { realtime: true }) // real-time updates
+ *   useGetUserClothing(userId)
  */
-export function useGetUserClothing(
-  userId: string,
-  options?: { realtime?: boolean },
-) {
-  const queryClient = useQueryClient();
+export function useGetUserClothing(userId: string) {
   const queryKey = clothingKeys.list(userId);
-  const realtime = options?.realtime;
-
-  useEffect(() => {
-    if (!userId || !realtime) return;
-    const unsubscribe = ClothingService.subscribeToUserClothing(
-      userId,
-      (clothing) => {
-        queryClient.setQueryData(queryKey, clothing);
-      },
-    );
-    return () => unsubscribe();
-  }, [userId, queryClient, queryKey, realtime]);
 
   return useQuery({
     queryKey,
-    queryFn: () => ClothingService.getUserClothing(userId),
+    queryFn: () =>
+      new Promise<ClothingItem[]>((resolve) => {
+        let resolved = false;
+        const unsubscribe = ClothingService.subscribeToUserClothing(
+          userId,
+          (items) => {
+            if (!resolved) {
+              resolve(items);
+              resolved = true;
+            } else {
+              // Manually update the query data for real-time updates
+              // This ensures React Query's cache is updated
+
+              const { queryClient } = require('@/config/query');
+              queryClient.setQueryData(queryKey, items);
+            }
+          },
+        );
+        // React Query expects a cleanup function for subscriptions
+        return () => unsubscribe();
+      }),
     enabled: !!userId,
-    staleTime: realtime ? 0 : 1000 * 60 * 10, // 10 min cache for on-demand, no cache for realtime
+    staleTime: 0,
   });
 }
 

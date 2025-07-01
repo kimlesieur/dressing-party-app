@@ -1,3 +1,4 @@
+import CustomToast from '@/components/CustomToast';
 import QueryClientProvider from '@/config/query/QueryClientProvider';
 import { useAuth } from '@/hooks/useAuth';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
@@ -33,6 +34,7 @@ function RootLayout() {
           <ActivityIndicator size="large" color="#8B5CF6" />
         </View>
         <StatusBar style="auto" />
+        <CustomToast.Component />
       </SafeAreaProvider>
     );
   }
@@ -78,11 +80,15 @@ function RootLayout() {
 
           {/* Global screens accessible to all */}
           <Stack.Screen name="profile/cgu" options={{ headerShown: false }} />
-          <Stack.Screen name="profile/privacy" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="profile/privacy"
+            options={{ headerShown: false }}
+          />
           <Stack.Screen name="+not-found" />
         </Stack>
         <StatusBar style="auto" />
       </QueryClientProvider>
+      <CustomToast.Component />
     </SafeAreaProvider>
   );
 }

@@ -1,12 +1,6 @@
 import AddButtonMenu from '@/components/AddButtonMenu';
 import { Tabs, useRouter } from 'expo-router';
-import {
-  Chrome as Home,
-  Plus,
-  Shirt,
-  User,
-  Users,
-} from 'lucide-react-native';
+import { Chrome as Home, Plus, Shirt, User, Users } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Sidebar from '@/components/Sidebar';
@@ -33,7 +27,9 @@ export default function TabLayout() {
               name="index"
               options={{
                 title: 'Accueil',
-                tabBarIcon: ({ size, color }) => <Home size={size} color={color} />,
+                tabBarIcon: ({ size, color }) => (
+                  <Home size={size} color={color} />
+                ),
               }}
             />
             <Tabs.Screen
@@ -49,7 +45,7 @@ export default function TabLayout() {
               name="add"
               options={{
                 title: '',
-                tabBarButton: (props) => null, // Hide add button on desktop
+                tabBarButton: (_props) => null, // Hide add button on desktop
               }}
             />
             <Tabs.Screen
@@ -65,7 +61,9 @@ export default function TabLayout() {
               name="profile"
               options={{
                 title: 'Profil',
-                tabBarIcon: ({ size, color }) => <User size={size} color={color} />,
+                tabBarIcon: ({ size, color }) => (
+                  <User size={size} color={color} />
+                ),
               }}
             />
             <Tabs.Screen

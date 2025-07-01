@@ -91,7 +91,9 @@ export default function SignupScreen() {
               <ArrowLeft size={24} color="#374151" />
             </TouchableOpacity>
             <Text style={styles.title}>Créer un compte</Text>
-            <Text style={styles.subtitle}>Rejoignez notre communauté de mode</Text>
+            <Text style={styles.subtitle}>
+              Rejoignez notre communauté de mode
+            </Text>
           </View>
 
           <View style={styles.form}>
