@@ -23,9 +23,29 @@ export function useGetUserClothing(userId: string) {
 
   return useQuery({
     queryKey,
-    queryFn: () => ClothingService.getUserClothing(userId),
+    queryFn: () =>
+      new Promise<ClothingItem[]>((resolve) => {
+        let resolved = false;
+        const unsubscribe = ClothingService.subscribeToUserClothing(
+          userId,
+          (items) => {
+            if (!resolved) {
+              resolve(items);
+              resolved = true;
+            } else {
+              // Manually update the query data for real-time updates
+              // This ensures React Query's cache is updated
+
+              const { queryClient } = require('@/config/query');
+              queryClient.setQueryData(queryKey, items);
+            }
+          },
+        );
+        // React Query expects a cleanup function for subscriptions
+        return () => unsubscribe();
+      }),
     enabled: !!userId,
-    staleTime: 1000 * 60 * 3, // 3 min cache
+    staleTime: 0,
   });
 }
 

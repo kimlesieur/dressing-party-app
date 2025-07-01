@@ -173,4 +173,42 @@ export class OutfitService {
       throw error;
     }
   }
+
+  // Subscribe to user's outfits in real-time
+  static subscribeToUserOutfits(
+    userId: string,
+    onUpdate: (outfits: Outfit[]) => void,
+  ): () => void {
+    try {
+      const q = query(
+        collection(db, 'outfits'),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc'),
+      );
+      // Import onSnapshot from firebase/firestore
+      // (already imported at the top in clothing.ts, add here if not present)
+      // @ts-ignore
+      const { onSnapshot } = require('firebase/firestore');
+      const unsubscribe = onSnapshot(
+        q,
+        (querySnapshot: any) => {
+          const outfits: Outfit[] = [];
+          querySnapshot.forEach((doc: any) => {
+            outfits.push({
+              id: doc.id,
+              ...doc.data(),
+            } as Outfit);
+          });
+          onUpdate(outfits);
+        },
+        (error: any) => {
+          console.error('Error in outfits subscription:', error);
+        },
+      );
+      return unsubscribe;
+    } catch (error) {
+      console.error('Error setting up user outfits subscription:', error);
+      throw error;
+    }
+  }
 }
