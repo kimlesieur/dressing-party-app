@@ -192,12 +192,15 @@ export default function EditClothingScreen() {
       return;
     }
 
+    // Only pass newImageUri if the user picked a new image (local file URI)
+    const isLocalImage = selectedImage.startsWith('file://');
+
     updateClothingMutation.mutate(
       {
         itemId: id,
         userId: user.uid,
         updates: clothingData,
-        newImageUri: selectedImage,
+        newImageUri: isLocalImage ? selectedImage : undefined,
       },
       {
         onSuccess: () => {
