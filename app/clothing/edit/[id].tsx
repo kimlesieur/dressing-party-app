@@ -1,3 +1,4 @@
+import CustomToast from '@/components/CustomToast';
 import { OptimizedImage } from '@/components/OptimizedImage';
 import { ScreenWrapper } from '@/components/ScreenWrapper';
 import { useAuth } from '@/hooks/useAuth';
@@ -204,16 +205,20 @@ export default function EditClothingScreen() {
       },
       {
         onSuccess: () => {
-          Alert.alert('Succès', 'Votre vêtement a été mis à jour !', [
-            { text: 'OK', onPress: () => router.push('/(tabs)/dressing') },
-          ]);
+          CustomToast.show({
+            type: 'success',
+            text1: 'Votre vêtement a été mis à jour !',
+            text2: '',
+          });
+          router.push('/(tabs)/dressing');
         },
         onError: (err) => {
           console.error('Error updating clothing item:', err);
-          Alert.alert(
-            'Erreur',
-            'Une erreur est survenue lors de la mise à jour.',
-          );
+          CustomToast.show({
+            type: 'error',
+            text1: 'Erreur lors de la mise à jour du vêtement.',
+            text2: '',
+          });
         },
       },
     );
